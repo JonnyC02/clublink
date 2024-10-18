@@ -7,12 +7,13 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.API_URL}/health`);
-        if (!response.ok) {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/health`);
+        if (response.status !== 200) {
           setBackendOnline(false)
         }
       } catch(err) {
         console.log(err);
+        setBackendOnline(false)
       }
     };
 
