@@ -5,12 +5,20 @@ const clubs = [
     {
         image: 'path-to-image',
         name: 'QUB Fencing Club',
-        description: 'Olympic Fencing @ QUB'
+        description: 'Olympic Fencing @ QUB',
+        members: [1, 1, 1, 1]
     },
     {
         image: 'path-to-image',
         name: 'Queen\'s Computing Society',
-        description: 'Big Nerd Society'
+        description: 'Big Nerd Society',
+        members: [1, 1, 1]
+    },
+    {
+        image: 'path-to-image',
+        name: 'Queen\'s Medical Society',
+        description: 'Dcotors of Queens',
+        members: [1, 1, 1]
     }
 ]
 
