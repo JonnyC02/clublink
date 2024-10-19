@@ -1,0 +1,12 @@
+stages:
+  - test
+
+frontend_tests:
+  stage: test
+  image: node20
+  script:
+    - npm install
+    - npx playwright install
+    - npx playwright test
+  only:
+    - main
