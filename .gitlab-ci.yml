@@ -2,6 +2,7 @@ stages:
   - test
 
 frontend_tests:
+  image: alpine
   stage: test
   image: node20
   script:
