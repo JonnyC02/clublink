@@ -13,8 +13,8 @@ const links = [
 
 const cta = (
     <>
-        <a href="#" className='text-sm text-gray-600 hover:text-gray-900'>Login</a>
-        <a href="#" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Join a Club</a>
+        <a href="/login" className='text-sm text-gray-600 hover:text-gray-900'>Login</a>
+        <a href="/clubs" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Join a Club</a>
     </>
 )
 
