@@ -18,7 +18,9 @@ function App() {
       }
     };
 
-    fetchData()
+    if (!process.env.REACT_APP_SKIP_BACKEND_CHECK) {
+      fetchData()
+    }
   }, [])
   return (
     <Router>
