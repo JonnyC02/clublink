@@ -1,7 +1,7 @@
 import { startFrontend } from './utils';
 
 async function globalSetup() {
-    process.env.REACT_APP_SKIP_BACKEND_CHECK = true;
+    process.env.REACT_APP_SKIP_BACKEND_CHECK = 'true';
 
     await startFrontend();
 }

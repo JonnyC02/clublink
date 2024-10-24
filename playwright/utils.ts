@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
 import http from 'http';
+import path from 'path';
 
 let serverProcess: any = null;
 
@@ -7,7 +8,10 @@ export async function startFrontend() {
   return new Promise<void>((resolve, reject) => {
     console.log('Starting the frontend server...');
 
+    const frontendPath = path.join(__dirname, '../frontend');
+
     serverProcess = spawn('npm', ['start'], {
+      cwd: frontendPath,
       stdio: 'inherit',
       detached: true,
       env: { ...process.env, BROWSER: 'none' },

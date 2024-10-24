@@ -9,6 +9,7 @@
 
 # Test Results
 /frontend/test-results
+/test-results
 
 # backend build
 /backend/dist
