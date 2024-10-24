@@ -1,0 +1,4 @@
+enum MemberType {
+    Member,
+    Committee,
+}
