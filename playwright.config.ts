@@ -12,4 +12,21 @@ export default defineConfig({
   },
   globalSetup: './playwright/setup.ts',
   globalTeardown: './playwright/teardown.ts',
+  projects: [
+    {
+      name: 'UI Tests',
+      testDir: './tests/frontend',
+      use: {
+        browserName: 'chromium',
+        viewport: { width: 1280, height: 720 },
+      },
+    },
+    {
+      name: 'API Tests',
+      testDir: './tests/backend',
+      use: {
+        baseURL: 'http://localhost:3001',
+      },
+    },
+  ],
 });
