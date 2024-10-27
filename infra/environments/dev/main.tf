@@ -23,11 +23,3 @@ module "s3" {
     env_name = "dev"
     cloudfront_oai_arn = module.cloudfront.cloudfront_oai_arn
 }
-
-module "cloudfront" {
-    source = "../../modules/cloudfront"
-    env_name = "dev"
-    s3_bucket_name = module.s3.bucket_name
-    default_ttl = 86400
-    max_ttl = 31536000
-}
