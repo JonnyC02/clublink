@@ -13,3 +13,6 @@
 
 # backend build
 /backend/dist
+
+# Terraform Variables
+**.tfvars

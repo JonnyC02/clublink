@@ -2,11 +2,32 @@ provider "aws" {
     region = "eu-west-1"
 }
 
-resource "aws_instance" "frontend_server" {
-    ami = "ami-00385a401487aefa4"
-    instance_type = "t4g.nano"
+module "rds" {
+    source = "../../modules/rds"
+    env_name = "dev"
+    vpc_id = var.vpc_id
+    subnet_ids = var.subnet_ids
+    allowed_ip = var.allowed_ip
+    db_name = "clublinkdb_dev"
+    username = "admin"
+    password = var.db_password
+    instance_class = "db.t4g.micro"
+    allocated_storage = 1
+    max_allocated_storage = 2
+    engine_version = "13.3"
+    parameter_group_name = "default.postgres13"
+}
 
-    tags = {
-        Name = "Frontend Server"
-    }
+module "s3" {
+    source = "../../modules/s3"
+    env_name = "dev"
+    cloudfront_oai_arn = module.cloudfront.cloudfront_oai_arn
+}
+
+module "cloudfront" {
+    source = "../../modules/cloudfront"
+    env_name = "dev"
+    s3_bucket_name = module.s3.bucket_name
+    default_ttl = 86400
+    max_ttl = 31536000
 }

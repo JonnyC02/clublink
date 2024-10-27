@@ -1,3 +1,7 @@
 class Transaction {
-    constructor(){}
+    constructor(
+        public id: number,
+        public memberId: number,
+        public ticketId: number,
+    ){}
 }
