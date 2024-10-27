@@ -17,4 +17,7 @@ This will concurrently run the backend and frontend for ClubLink
 This will run all frontend and backend tests for ClubLink to set the tests up for the repository you must first install all dependencies and then install the playwright browsers to run the tests.
 
 ```npm i```
+
+Then
+
 ```npx playwright install```
