@@ -23,3 +23,62 @@ module "s3" {
     env_name = "dev"
     cloudfront_oai_arn = module.cloudfront.cloudfront_oai_arn
 }
+
+module "compute" {
+  source = "../../modules/compute"
+  env_name = "dev"
+  ami_id = "ami-09e67e426f25ce0d7"
+  instance_type  = "t4g.nano"
+  key_name = "my-dev-keypair"
+  subnet_id = aws_subnet.public_subnet.id
+  vpc_id = aws_vpc.main_vpc.id
+  ssh_cidr_block = "86.190.41.74/32"
+  volume_size = 2
+  assign_eip = false
+}
+
+resource "aws_vpc" "main_vpc" {
+  cidr_block = "10.0.0.0/16"
+  enable_dns_hostnames = true
+  enable_dns_support = true
+
+  tags = {
+    Name = "${var.env_name}-vpc"
+  }
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id = aws_vpc.main_vpc.id
+  cidr_block = "10.0.1.0/24"
+  map_public_ip_on_launch = false
+
+  tags = {
+    Name = "${var.env_name}-public-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "igw" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  tags = {
+    Name = "${var.env_name}-igw"
+  }
+}
+
+resource "aws_route_table" "public_route_table" {
+  vpc_id = aws_vpc.main_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.igw.id
+  }
+
+  tags = {
+    Name = "${var.env_name}-public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_route_table_assoc" {
+  subnet_id = aws_subnet.public_subnet.id
+  route_table_id = aws_route_table.public_route_table.id
+}
