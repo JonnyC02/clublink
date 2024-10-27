@@ -1,5 +1,6 @@
 stages:
   - test
+  - build
 
 frontend_tests:
   stage: test
@@ -14,6 +15,16 @@ frontend_tests:
     - changes:
       - "frontend/**"
 
+frontend_build:
+  stage: build
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  rules:
+    - changes:
+      - "frontend/**"
+
 backend_tests:
   stage: test
   script:
@@ -23,6 +34,16 @@ backend_tests:
     - npm install
     - npx playwright install
     - npx playwright test tests/backend/**
+  rules:
+    - changes:
+      - "backend/**"
+
+backend_build:
+  stage: test
+  script:
+    - cd backend
+    - npm install
+    - npm run build
   rules:
     - changes:
       - "backend/**"
