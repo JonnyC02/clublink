@@ -5,8 +5,8 @@ import ClubsSection from '../components/ClubSection';
 import Footer from '../components/Footer';
 
 const links = [
-    { label: 'Home', href: '#'},
-    { label: 'Browse Clubs', href: '#'},
+    { label: 'Home', href: '/'},
+    { label: 'Browse Clubs', href: '/clubs'},
     { label: 'Events', href: '#'},
     { label: 'About', href: '#'}
 ]
