@@ -1,3 +1,6 @@
+-- Create Database
+CREATE DATABASE IF NOT EXISTS ClubLink
+
 -- Users
 CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
