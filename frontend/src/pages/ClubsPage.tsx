@@ -1,5 +1,6 @@
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
+import React from "react";
 
 const links = [
     { label: 'Home', href: '/'},

@@ -8,4 +8,6 @@ class User {
         public studentNumber?: number,
         public isSuperAdmin?: boolean,
     ) {}
-} 
+}
+
+export default User;

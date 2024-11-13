@@ -3,6 +3,7 @@ import Hero from '../components/Hero';
 import FeaturesSection from '../components/FeatureSection';
 import ClubsSection from '../components/ClubSection';
 import Footer from '../components/Footer';
+import React from 'react';
 
 const links = [
     { label: 'Home', href: '/'},
@@ -30,4 +31,4 @@ const HomePage: React.FC = () => {
     )
 }
 
-export default HomePage; 
+export default HomePage;

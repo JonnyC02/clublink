@@ -5,3 +5,5 @@ class Transaction {
         public ticketId: number,
     ){}
 }
+
+export default Transaction

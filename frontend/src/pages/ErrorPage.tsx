@@ -1,3 +1,5 @@
+import React from "react";
+
 interface ErrorPageProps {
     title?: string;
     message?: string;

@@ -1,3 +1,5 @@
+import MemberType from "./MemberType";
+
 class MemberList {
     constructor(
         public id: number,
@@ -6,3 +8,5 @@ class MemberList {
         public memberType: MemberType
     ){}
 }
+
+export default MemberList;

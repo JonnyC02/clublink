@@ -8,3 +8,5 @@ class Club {
         public image: string,
     ) {}
 }
+
+export default Club;

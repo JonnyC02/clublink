@@ -6,3 +6,5 @@ class Ticket {
         public price: number,
     ){}
 }
+
+export default Ticket;

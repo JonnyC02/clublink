@@ -1,3 +1,5 @@
+import React from "react"
+
 interface TitleSectionProps {
     title: string,
     subtitle: string,

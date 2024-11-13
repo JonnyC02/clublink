@@ -5,3 +5,5 @@ class SuperAdminUser {
         public email: string,
     ) {}
 }
+
+export default SuperAdminUser;

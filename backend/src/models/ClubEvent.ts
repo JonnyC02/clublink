@@ -7,3 +7,5 @@ class ClubEvent {
         public location: string,
     ){}
 }
+
+export default ClubEvent;

@@ -11,10 +11,10 @@ app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ message: "Health Check!" });
 });
 
-app.get('/clubs/popular', (req: Request, res: Response) => {
+// app.get('/clubs/popular', (req: Request, res: Response) => {
   
-})
+// })
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
 });
