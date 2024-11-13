@@ -1,0 +1,38 @@
+name: Terraform
+
+on:
+  push:
+    paths:
+      - '**/*.tf'
+  pull_request:
+    paths:
+      - '**/*.tf'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: 1.0.0
+
+      - name: Check Terraform Format
+        run: terraform fmt -check -recursive
+        working-directory: ./infra
+      
+      - name: Validate Terraform Config
+        run: terraform validate
+        working-directory: ./infra
+
+      - name: Install tflint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+      
+      - name: Run TFLint
+        run: tflint
+        working-directory: ./infra
