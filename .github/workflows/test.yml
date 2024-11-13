@@ -1,0 +1,60 @@
+name: Run Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
+  
+jobs:
+  backend-tests:
+    if: contains(github.event.head_commit.message, 'backend') || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Backend Tests
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Run Tests
+        run: |
+          cd backend
+          npm install
+          cd ..
+          npm install
+          npx playwright install
+          npx playwright test tests/backend/**
+  
+  frontend-tests:
+    if: contains(github.event.head_commit.message, 'frontend') || github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    name: Frontend Tests
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+      
+      - name: Run Tests
+        run: |
+          cd frontend
+          npm install
+          cd ..
+          npm install
+          npx playwright install
+          npx playwright test tests/frontend/**
