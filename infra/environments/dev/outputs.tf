@@ -4,7 +4,7 @@ output "rds_endpoint" {
 }
 
 output "s3_bucket_name" {
-    description = "S3 bucket for static assets in dev environment"
+    description = "S3 bucket for static assets in development environment"
     value = module.s3.bucket_name
 }
 
