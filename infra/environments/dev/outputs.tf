@@ -1,5 +1,5 @@
 output "rds_endpoint" {
-    description = "RDS endpoint for dev environment"
+    description = "RDS endpoint for development environment"
     value = module.rds.rds_endpoint
 }
 

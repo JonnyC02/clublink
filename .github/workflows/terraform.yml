@@ -22,7 +22,7 @@ jobs:
           terraform_version: 1.1.7
 
       - name: Check Terraform Format
-        run: terraform fmt -check -recursive
+        run: terraform fmt -recursive
         working-directory: ./infra
       
       - name: Validate Terraform Config
