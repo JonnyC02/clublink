@@ -8,7 +8,7 @@ module "rds" {
     vpc_id = var.vpc_id
     subnet_ids = var.subnet_ids
     allowed_ip = var.allowed_ip
-    db_name = "clublinkdb_dev"
+    db_name = "clublinkdb_development"
     username = "admin"
     password = var.db_password
     instance_class = "db.t4g.micro"
