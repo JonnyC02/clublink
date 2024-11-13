@@ -14,7 +14,7 @@ variable "subnet_ids" {
 }
 
 variable "allowed_ip" {
-    description "CIDR block or IP address allowed to access the RDS instance"
+    description = "CIDR block or IP address allowed to access the RDS instance"
     type = string
 }
 

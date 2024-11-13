@@ -6,11 +6,13 @@ on:
       - main
     paths-ignore:
       - 'infra/**'
+      - '.github/**'
   pull_request:
     branches:
       - main
     paths-ignore:
       - 'infra/**'
+      - '.github/**'
 
 jobs:
   lint:
