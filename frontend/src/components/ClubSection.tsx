@@ -11,13 +11,13 @@ const clubs = [
     {
         image: 'path-to-image',
         name: 'Queen\'s Computing Society',
-        description: 'Big Nerd Society',
+        description: 'Computing Society',
         members: [1, 1, 1]
     },
     {
         image: 'path-to-image',
         name: 'Queen\'s Medical Society',
-        description: 'Dcotors of Queens',
+        description: 'Doctors of Queens',
         members: [1, 1, 1]
     }
 ]
