@@ -15,7 +15,6 @@
   "description": "",
   "dependencies": {
     "cors": "2.8.5",
-    "csurf": "1.10.0",
     "dotenv": "^16.4.7",
     "express": "4.21.1",
     "express-session": "^1.18.1",
@@ -23,7 +22,6 @@
   },
   "devDependencies": {
     "@types/cors": "2.8.17",
-    "@types/csurf": "^1.11.5",
     "@types/express": "5.0.0",
     "@types/express-session": "^1.18.1",
     "@types/node": "22.7.6",
