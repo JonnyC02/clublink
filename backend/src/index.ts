@@ -20,7 +20,10 @@ app.use(session({
 }));
 
 app.use(express.json());
-app.use(cors())
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+  credentials: true
+}))
 app.use(hidePoweredBy());
 app.use(csurf({ cookie: true }));
 
