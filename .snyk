@@ -1,0 +1,21 @@
+ignore:
+  SNYK-CC-AWS-408:
+    - '*':
+        reason: "Not required for FYP"
+        expires: "2025-12-31"
+  SNYK-CC-TF-124:
+    - '*':
+        reason: "This vulnerability is low and not a pressing matter"
+        expires: "2025-12-31"
+  SNYK-CC-TF-127:
+    - '*':
+        reason: "This vulnerability is low and not a pressing matter"
+        expires: "2025-12-31"
+  SNYK-CC-TF-45:
+    - '*':
+        reason: "This vulnerability is low and not a pressing matter"
+        expires: "2025-12-31"
+  SNYK-JS-CROSSSPAWN-8303230:
+    - '*':
+        reason: "This vulnerability does not effect production environments, there is no updated package available."
+        expires: "2025-12-31"

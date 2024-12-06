@@ -1,9 +1,11 @@
 import { spawn } from 'child_process';
+import { URL } from 'url'
 import http from 'http';
 import path from 'path';
 
 let frontendProcess: any = null;
 let backendProcess: any = null;
+const localUrl: URL = new URL("http://localhost:3000");
 
 export async function startFrontend() {
   return new Promise<void>((resolve, reject) => {
@@ -24,7 +26,8 @@ export async function startFrontend() {
     });
 
     const checkFrontend = () => {
-      http.get('http://localhost:3000', (res) => {
+      // deepcode ignore HttpToHttps: This vulnerability is specific to the test, it is not exposed
+      http.get(localUrl, (res) => {
         if (res.statusCode === 200) {
           console.log('Frontend is running...');
           resolve();

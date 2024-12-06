@@ -15,11 +15,15 @@
   "description": "",
   "dependencies": {
     "cors": "2.8.5",
-    "express": "4.21.1"
+    "dotenv": "^16.4.7",
+    "express": "4.21.1",
+    "express-session": "^1.18.1",
+    "helmet": "^8.0.0"
   },
   "devDependencies": {
     "@types/cors": "2.8.17",
     "@types/express": "5.0.0",
+    "@types/express-session": "^1.18.1",
     "@types/node": "22.7.6",
     "concurrently": "9.0.1",
     "esbuild": "0.24.0",

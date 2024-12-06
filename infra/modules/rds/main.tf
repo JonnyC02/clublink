@@ -14,7 +14,7 @@ resource "aws_security_group" "rds_security_group" {
         from_port = 0
         to_port = 0
         protocol = "-1"
-        cidr_blocks = ["0.0.0.0/0"]
+        cidr_blocks = ["192.168.1.0/24"]
     }
 }
 
@@ -42,6 +42,8 @@ resource "aws_db_instance" "rds_instance" {
     publicly_accessible = false
     vpc_security_group_ids = [aws_security_group.rds_security_group.id]
     db_subnet_group_name = aws_db_subnet_group.rds_subnet_group.name
+    storage_encrypted = true
+    iam_database_authentication_enabled = true
 }
 
 output "rds_endpoint" {

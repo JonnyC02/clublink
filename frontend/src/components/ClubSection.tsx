@@ -31,7 +31,7 @@ const ClubsSection: React.FC = () => (
                     <ClubCard key={index} {...club} />
                 ))}
             </div>
-            <a href='/clubs' className="mt-8 inline-block text-blue-500 hover:underline">See All Clubs</a>
+            <a href='/clubs' className="mt-8 inline-block text-blue-500 hover:underline">See All Clubs &gt;&gt;</a>
         </div>
     </section>
 )
