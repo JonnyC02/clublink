@@ -29,6 +29,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Install Deps
+        run: npm install
+
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm install
@@ -49,6 +52,9 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+
+      - name: Install Deps
+        run: npm install
 
       - name: Install Frontend Dependencies
         working-directory: ./frontend
