@@ -34,6 +34,7 @@ jobs:
           cd ..
           npm install
           npx playwright install
+          npx playwright install-deps
           npx playwright test tests/backend/**
   
   frontend-tests:
