@@ -30,3 +30,14 @@ test.describe('API Tests - GET /health', () => {
         expect(message).toEqual({ message: "Health Check!" });
     })
 })
+
+test.describe('API Tests - GET /universities', () => {
+    test('should return 200', async () => {
+        const response = await apiContext.get('/universities')
+        expect(response.status()).toBe(200)
+
+        const data = await response.json();
+        expect(data).toBeInstanceOf(Array);
+        expect(data.length).toBeGreaterThanOrEqual(1)
+    })
+})

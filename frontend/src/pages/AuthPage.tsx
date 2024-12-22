@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import { HTMLInputElement, HTMLSelectElement } from 'react';
 
 interface AuthPageProps {
     isSignup?: boolean;
@@ -51,13 +52,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         }));
     };
 
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (isSignup && formData.password !== formData.confirmPassword) {
             alert("Passwords do not match!");
             return;
         }
-        console.log("Form Submitted", formData);
     };
 
     useEffect(() => {
@@ -254,7 +255,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                             </p>
                         ) : (
                             <p>
-                                Don't have an account?{" "}
+                                Don&apos;t have an account?{" "}
                                 <a href="/signup" className="text-blue-500 hover:underline">
                                     Sign Up
                                 </a>

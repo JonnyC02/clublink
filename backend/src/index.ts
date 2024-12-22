@@ -41,7 +41,7 @@ app.get('/universities', (req: Request, res: Response) => {
     const Universities: University[] = Object.values(University).sort();
     res.status(200).json(Universities)
   } catch (err) {
-    console.error('Error Fetching Universities')
+    console.error(`Error Fetching Universities: ${err}`) //eslint-disable-line no-console
     res.status(500).json({ error: "Cannot Fetch Universities" })
   }
 })
