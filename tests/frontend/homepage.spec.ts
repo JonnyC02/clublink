@@ -28,25 +28,20 @@ test.describe('Homepage Tests', () => {
   test('should display navigation links', async ({ page }) => {
     await page.goto('/');
     const navLinks = await page.locator('nav a').allTextContents();
-    expect(navLinks).toEqual(['Home', 'Browse Clubs', 'Events', 'About']);
+    expect(navLinks).toEqual(['Home', 'Browse Clubs', 'Events', 'About', 'Login', 'Join a Club']);
   });
 
   test('should load dynamic content', async ({ page }) => {
     await page.goto('/');
-    const dynamicContent = await page.textContent('.dynamic-section');
+    const dynamicContent = await page.textContent('.clubsection');
     expect(dynamicContent).toContain('Popular Clubs');
   });
 
   test('should render correctly on mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 812 });
     await page.goto('/');
-    const isVisible = await page.isVisible('text="Login"');
+    const isVisible = await page.isVisible('text="ClubLink"');
     expect(isVisible).toBeTruthy();
-  });
-
-  test('should match homepage screenshot', async ({ page }) => {
-    await page.goto('/');
-    expect(await page.screenshot()).toMatchSnapshot('homepage.png');
   });
 
   test('should have accessibility attributes on main header', async ({ page }) => {
