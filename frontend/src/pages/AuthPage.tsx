@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { HTMLInputElement, HTMLSelectElement } from 'react';
 
 interface AuthPageProps {
     isSignup?: boolean;
