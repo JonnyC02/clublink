@@ -1,8 +1,9 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
-import {hidePoweredBy} from 'helmet'
+import { hidePoweredBy } from 'helmet'
 import session from 'express-session';
 import dotenv from 'dotenv';
+import University from './models/University';
 dotenv.config()
 
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
@@ -16,7 +17,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true,
   // deepcode ignore WebCookieSecureDisabledExplicitly: environment variable set to true on production
-  cookie: { secure: PRODUCTION, sameSite: 'strict' } ,
+  cookie: { secure: PRODUCTION, sameSite: 'strict' },
 }));
 
 app.use(express.json());
@@ -34,6 +35,16 @@ app.get('/health', (req: Request, res: Response) => {
     res.status(500).json({ error: 'CSRF token error' });
   }
 });
+
+app.get('/universities', (req: Request, res: Response) => {
+  try {
+    const Universities: University[] = Object.values(University).sort();
+    res.status(200).json(Universities)
+  } catch (err) {
+    console.error(`Error Fetching Universities: ${err}`) //eslint-disable-line no-console
+    res.status(500).json({ error: "Cannot Fetch Universities" })
+  }
+})
 
 app.get('/clubs/popular', (req: Request, res: Response) => {
   res.status(200)

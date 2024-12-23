@@ -18,41 +18,56 @@ jobs:
   backend-tests:
     runs-on: ubuntu-latest
     name: Backend Tests
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
 
-      - name: Run Tests
-        run: |
-          cd backend
-          npm install
-          cd ..
-          npm install
-          npx playwright install
-          npx playwright test tests/backend/**
-  
+      - name: Install Deps
+        run: npm install
+
+      - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install
+
+      - name: Run Backend Tests
+        run: npx playwright test tests/backend/**
+
   frontend-tests:
     runs-on: ubuntu-latest
     name: Frontend Tests
+
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
+
+      - name: Install Deps
+        run: npm install
+
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install
+
+      - name: Install Playwright Dependencies
+        run: npx playwright install-deps
       
-      - name: Run Tests
-        run: |
-          cd frontend
-          npm install
-          cd ..
-          npm install
-          npx playwright install
-          npx playwright test tests/frontend/**
+      - name: Install Playwright Browsers
+        run: npx playwright install
+
+      - name: Run Frontend Tests
+        run: npx playwright test tests/frontend/**
