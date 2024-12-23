@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
+import { useNavigate } from "react-router-dom";
 
 interface AuthPageProps {
     isSignup?: boolean;
@@ -34,6 +35,8 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         isStudent: false,
     });
 
+    const navigate = useNavigate();
+
     const [universities, setUniversities] = useState<string[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -57,6 +60,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         if (isSignup && formData.password !== formData.confirmPassword) {
             alert("Passwords do not match!");
             return;
+        } else if (!isSignup) {
+            if (process.env.REACT_APP_SKIP_BACKEND_CHECK) {
+                if (formData.email === 'user@example.com' && formData.password === 'password123') {
+                    navigate('/dashboard')
+                } else {
+                    setError("Invalid Email or Password")
+                }
+            }
         }
     };
 

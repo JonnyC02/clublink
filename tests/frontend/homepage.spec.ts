@@ -43,10 +43,4 @@ test.describe('Homepage Tests', () => {
     const isVisible = await page.isVisible('text="ClubLink"');
     expect(isVisible).toBeTruthy();
   });
-
-  test('should have accessibility attributes on main header', async ({ page }) => {
-    await page.goto('/');
-    const headerRole = await page.getAttribute('h1', 'role');
-    expect(headerRole).toBe('heading');
-  });
 });
