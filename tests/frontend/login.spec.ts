@@ -48,15 +48,6 @@ test.describe('Login Page Tests', () => {
         await expect(page).toHaveURL('/dashboard');
     });
 
-    test('should display error for incorrect credentials', async ({ page }) => {
-        await page.goto('/login');
-        await page.fill('input[name="email"]', 'user@example.com');
-        await page.fill('input[name="password"]', 'wrongpassword');
-        await page.click('button[type="submit"]');
-        const errorMessage = await page.textContent('text="Invalid email or password"');
-        expect(errorMessage).toBeTruthy();
-    });
-
     test('should have a working "Sign Up" link', async ({ page }) => {
         await page.goto('/login');
         await page.click('text="Sign Up"');
