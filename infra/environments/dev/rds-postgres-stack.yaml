@@ -1,0 +1,46 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation template for RDS PostgreSQL in Free Tier.
+
+Parameters:
+  DBInstanceIdentifier:
+    Type: String
+    Default: dev-postgres-db
+    Description: The database instance identifier (unique for each stack).
+  DBName:
+    Type: String
+    Default: mydatabase
+    Description: The name of the database to create.
+  MasterUsername:
+    Type: String
+    Default: admin
+    Description: Master username for the database.
+  AllocatedStorage:
+    Type: Number
+    Default: 20
+    Description: The size of the database (in GB).
+  VPCSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security group for database access.
+
+Resources:
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      AllocatedStorage: !Ref AllocatedStorage
+      DBInstanceClass: db.t2.micro
+      Engine: postgres
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: "{{resolve:ssm-secure:/dev/postgres/db-password}}"
+      DBName: !Ref DBName
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !Ref VPCSecurityGroup
+
+Outputs:
+  DatabaseEndpoint:
+    Description: Endpoint of the PostgreSQL database.
+    Value: !GetAtt RDSInstance.Endpoint.Address
+  DatabasePort:
+    Description: Port of the PostgreSQL database.
+    Value: !GetAtt RDSInstance.Endpoint.Port

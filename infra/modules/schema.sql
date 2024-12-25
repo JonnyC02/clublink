@@ -1,6 +1,3 @@
--- Create Database
-CREATE DATABASE IF NOT EXISTS ClubLink
-
 -- Users
 CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
@@ -9,6 +6,7 @@ CREATE TABLE Users (
     isActive BOOLEAN DEFAULT false,
     isStudent BOOLEAN DEFAULT false,
     studentNumber VARCHAR(10),
+    university VARCHAR(50),
     isSuperAdmin BOOLEAN DEFAULT false,
 );
 
