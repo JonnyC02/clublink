@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
-    "lint": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\" \"backend/**/*.{js,ts}\""
+    "lint": "eslint \"frontend/**/*.{ts,tsx}\" \"backend/**/*.ts\""
   },
   "keywords": [],
   "author": "",
@@ -12,17 +12,22 @@
   "description": "",
   "devDependencies": {
     "@playwright/test": "1.48.1",
+    "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/express-session": "^1.18.1",
+    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "22.7.9",
     "@typescript-eslint/eslint-plugin": "8.14.0",
     "@typescript-eslint/parser": "8.14.0",
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "eslint": "9.14.0",
     "eslint-plugin-jsx-a11y": "6.10.2",
     "eslint-plugin-react": "7.37.2",
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.12.0",
     "react-scripts": "^5.0.1",
     "ts-node": "10.9.2"
   }
