@@ -14,10 +14,6 @@ Parameters:
     Type: String
     Default: admin
     Description: Master username for the database.
-  MasterUserPassword:
-    Type: String
-    NoEcho: true
-    Description: Master password for the database.
   AllocatedStorage:
     Type: Number
     Default: 20
