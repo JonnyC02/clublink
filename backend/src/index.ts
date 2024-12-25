@@ -56,12 +56,14 @@ app.get('/clubs/popular', (req: Request, res: Response) => {
 })
 
 app.listen(PORT, async () => {
-  const [unis]: [RowDataPacket[], FieldPacket[]] = await pool.query('SELECT name FROM universities');
-  if (unis.length === 0) {
-    console.log('No Universities Retrieved!') // eslint-disable-line no-console
-  } else {
-    for (const uni of unis) {
-      UNIVERSITIES.push('' + uni);
+  if (!process.env.IS_TESTING) {
+    const [unis]: [RowDataPacket[], FieldPacket[]] = await pool.query('SELECT name FROM universities');
+    if (unis.length === 0) {
+      console.log('No Universities Retrieved!') // eslint-disable-line no-console
+    } else {
+      for (const uni of unis) {
+        UNIVERSITIES.push('' + uni);
+      }
     }
   }
 
