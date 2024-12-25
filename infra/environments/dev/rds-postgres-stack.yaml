@@ -23,12 +23,12 @@ Parameters:
     Default: 20
     Description: The size of the database (in GB).
   VPCSecurityGroup:
-    Type: AWS: :EC2: :SecurityGroup: :Id
+    Type: AWS::EC2::SecurityGroup::Id
     Description: Security group for database access.
 
 Resources:
   RDSInstance:
-    Type: AWS: :RDS: :DBInstance
+    Type: AWS::RDS::DBInstance
     Properties:
       DBInstanceIdentifier: !Ref DBInstanceIdentifier
       AllocatedStorage: !Ref AllocatedStorage
