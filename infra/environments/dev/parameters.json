@@ -12,10 +12,6 @@
         "ParameterValue": "admin"
     },
     {
-        "ParameterKey": "MasterUserPassword",
-        "ParameterValue": "securepassword123"
-    },
-    {
         "ParameterKey": "AllocatedStorage",
         "ParameterValue": "20"
     },

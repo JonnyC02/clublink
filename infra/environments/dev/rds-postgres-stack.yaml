@@ -35,7 +35,7 @@ Resources:
       DBInstanceClass: db.t2.micro
       Engine: postgres
       MasterUsername: !Ref MasterUsername
-      MasterUserPassword: !Ref MasterUserPassword
+      MasterUserPassword: "{{resolve:ssm-secure:/dev/postgres/db-password}}"
       DBName: !Ref DBName
       PubliclyAccessible: false
       VPCSecurityGroups:

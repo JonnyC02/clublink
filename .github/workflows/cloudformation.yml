@@ -52,7 +52,7 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: |
           aws cloudformation deploy \
-            --template-file infra/environments/dev/rds-postgres-stack.yaml \
-            --stack-name dev-postgres-stack \
-            --parameter-overrides file://infra/environments/dev/parameters.json \
-            --capabilities CAPABILITY_NAMED_IAM
+          --template-file infra/environments/dev/rds-postgres-stack.yaml \
+          --stack-name dev-environment \
+          --capabilities CAPABILITY_NAMED_IAM \
+          --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole
