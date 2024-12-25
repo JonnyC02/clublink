@@ -102,7 +102,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                     localStorage.setItem("token", token);
                     navigate("/dashboard");
                 } catch (err) {
-                    setError(err);
+                    setError('' + err);
                 }
             }
         }
