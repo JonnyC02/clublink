@@ -4,8 +4,11 @@ import { hidePoweredBy } from 'helmet'
 import authRoutes from './routes/auth';
 import session from 'express-session';
 import dotenv from 'dotenv';
-import University from './models/University';
+import { FieldPacket, RowDataPacket } from 'mysql2';
+import pool from './db/db';
 dotenv.config()
+
+const UNIVERSITIES: string[] = []
 
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
 const app: Express = express();
@@ -41,8 +44,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.get('/universities', (req: Request, res: Response) => {
   try {
-    const Universities: University[] = Object.values(University).sort();
-    res.status(200).json(Universities)
+    res.status(200).json(UNIVERSITIES)
   } catch (err) {
     console.error(`Error Fetching Universities: ${err}`) //eslint-disable-line no-console
     res.status(500).json({ error: "Cannot Fetch Universities" })
@@ -53,6 +55,15 @@ app.get('/clubs/popular', (req: Request, res: Response) => {
   res.status(200)
 })
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  const [unis]: [RowDataPacket[], FieldPacket[]] = await pool.query('SELECT name FROM universities');
+  if (unis.length === 0) {
+    console.log('No Universities Retrieved!') // eslint-disable-line no-console
+  } else {
+    for (const uni of unis) {
+      UNIVERSITIES.push('' + uni);
+    }
+  }
+
   console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
 });
