@@ -1,0 +1,26 @@
+[
+    {
+        "ParameterKey": "DBInstanceIdentifier",
+        "ParameterValue": "dev-postgres-db"
+    },
+    {
+        "ParameterKey": "DBName",
+        "ParameterValue": "mydatabase"
+    },
+    {
+        "ParameterKey": "MasterUsername",
+        "ParameterValue": "admin"
+    },
+    {
+        "ParameterKey": "MasterUserPassword",
+        "ParameterValue": "securepassword123"
+    },
+    {
+        "ParameterKey": "AllocatedStorage",
+        "ParameterValue": "20"
+    },
+    {
+        "ParameterKey": "VPCSecurityGroup",
+        "ParameterValue": "sg-053a3bff4cf01ef03"
+    }
+]
