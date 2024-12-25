@@ -30,4 +30,5 @@ jobs:
           --template-file infra/environments/dev/rds-postgres-stack.yaml \
           --stack-name dev-environment \
           --capabilities CAPABILITY_NAMED_IAM \
-          --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole
+          --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole \
+          --parameter-overrides file://infra/environments/dev/parameters.json
