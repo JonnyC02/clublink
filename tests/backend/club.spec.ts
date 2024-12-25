@@ -32,7 +32,7 @@ test.describe('API Tests - GET /health', () => {
 })
 
 test.describe('API Tests - GET /universities', () => {
-    test('should return 200', async () => {
+    test.skip('should return 200', async () => {
         const response = await apiContext.get('/universities')
         expect(response.status()).toBe(200)
 

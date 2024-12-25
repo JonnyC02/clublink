@@ -51,3 +51,12 @@ CREATE TABLE Transactions (
     memberId INT REFERENCES Users(id) ON DELETE CASCADE,
     ticketId INT REFERENCES Tickets (id) ON DELETE CASCADE,
 )
+
+-- Universities
+CREATE TABLE Universities (
+    id SERIAL PRIMARY KEY,
+    acronym VARCHAR(5) NOT NULL UNIQUE,
+    name VARCHAR(100) NOT NULL UNIQUE,
+    superAdminIds JSON NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+)

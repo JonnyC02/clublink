@@ -4,7 +4,7 @@ class User {
         public name: string,
         public email: string,
         public isActive: boolean,
-        public university: string,
+        public university?: string,
         public isStudent?: boolean,
         public studentNumber?: number,
         public isSuperAdmin?: boolean,
