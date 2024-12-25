@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
+import { login } from "../services/authService";
 
 interface AuthPageProps {
     isSignup?: boolean;
@@ -55,21 +56,58 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
     };
 
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (isSignup && formData.password !== formData.confirmPassword) {
-            alert("Passwords do not match!");
-            return;
-        } else if (!isSignup) {
-            if (process.env.REACT_APP_SKIP_BACKEND_CHECK) {
-                if (formData.email === 'user@example.com' && formData.password === 'password123') {
-                    navigate('/dashboard')
+
+        if (isSignup) {
+            if (formData.password !== formData.confirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/auth/signup`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        name: formData.name,
+                        email: formData.email,
+                        password: formData.password,
+                        studentNumber: formData.isStudent ? formData.studentNumber : undefined,
+                        university: formData.isStudent ? formData.university : undefined,
+                    }),
+                });
+
+                if (response.ok) {
+                    alert("Signup successful! Redirecting to login...");
+                    navigate("/login");
                 } else {
-                    setError("Invalid Email or Password")
+                    const errorData = await response.json();
+                    setError(errorData.message || "Signup failed. Please try again.");
+                }
+            } catch (err) {
+                console.error(err); // eslint-disable-line no-console
+                setError("An error occurred during signup. Please try again.");
+            }
+        } else {
+            if (process.env.REACT_APP_IS_TESTING) {
+                if (formData.email === "user@example.com" && formData.password === "password123") {
+                    navigate("/dashboard");
+                } else {
+                    setError("Invalid Email or Password");
+                }
+            } else {
+                try {
+                    const token = await login(formData.email, formData.password);
+                    localStorage.setItem("token", token);
+                    navigate("/dashboard");
+                } catch (err) {
+                    setError(err);
                 }
             }
         }
     };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -92,7 +130,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             }
         };
 
-        if (!process.env.REACT_APP_SKIP_BACKEND_CHECK) {
+        if (!process.env.REACT_APP_IS_TESTING) {
             fetchData();
         } else {
             setLoading(false);

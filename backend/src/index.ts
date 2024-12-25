@@ -1,6 +1,7 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import { hidePoweredBy } from 'helmet'
+import authRoutes from './routes/auth';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import University from './models/University';
@@ -26,6 +27,8 @@ app.use(cors({
   credentials: true
 }))
 app.use(hidePoweredBy());
+
+app.use('/auth', authRoutes)
 
 app.get('/health', (req: Request, res: Response) => {
   try {

@@ -4,6 +4,8 @@ import HomePage from "./pages/HomePage";
 import ErrorPage from "./pages/ErrorPage";
 import ClubsPage from "./pages/ClubsPage";
 import AuthPage from "./pages/AuthPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+import Dashboard from "./pages/Dashboard";
 
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
@@ -20,7 +22,7 @@ function App() {
       }
     };
 
-    if (!process.env.REACT_APP_SKIP_BACKEND_CHECK) {
+    if (!process.env.REACT_APP_IS_TESTING) {
       fetchData()
     }
   }, [])
@@ -33,6 +35,7 @@ function App() {
             <Route path="/clubs" element={<ClubsPage />} />
             <Route path="/login" element={<AuthPage isSignup={false} />} />
             <Route path="/signup" element={<AuthPage isSignup={true} />} />
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           </>
         ) : (
           <Route path="*" element={<ErrorPage />} />

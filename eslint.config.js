@@ -43,6 +43,6 @@ module.exports = [
         version: 'detect',
       },
     },
-    ignores: ['node_modules/', 'backend/dist/**', 'backend/build/**', 'frontend/build/**'],
+    ignores: ['node_modules/', './backend/dist/**', './backend/build/**', './frontend/build/**'],
   },
 ];

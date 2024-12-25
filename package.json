@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
-    "lint": "eslint \"frontend/**/*.{js,jsx,ts,tsx}\" \"backend/**/*.{js,ts}\""
+    "lint": "eslint \"frontend/**/*.{ts,tsx}\" \"backend/**/*.ts\""
   },
   "keywords": [],
   "author": "",
