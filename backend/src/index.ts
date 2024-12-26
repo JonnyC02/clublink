@@ -4,7 +4,6 @@ import { hidePoweredBy } from 'helmet'
 import authRoutes from './routes/auth';
 import session from 'express-session';
 import dotenv from 'dotenv';
-import { FieldPacket, RowDataPacket } from 'mysql2';
 import pool from './db/db';
 dotenv.config()
 
@@ -57,11 +56,11 @@ app.get('/clubs/popular', (req: Request, res: Response) => {
 
 app.listen(PORT, async () => {
   if (!process.env.REACT_APP_IS_TESTING) {
-    const [unis]: [RowDataPacket[], FieldPacket[]] = await pool.query('SELECT name FROM universities');
-    if (unis.length === 0) {
+    const result = await pool.query('SELECT name FROM universities');
+    if (result.rowCount === 0) {
       console.log('No Universities Retrieved!') // eslint-disable-line no-console
     } else {
-      for (const uni of unis) {
+      for (const uni of result.rows) {
         UNIVERSITIES.push('' + uni);
       }
     }

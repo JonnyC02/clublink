@@ -1,1 +1,0 @@
-export type DbUser = { id: number, email: string, password?: string };
