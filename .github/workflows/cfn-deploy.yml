@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    paths:
+        - 'infra/**/*.yaml'
 
 jobs:
   deploy:
@@ -20,33 +22,27 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: aws --version
 
-      - name: Check if Stack Exists
-        id: stack-check
+      - name: Create Changeset
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-          aws cloudformation describe-stacks --stack-name dev-environment || echo "StackNotFound"
-      
-      - name: Create or Update Stack
+          aws cloudformation create-change-set \
+            --stack-name dev-environment \
+            --template-body file://infra/environments/dev/rds-postgres-stack.yaml \
+            --change-set-name dev-environment-changeset \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters file://infra/environments/dev/parameters.json \
+            --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole
+
+      - name: Execute Changeset
+        if: success()
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-          if grep -q "StackNotFound" <<<"${{ steps.stack-check.outputs.result }}"; then
-            echo "Stack does not exist. Creating new stack..."
-            aws cloudformation create-stack \
-              --stack-name dev-environment \
-              --template-body file://infra/environments/dev/rds-postgres-stack.yaml \
-              --parameters file://infra/environments/dev/parameters.json \
-              --capabilities CAPABILITY_NAMED_IAM
-          else
-            echo "Stack exists. Updating stack..."
-            aws cloudformation update-stack \
-              --stack-name dev-environment \
-              --template-body file://infra/environments/dev/rds-postgres-stack.yaml \
-              --parameters file://infra/environments/dev/parameters.json \
-              --capabilities CAPABILITY_NAMED_IAM
-          fi
+          aws cloudformation execute-change-set \
+            --change-set-name dev-environment-changeset \
+            --stack-name dev-environment
