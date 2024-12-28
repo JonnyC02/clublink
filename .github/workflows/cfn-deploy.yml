@@ -1,13 +1,15 @@
-name: CloudFormation Deploy
+name: Deploy CloudFormation Template
 
 on:
   push:
     branches:
       - main
+    paths:
+        - 'infra/**/*.yaml'
 
 jobs:
   deploy:
-    name: Deploy CloudFormation Template
+    name: Deploy CloudFormation Stack
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -20,15 +22,27 @@ jobs:
           AWS_DEFAULT_REGION: us-east-1
         run: aws --version
 
-      - name: Deploy CloudFormation Stack
+      - name: Create Changeset
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-          aws cloudformation deploy \
-          --template-file infra/environments/dev/rds-postgres-stack.yaml \
-          --stack-name dev-environment \
-          --capabilities CAPABILITY_NAMED_IAM \
-          --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole \
-          --parameter-overrides file://infra/environments/dev/parameters.json
+          aws cloudformation create-change-set \
+            --stack-name dev-environment \
+            --template-body file://infra/environments/dev/rds-postgres-stack.yaml \
+            --change-set-name dev-environment-changeset \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --parameters file://infra/environments/dev/parameters.json \
+            --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole
+
+      - name: Execute Changeset
+        if: success()
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1
+        run: |
+          aws cloudformation execute-change-set \
+            --change-set-name dev-environment-changeset \
+            --stack-name dev-environment
