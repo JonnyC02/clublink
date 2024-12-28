@@ -33,7 +33,6 @@ Resources:
       EngineVersion: 16.3
       MasterUsername: !Ref MasterUsername
       MasterUserPassword: "{{resolve:ssm-secure:/dev/postgres/db-password}}"
-      SkipFinalSnapshot: true
       BackupRetentionPeriod: 0
       DBName: !Ref DBName
       PubliclyAccessible: false
