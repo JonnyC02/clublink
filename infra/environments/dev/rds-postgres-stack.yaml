@@ -12,11 +12,11 @@ Parameters:
     Description: The name of the database to create.
   MasterUsername:
     Type: String
-    Default: admin
+    Default: ClubLinkDeveloper
     Description: Master username for the database.
   AllocatedStorage:
     Type: Number
-    Default: 20
+    Default: 5
     Description: The size of the database (in GB).
   VPCSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
