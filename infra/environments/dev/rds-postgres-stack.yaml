@@ -39,7 +39,7 @@ Resources:
       PubliclyAccessible: false
       VPCSecurityGroups:
         - !Ref VPCSecurityGroup
-  DeletionPolicy: Delete
+    DeletionPolicy: Delete
 
 Outputs:
   DatabaseEndpoint:
