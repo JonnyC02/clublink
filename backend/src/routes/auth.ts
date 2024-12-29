@@ -40,18 +40,23 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 });
 
 router.post('/signup', async (req: Request, res: Response) => {
-    const data = req.body
+    const { email, name, password, studentNumber, university } = req.body
     try {
-        const result = await pool.query('SELECT id, email FROM users WHERE email = ?', [data.email]);
+        const result = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
 
         if (result.rows.length > 0) {
             res.status(400).json({ message: 'Email already in use' });
             return
         }
 
-        const hashedPassword = await bcrypt.hash(data.password, 10)
+        const hashedPassword = await bcrypt.hash(password, 10)
 
-        await pool.query('INSERT INTO users (email, password) VALUES (?, ?)', [data.email, hashedPassword])
+        if (studentNumber) {
+            await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword])
+        } else {
+            await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUE ($1, $2, $3, $4, $5, $6, $7)', [name, email, password, true, studentNumber, university])
+        }
+
         res.status(201).json({ message: "User created!" })
     } catch (err) {
         console.error(err) // eslint-disable-line no-console

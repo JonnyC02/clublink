@@ -7,6 +7,11 @@ interface AuthPageProps {
     isSignup?: boolean;
 }
 
+type University = {
+    name: string;
+    acronym: string;
+}
+
 const links = [
     { label: "Home", href: "/" },
     { label: "Browse Clubs", href: "/clubs" },
@@ -38,7 +43,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
 
     const navigate = useNavigate();
 
-    const [universities, setUniversities] = useState<string[] | null>(null);
+    const [universities, setUniversities] = useState<University[] | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -136,7 +141,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             setLoading(false);
         }
     }, []);
-
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Navbar links={links} cta={cta} />
@@ -207,9 +211,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                                     <option value="" disabled>
                                                         Select your university
                                                     </option>
-                                                    {universities?.map((university, index) => (
-                                                        <option key={index} value={university}>
-                                                            {university}
+                                                    {universities?.map(university => (
+                                                        <option key={university.acronym} value={university.acronym}>
+                                                            {university.name}
                                                         </option>
                                                     ))}
                                                 </select>

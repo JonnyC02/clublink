@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 import pool from './db/db';
 dotenv.config()
 
-const UNIVERSITIES: string[] = []
+const UNIVERSITIES: object[] = []
 
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
 const app: Express = express();
@@ -54,17 +54,26 @@ app.get('/clubs/popular', (req: Request, res: Response) => {
   res.status(200)
 })
 
-app.listen(PORT, async () => {
-  if (!process.env.REACT_APP_IS_TESTING) {
-    const result = await pool.query('SELECT name FROM universities');
-    if (result.rowCount === 0) {
-      console.log('No Universities Retrieved!') // eslint-disable-line no-console
-    } else {
-      for (const uni of result.rows) {
-        UNIVERSITIES.push('' + uni);
+const startServer = async () => {
+  try {
+    if (!process.env.REACT_APP_IS_TESTING) {
+      const result = await pool.query('SELECT acronym, name FROM universities');
+      if (result.rowCount === 0) {
+        console.log('No Universities Retrieved!'); // eslint-disable-line no-console
+      } else {
+        for (const uni of result.rows) {
+          UNIVERSITIES.push({name: uni.name, acronym: uni.acronym});
+        }
       }
     }
-  }
 
-  console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
-});
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
+    });
+  } catch (err) {
+    console.error('Error during server initialization:', err); // eslint-disable-line no-console
+    process.exit(1);
+  }
+};
+
+startServer();

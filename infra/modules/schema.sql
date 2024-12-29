@@ -3,10 +3,10 @@ CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     email VARCHAR(100) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
     isActive BOOLEAN DEFAULT false,
-    isStudent BOOLEAN DEFAULT false,
     studentNumber VARCHAR(10),
-    university VARCHAR(50),
+    university VARCHAR(5) REFERENCES Universities(acronym) ON DELETE CASCADE,
     isSuperAdmin BOOLEAN DEFAULT false
 );
 
@@ -58,5 +58,6 @@ CREATE TABLE Universities (
     acronym VARCHAR(5) NOT NULL UNIQUE,
     name VARCHAR(100) NOT NULL UNIQUE,
     superAdminIds JSON NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE
+    email VARCHAR(255) NOT NULL UNIQUE,
+    image TEXT
 );
