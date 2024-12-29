@@ -2,6 +2,8 @@ import express, { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import pool from '../db/db'
+import { generateVerificationToken } from '../utils/tokens'
+import { sendVerificationEmail } from '../utils/authentication'
 
 const router = express.Router()
 
@@ -50,11 +52,16 @@ router.post('/signup', async (req: Request, res: Response) => {
         }
 
         const hashedPassword = await bcrypt.hash(password, 10)
-
+        let user
         if (studentNumber) {
-            await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword])
+            user = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword])
         } else {
-            await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUE ($1, $2, $3, $4, $5, $6, $7)', [name, email, password, true, studentNumber, university])
+            user = await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUE ($1, $2, $3, $4, $5, $6, $7)', [name, email, password, true, studentNumber, university])
+        }
+        if (!process.env.REACT_APP_IS_TESTING) {
+            const userId = user.rows[0].id;
+            const verificationToken = generateVerificationToken(userId);
+            await sendVerificationEmail(email, verificationToken);
         }
 
         res.status(201).json({ message: "User created!" })
@@ -64,4 +71,20 @@ router.post('/signup', async (req: Request, res: Response) => {
     }
 })
 
+router.get('/verify', async (req: Request, res: Response) => {
+    const { token } = req.query;
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const decoded: any = jwt.verify(token as string, process.env.JWT_SECRET!);
+        const userId = decoded.userId;
+
+        // Update the user's verification status
+        await pool.query('UPDATE users SET isActive = true WHERE id = $1', [userId]);
+
+        res.status(200).send('Email verified successfully!');
+    } catch (err) {
+        console.error('Error Verifying Email: ', err) // eslint-disable-line no-console
+        res.status(400).send('Invalid or expired token.');
+    }
+})
 export default router;

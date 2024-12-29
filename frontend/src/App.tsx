@@ -6,6 +6,7 @@ import ClubsPage from "./pages/ClubsPage";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
+import VerifyPage from "./pages/VerifyPage";
 
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
@@ -35,6 +36,7 @@ function App() {
             <Route path="/clubs" element={<ClubsPage />} />
             <Route path="/login" element={<AuthPage isSignup={false} />} />
             <Route path="/signup" element={<AuthPage isSignup={true} />} />
+            <Route path="/verify" element={<VerifyPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           </>
         ) : (
