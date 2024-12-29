@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import pool from '../db/db'
 import { generateVerificationToken } from '../utils/tokens'
-import { sendVerificationEmail } from '../utils/authentication'
+import { sendVerificationEmail } from '../utils/email'
 
 const router = express.Router()
 
