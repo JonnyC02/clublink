@@ -78,7 +78,6 @@ router.get('/verify', async (req: Request, res: Response) => {
         const decoded: any = jwt.verify(token as string, process.env.JWT_SECRET!);
         const userId = decoded.userId;
 
-        // Update the user's verification status
         await pool.query('UPDATE users SET isActive = true WHERE id = $1', [userId]);
 
         res.status(200).send('Email verified successfully!');
