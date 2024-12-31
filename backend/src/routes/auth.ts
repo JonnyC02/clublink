@@ -13,7 +13,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
     try {
         const { email, password } = req.body;
 
-        const result = await pool.query('SELECT id, email, password FROM users WHERE email = ?', [email]);
+        const result = await pool.query('SELECT id, email, password, isactive FROM users WHERE email = $1', [email]);
 
         if (result.rowCount === 0) {
             res.status(401).json({ message: 'Invalid email or password' });
@@ -24,6 +24,12 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         if (!user.password) {
             throw new Error("No Password Provided")
         }
+
+        if (!user.isactive) {
+            res.status(403).json({ message: "Your email is not verified!"})
+            return;
+        }
+
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
             res.status(401).json({ message: 'Invalid email or password' });

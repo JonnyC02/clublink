@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
@@ -51,7 +52,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
         const { name, value, type } = e.target;
-
         const checked = type === "checkbox" ? (e.target as HTMLInputElement).checked : undefined;
 
         setFormData((prevData) => ({
@@ -60,13 +60,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         }));
     };
 
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (isSignup) {
             if (formData.password !== formData.confirmPassword) {
-                alert("Passwords do not match!");
+                setError("Passwords do not match!");
                 return;
             }
 
@@ -90,29 +89,19 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                     const errorData = await response.json();
                     setError(errorData.message || "Signup failed. Please try again.");
                 }
-            } catch (err) {
-                console.error(err); // eslint-disable-line no-console
-                setError("An error occurred during signup. Please try again.");
+            } catch (err: any) {
+                setError(err.message || "An error occurred during signup. Please try again.");
             }
         } else {
-            if (process.env.REACT_APP_IS_TESTING) {
-                if (formData.email === "user@example.com" && formData.password === "password123") {
-                    navigate("/dashboard");
-                } else {
-                    setError("Invalid Email or Password");
-                }
-            } else {
-                try {
-                    const token = await login(formData.email, formData.password);
-                    localStorage.setItem("token", token);
-                    navigate("/dashboard");
-                } catch (err) {
-                    setError('' + err);
-                }
+            try {
+                const token = await login(formData.email, formData.password);
+                localStorage.setItem("token", token);
+                navigate("/dashboard");
+            } catch (err: any) {
+                setError(err.message || "Invalid email or password.");
             }
         }
     };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -129,7 +118,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                     setLoading(false);
                 }
             } catch (err) {
-                console.error(err); // eslint-disable-line no-console
+                console.error(err) // eslint-disable-line no-console
                 setError("An error occurred while fetching universities.");
                 setLoading(false);
             }
@@ -141,19 +130,35 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             setLoading(false);
         }
     }, []);
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-50">
             <Navbar links={links} cta={cta} />
             <div className="flex flex-grow justify-center items-center">
-                <div className="bg-white p-10 rounded-lg shadow-lg w-[28rem]">
-                    <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
+                <div className="bg-white p-8 rounded-lg shadow-lg w-[28rem]">
+                    <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">
                         {isSignup ? "Sign Up" : "Log In"}
                     </h2>
+
+                    {/* Error Message */}
+                    {error && (
+                        <div
+                            className="text-red-700 text-md mb-6 bg-red-100 border border-red-400 p-3 rounded-lg"
+                            role="alert"
+                            aria-live="assertive"
+                        >
+                            {error}
+                        </div>
+                    )}
+
                     <form onSubmit={handleSubmit}>
                         {isSignup && (
                             <>
-                                <div className="mb-4">
-                                    <label className="block text-gray-700 font-medium mb-2" htmlFor="name">
+                                <div className="mb-5">
+                                    <label
+                                        className="block text-gray-600 font-medium mb-2"
+                                        htmlFor="name"
+                                    >
                                         Name
                                     </label>
                                     <input
@@ -163,7 +168,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                         value={formData.name}
                                         onChange={handleChange}
                                         required
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                     />
                                 </div>
 
@@ -190,15 +195,13 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                     <div className="mb-6">
                                         <div className="mb-4">
                                             <label
-                                                className="block text-gray-700 font-medium mb-2"
+                                                className="block text-gray-600 font-medium mb-2"
                                                 htmlFor="university"
                                             >
                                                 University
                                             </label>
                                             {loading ? (
                                                 <div className="text-gray-500">Loading universities...</div>
-                                            ) : error ? (
-                                                <div className="text-red-500">{error}</div>
                                             ) : (
                                                 <select
                                                     id="university"
@@ -206,12 +209,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                                     value={formData.university}
                                                     onChange={handleChange}
                                                     required
-                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                                 >
                                                     <option value="" disabled>
                                                         Select your university
                                                     </option>
-                                                    {universities?.map(university => (
+                                                    {universities?.map((university) => (
                                                         <option key={university.acronym} value={university.acronym}>
                                                             {university.name}
                                                         </option>
@@ -221,7 +224,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                         </div>
                                         <div className="mb-4">
                                             <label
-                                                className="block text-gray-700 font-medium mb-2"
+                                                className="block text-gray-600 font-medium mb-2"
                                                 htmlFor="studentNumber"
                                             >
                                                 Student Number
@@ -233,7 +236,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                                 value={formData.studentNumber}
                                                 onChange={handleChange}
                                                 required
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                             />
                                         </div>
                                     </div>
@@ -241,8 +244,11 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                             </>
                         )}
 
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-medium mb-2" htmlFor="email">
+                        <div className="mb-5">
+                            <label
+                                className="block text-gray-600 font-medium mb-2"
+                                htmlFor="email"
+                            >
                                 Email
                             </label>
                             <input
@@ -252,12 +258,15 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                 value={formData.email}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                             />
                         </div>
 
-                        <div className="mb-4">
-                            <label className="block text-gray-700 font-medium mb-2" htmlFor="password">
+                        <div className="mb-5">
+                            <label
+                                className="block text-gray-600 font-medium mb-2"
+                                htmlFor="password"
+                            >
                                 Password
                             </label>
                             <input
@@ -267,13 +276,14 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 required
-                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                             />
                         </div>
+
                         {isSignup && (
                             <div className="mb-6">
                                 <label
-                                    className="block text-gray-700 font-medium mb-2"
+                                    className="block text-gray-600 font-medium mb-2"
                                     htmlFor="confirmPassword"
                                 >
                                     Confirm Password
@@ -285,19 +295,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
                                     required
-                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                                 />
                             </div>
                         )}
 
                         <button
                             type="submit"
-                            className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition"
+                            className="w-full py-3 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition hover:shadow-md"
                         >
                             {isSignup ? "Sign Up" : "Log In"}
                         </button>
                     </form>
-                    <div className="mt-6 text-center text-sm text-gray-700">
+
+                    <div className="mt-6 text-center text-sm text-gray-600">
                         {isSignup ? (
                             <p>
                                 Already have an account?{" "}
