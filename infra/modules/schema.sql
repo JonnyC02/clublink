@@ -17,6 +17,7 @@ CREATE TABLE Clubs (
     email VARCHAR(100) UNIQUE,
     description TEXT,
     shortDescription VARCHAR(255),
+    university VARCHAR(5) REFERENCES Universities(acronym) ON DELETE CASCADE,
     image TEXT
 );
 
