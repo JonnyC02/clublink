@@ -4,6 +4,7 @@ import FeaturesSection from '../components/FeatureSection';
 import ClubsSection from '../components/ClubSection';
 import Footer from '../components/Footer';
 import React from 'react';
+import { isAuthenticated } from '../utils/auth';
 
 const links = [
     { label: 'Home', href: '/'},
@@ -14,7 +15,7 @@ const links = [
 
 const cta = (
     <>
-        <a href="/login" className='text-sm text-gray-600 hover:text-gray-900'>Login</a>
+        {isAuthenticated() ? (<a href="/dashboard" className='text-sm text-gray-600 hover:text-gray-900'>Dashboard</a>) : (<a href="/login" className='text-sm text-gray-600 hover:text-gray-900'>Login</a>)}
         <a href="/clubs" className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">Join a Club</a>
     </>
 )
