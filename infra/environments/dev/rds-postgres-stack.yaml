@@ -1,6 +1,23 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: CloudFormation template for RDS PostgreSQL in Free Tier.
 
+Parameters:
+  DBInstanceIdentifier:
+    Type: String
+    Description: The database instance identifier (unique for each stack).
+  DBName:
+    Type: String
+    Description: The name of the database to create.
+  MasterUsername:
+    Type: String
+    Description: Master username for the database.
+  AllocatedStorage:
+    Type: Number
+    Description: The size of the database (in GB).
+  VPCSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security group for database access.
+
 Resources:
   RDSInstance:
     Type: AWS::RDS::DBInstance
