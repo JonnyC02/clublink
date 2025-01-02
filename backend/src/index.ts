@@ -2,6 +2,7 @@ import express, { Express, Request, Response } from 'express';
 import cors from 'cors';
 import { hidePoweredBy } from 'helmet'
 import authRoutes from './routes/auth';
+import clubRoutes from './routes/clubs';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import pool from './db/db';
@@ -31,6 +32,7 @@ app.use(cors({
 app.use(hidePoweredBy());
 
 app.use('/auth', authRoutes)
+app.use('/clubs', clubRoutes)
 
 app.get('/health', (req: Request, res: Response) => {
   try {
@@ -48,10 +50,6 @@ app.get('/universities', (req: Request, res: Response) => {
     console.error(`Error Fetching Universities: ${err}`) //eslint-disable-line no-console
     res.status(500).json({ error: "Cannot Fetch Universities" })
   }
-})
-
-app.get('/clubs/popular', (req: Request, res: Response) => {
-  res.status(200)
 })
 
 const startServer = async () => {
