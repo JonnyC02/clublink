@@ -11,6 +11,7 @@ jobs:
   deploy:
     name: Deploy CloudFormation Stack
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -20,29 +21,22 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
-        run: aws --version
+        run: aws configure set default.region us-east-1
 
-      - name: Create Changeset
+      - name: Validate CloudFormation Template
+        run: aws cloudformation validate-template --template-body file://infra/environments/dev/template.yaml
+
+      - name: Deploy CloudFormation Stack
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: us-east-1
         run: |
-          aws cloudformation create-change-set \
+          aws cloudformation deploy \
             --stack-name dev-environment \
-            --template-body file://infra/environments/dev/template.yaml \
-            --change-set-name dev-environment-changeset \
+            --template-file infra/environments/dev/template.yaml \
             --capabilities CAPABILITY_NAMED_IAM \
-            --parameters file://infra/environments/dev/parameters.json \
-            --role-arn arn:aws:iam::384708821502:role/AWSCloudFormationExecutionRole
+            --parameter-overrides file://infra/environments/dev/parameters.json
 
-      - name: Execute Changeset
-        if: success()
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: us-east-1
-        run: |
-          aws cloudformation execute-change-set \
-            --change-set-name dev-environment-changeset \
-            --stack-name dev-environment
+      - name: Confirm Stack Deployment
+        run: aws cloudformation describe-stacks --stack-name dev-environment

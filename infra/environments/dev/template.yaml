@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Parent template to deploy RDS PostgreSQL and S3 bucket.
+Description: Combined CloudFormation template for RDS PostgreSQL and S3 bucket.
 
 Parameters:
   DBInstanceIdentifier:
@@ -27,31 +27,39 @@ Parameters:
     Description: Environment name (e.g., dev, staging, production).
 
 Resources:
-  RDSStack:
-    Type: AWS::CloudFormation::Stack
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
     Properties:
-      TemplateURL: !Sub "file://infra/environments/dev/rds-postgres-stack.yaml"
-      Parameters:
-        DBInstanceIdentifier: !Ref DBInstanceIdentifier
-        DBName: !Ref DBName
-        MasterUsername: !Ref MasterUsername
-        AllocatedStorage: !Ref AllocatedStorage
-        VPCSecurityGroup: !Ref VPCSecurityGroup
+      DBInstanceIdentifier: !Ref DBInstanceIdentifier
+      AllocatedStorage: !Ref AllocatedStorage
+      DBInstanceClass: db.t4g.micro
+      Engine: postgres
+      EngineVersion: 16.3
+      MasterUsername: !Ref MasterUsername
+      MasterUserPassword: "{{resolve:ssm-secure:/dev/postgres/db-password}}"
+      BackupRetentionPeriod: 0
+      DBName: !Ref DBName
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !Ref VPCSecurityGroup
+    DeletionPolicy: Delete
 
-  S3Stack:
-    Type: AWS::CloudFormation::Stack
+  S3Bucket:
+    Type: AWS::S3::Bucket
     Properties:
-      TemplateURL: !Sub "file://infra/environments/dev/s3-bucket-stack.yaml"
-      Parameters:
-        Environment: !Ref Environment
+      BucketName: !Sub "club-images-${Environment}"
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Enabled
+    DeletionPolicy: Retain
 
 Outputs:
   DatabaseEndpoint:
     Description: Database endpoint
-    Value: !GetAtt RDSStack.Outputs.DatabaseEndpoint
+    Value: !GetAtt RDSInstance.Endpoint.Address
   DatabasePort:
     Description: Database port
-    Value: !GetAtt RDSStack.Outputs.DatabasePort
+    Value: !GetAtt RDSInstance.Endpoint.Port
   S3BucketName:
     Description: S3 bucket name
-    Value: !GetAtt S3Stack.Outputs.S3BucketName
+    Value: !Ref S3Bucket
