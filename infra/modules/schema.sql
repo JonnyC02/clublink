@@ -18,6 +18,8 @@ CREATE TABLE Clubs (
     description TEXT,
     shortDescription VARCHAR(255),
     university VARCHAR(5) REFERENCES Universities(acronym) ON DELETE CASCADE,
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL (9, 6),
     image TEXT
 );
 
@@ -60,5 +62,7 @@ CREATE TABLE Universities (
     name VARCHAR(100) NOT NULL UNIQUE,
     superAdminIds JSON NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL (9, 6),
     image TEXT
 );

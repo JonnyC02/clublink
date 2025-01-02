@@ -30,7 +30,7 @@ jobs:
         run: |
           aws cloudformation create-change-set \
             --stack-name dev-environment \
-            --template-body file://infra/environments/dev/rds-postgres-stack.yaml \
+            --template-body file://infra/environments/dev/template.yaml \
             --change-set-name dev-environment-changeset \
             --capabilities CAPABILITY_NAMED_IAM \
             --parameters file://infra/environments/dev/parameters.json \

@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Parent template to deploy RDS PostgreSQL and S3 bucket.
+
+Parameters:
+  DBInstanceIdentifier:
+    Type: String
+    Default: dev-postgres-db
+    Description: Database instance identifier.
+  DBName:
+    Type: String
+    Default: mydatabase
+    Description: Name of the database.
+  MasterUsername:
+    Type: String
+    Default: ClubLinkDeveloper
+    Description: Master username for the database.
+  AllocatedStorage:
+    Type: Number
+    Default: 5
+    Description: Database storage size (in GB).
+  VPCSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security group for database access.
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment name (e.g., dev, staging, production).
+
+Resources:
+  RDSStack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "file://infra/environments/dev/rds-postgres-stack.yaml"
+      Parameters:
+        DBInstanceIdentifier: !Ref DBInstanceIdentifier
+        DBName: !Ref DBName
+        MasterUsername: !Ref MasterUsername
+        AllocatedStorage: !Ref AllocatedStorage
+        VPCSecurityGroup: !Ref VPCSecurityGroup
+
+  S3Stack:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub "file://infra/environments/dev/s3-bucket-stack.yaml"
+      Parameters:
+        Environment: !Ref Environment
+
+Outputs:
+  DatabaseEndpoint:
+    Description: Database endpoint
+    Value: !GetAtt RDSStack.Outputs.DatabaseEndpoint
+  DatabasePort:
+    Description: Database port
+    Value: !GetAtt RDSStack.Outputs.DatabasePort
+  S3BucketName:
+    Description: S3 bucket name
+    Value: !GetAtt S3Stack.Outputs.S3BucketName

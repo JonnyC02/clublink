@@ -4,19 +4,15 @@ Description: CloudFormation template for RDS PostgreSQL in Free Tier.
 Parameters:
   DBInstanceIdentifier:
     Type: String
-    Default: dev-postgres-db
     Description: The database instance identifier (unique for each stack).
   DBName:
     Type: String
-    Default: mydatabase
     Description: The name of the database to create.
   MasterUsername:
     Type: String
-    Default: ClubLinkDeveloper
     Description: Master username for the database.
   AllocatedStorage:
     Type: Number
-    Default: 5
     Description: The size of the database (in GB).
   VPCSecurityGroup:
     Type: AWS::EC2::SecurityGroup::Id
