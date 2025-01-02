@@ -73,7 +73,6 @@ const ClubsPage: React.FC = () => {
                 subtitle="Find clubs near you"
             />
             <div className="container mx-auto p-6 flex gap-6">
-                {/* Filters Section */}
                 <div className="w-1/4 bg-white shadow-md p-4 rounded-lg self-start">
                     <h2 className="text-lg font-bold mb-4">Filters</h2>
                     <div className="mb-4">
@@ -91,15 +90,13 @@ const ClubsPage: React.FC = () => {
                             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         >
                             <option value="">All</option>
-                            <option value="Queen's University Belfast">
+                            <option value="QUB">
                                 Queen&apos;s University Belfast
                             </option>
-                            <option value="Another University">Another University</option>
                         </select>
                     </div>
                 </div>
 
-                {/* Clubs Section */}
                 <div className="flex-grow">
                     <div className="space-y-6">
                         {error ? (
@@ -122,7 +119,7 @@ const ClubsPage: React.FC = () => {
                                             {club.name}
                                         </h3>
                                         <p className="text-sm text-gray-600">
-                                            {club.description}
+                                            {club.shortdescription}
                                         </p>
                                     </div>
                                 </div>

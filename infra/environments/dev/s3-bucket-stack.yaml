@@ -1,0 +1,40 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: CloudFormation template for S3 bucket for club images.
+
+Parameters:
+  Environment:
+    Type: String
+    Default: dev
+    Description: Environment for the S3 bucket (e.g., dev, staging, production).
+
+Resources:
+  ClubsS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${Environment}-clubs-images"
+      AccessControl: Private
+      VersioningConfiguration:
+        Status: Disabled
+      CorsConfiguration:
+        CorsRules:
+          - AllowedOrigins:
+              - "*"
+            AllowedMethods:
+              - GET
+              - PUT
+              - POST
+              - HEAD
+            AllowedHeaders:
+              - "*"
+            MaxAge: 3000
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  S3BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref ClubsS3Bucket
+  S3BucketArn:
+    Description: ARN of the S3 bucket
+    Value: !GetAtt ClubsS3Bucket.Arn

@@ -20,8 +20,9 @@ router.post('/', async (req: Request, res: Response) => {
                 SELECT 
                     c.id, 
                     c.name, 
-                    c.description, 
+                    c.shortdescription,
                     c.image, 
+                    c.university,
                     (
                         3959 * acos(
                             cos(radians($1)) * cos(radians(c.latitude)) * cos(radians(c.longitude) - radians($2)) +
@@ -47,8 +48,9 @@ router.post('/', async (req: Request, res: Response) => {
                 SELECT 
                     c.id, 
                     c.name, 
-                    c.description, 
-                    c.image, 
+                    c.shortdescription,
+                    c.image,
+                    c.university,
                     COUNT(m.memberId) AS popularity,
                     CASE
                         WHEN c.university = $1 THEN 1
