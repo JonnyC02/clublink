@@ -1,3 +1,6 @@
+-- Create ENUM Type for clubType
+CREATE TYPE club_type_enum AS ENUM ('Sports', 'Society');
+
 -- Users
 CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
@@ -18,6 +21,7 @@ CREATE TABLE Clubs (
     description TEXT,
     shortDescription VARCHAR(255),
     university VARCHAR(5) REFERENCES Universities(acronym) ON DELETE CASCADE,
+    clubType club_type_enum DEFAULT 'Society',
     latitude DECIMAL(9, 6),
     longitude DECIMAL (9, 6),
     image TEXT

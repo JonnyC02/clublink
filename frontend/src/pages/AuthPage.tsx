@@ -3,14 +3,10 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
 import { useNavigate } from "react-router-dom";
 import { login } from "../services/authService";
+import { University } from "../types/University";
 
 interface AuthPageProps {
     isSignup?: boolean;
-}
-
-type University = {
-    name: string;
-    acronym: string;
 }
 
 const links = [

@@ -23,6 +23,7 @@ router.post('/', async (req: Request, res: Response) => {
                     c.shortdescription,
                     c.image, 
                     c.university,
+                    c.clubType,
                     (
                         3959 * acos(
                             cos(radians($1)) * cos(radians(c.latitude)) * cos(radians(c.longitude) - radians($2)) +
@@ -51,6 +52,7 @@ router.post('/', async (req: Request, res: Response) => {
                     c.shortdescription,
                     c.image,
                     c.university,
+                    c.clubType,
                     COUNT(m.memberId) AS popularity,
                     CASE
                         WHEN c.university = $1 THEN 1

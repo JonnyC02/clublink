@@ -3,6 +3,9 @@ import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import React, { useEffect, useState } from "react";
 import { isAuthenticated } from "../utils/auth";
+import { University } from "../types/University";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUsers } from "@fortawesome/free-solid-svg-icons";
 
 const links = [
     { label: 'Home', href: '/' },
@@ -22,11 +25,12 @@ const ClubsPage: React.FC = () => {
     const [clubs, setClubs] = useState([]);
     const [filters, setFilters] = useState({
         university: "",
+        clubtype: "",
         popularity: "",
-        proximity: "",
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
+    const [universities, setUniversities] = useState<University[] | null>(null);
 
     useEffect(() => {
         setLoading(true)
@@ -45,9 +49,17 @@ const ClubsPage: React.FC = () => {
                 } else {
                     setError('Failed to fetch clubs');
                 }
+
+                const uniResp = await fetch(`${process.env.REACT_APP_API_URL}/universities`)
+                if (uniResp.ok) {
+                    const data = await uniResp.json();
+                    setUniversities(data);
+                } else {
+                    setError('Failed to fetch Universities');
+                }
             } catch (err) {
                 console.error("Error fetching clubs:", err); // eslint-disable-line no-console
-                setError("An error occurred while fetching clubs.");
+                setError("An error occurred while fetching data.");
             } finally {
                 setLoading(false);
             }
@@ -64,10 +76,8 @@ const ClubsPage: React.FC = () => {
     };
 
     const filteredClubs = clubs.filter((club: any) => {
-        if (filters.university && club.university !== filters.university) {
-            return false;
-        }
-        return true;
+        return (!filters.university || club.university === filters.university) &&
+            (!filters.clubtype || club.clubtype === filters.clubtype);
     });
 
     return (
@@ -88,16 +98,64 @@ const ClubsPage: React.FC = () => {
                             University
                         </label>
                         <select
-                            name="university"
                             id="university"
+                            name="university"
                             value={filters.university}
                             onChange={handleFilterChange}
+                            required
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        >
+                            <option value="" disabled>
+                                Select your university
+                            </option>
+                            <option value="">
+                                All
+                            </option>
+                            {universities?.map((university) => (
+                                <option key={university.acronym} value={university.acronym}>
+                                    {university.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div className="mb-4">
+                        <label htmlFor="clubtype" className="block text-sm font-medium text-gray-700">Club Type</label>
+                        <select id="clubtype" name="clubtype" value={filters.clubtype} onChange={handleFilterChange} required className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent">
+                            <option value="" disabled>
+                                Select your Club Type
+                            </option>
+                            <option value="">
+                                All
+                            </option>
+                            <option key="Club" value="Club">
+                                Club
+                            </option>
+                            <option key="Society" value="Society">
+                                Society
+                            </option>
+                        </select>
+                    </div>
+                    <div className="mb-4">
+                        <label
+                            htmlFor="clubSize"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Club Size
+                        </label>
+                        <select
+                            name="clubSize"
+                            id="clubSize"
+                            value={filters.popularity}
+                            onChange={(e) =>
+                                setFilters((prev) => ({ ...prev, clubSize: e.target.value }))
+                            }
                             className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         >
+                            <option value="" disabled>Select your Club Size</option>
                             <option value="">All</option>
-                            <option value="QUB">
-                                Queen&apos;s University Belfast
-                            </option>
+                            <option value="small">Small (1-10)</option>
+                            <option value="medium">Medium (11-30)</option>
+                            <option value="large">Large (30+)</option>
                         </select>
                     </div>
                 </div>
@@ -152,6 +210,9 @@ const ClubsPage: React.FC = () => {
                                         </h3>
                                         <p className="text-sm text-gray-600">
                                             {club.shortdescription}
+                                        </p>
+                                        <p className="text-md text-gray-600">
+                                            {club.popularity} <FontAwesomeIcon icon={faUsers} />
                                         </p>
                                     </div>
                                 </div>
