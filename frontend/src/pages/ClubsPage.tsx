@@ -110,6 +110,7 @@ const ClubsPage: React.FC = () => {
                                     className="bg-white shadow-md rounded-lg p-6 flex items-center"
                                 >
                                     <img
+                                        // deepcode ignore DOMXSS: All images come from my S3 bucket and are named based on club details
                                         src={club.image}
                                         alt={club.name}
                                         className="w-24 h-24 object-cover rounded-md mr-6"
