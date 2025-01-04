@@ -27,6 +27,7 @@ const ClubsPage: React.FC = () => {
         university: "",
         clubtype: "",
         popularity: "",
+        search: "",
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(true);
@@ -70,14 +71,35 @@ const ClubsPage: React.FC = () => {
         });
     }, []);
 
-    const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
     const filteredClubs = clubs.filter((club: any) => {
-        return (!filters.university || club.university === filters.university) &&
-            (!filters.clubtype || club.clubtype === filters.clubtype);
+        const searchLower = filters.search.toLowerCase();
+        if (filters.search && !(club.name.toLowerCase().includes(searchLower) || club.shortdescription.toLowerCase().includes(searchLower))) {
+            return false;
+        }
+        if (filters.university && club.university !== filters.university) {
+            return false;
+        }
+        if (filters.clubtype && club.clubtype !== filters.clubtype) {
+            return false;
+        }
+        if (filters.popularity) {
+            const size = filters.popularity;
+            if (size === "small" && (club.popularity < 1 || club.popularity > 10)) {
+                return false;
+            }
+            if (size === "medium" && (club.popularity < 11 || club.popularity > 30)) {
+                return false;
+            }
+            if (size === "large" && club.popularity <= 30) {
+                return false;
+            }
+        }
+        return true;
     });
 
     return (
@@ -90,6 +112,23 @@ const ClubsPage: React.FC = () => {
             <div className="container mx-auto p-6 flex gap-6">
                 <div className="w-1/4 bg-white shadow-md p-4 rounded-lg self-start">
                     <h2 className="text-lg font-bold mb-4">Filters</h2>
+                    <div className="mb-4">
+                        <label
+                            htmlFor="search"
+                            className="block text-sm font-medium text-gray-700"
+                        >
+                            Search
+                        </label>
+                        <input
+                            type="text"
+                            id="search"
+                            name="search"
+                            placeholder="Search by Club Name"
+                            value={filters.search}
+                            onChange={handleFilterChange}
+                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        />
+                    </div>
                     <div className="mb-4">
                         <label
                             htmlFor="university"
@@ -106,7 +145,7 @@ const ClubsPage: React.FC = () => {
                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         >
                             <option value="" disabled>
-                                Select your university
+                                Select your University
                             </option>
                             <option value="">
                                 All
@@ -143,19 +182,17 @@ const ClubsPage: React.FC = () => {
                             Club Size
                         </label>
                         <select
-                            name="clubSize"
-                            id="clubSize"
+                            name="popularity"
+                            id="popularity"
                             value={filters.popularity}
-                            onChange={(e) =>
-                                setFilters((prev) => ({ ...prev, clubSize: e.target.value }))
-                            }
-                            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                            onChange={handleFilterChange}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         >
                             <option value="" disabled>Select your Club Size</option>
-                            <option value="">All</option>
-                            <option value="small">Small (1-10)</option>
-                            <option value="medium">Medium (11-30)</option>
-                            <option value="large">Large (30+)</option>
+                            <option key="" value="">All</option>
+                            <option key="small" value="small">Small (1-10)</option>
+                            <option key="medium" value="medium">Medium (11-30)</option>
+                            <option key="large" value="large">Large (30+)</option>
                         </select>
                     </div>
                 </div>
