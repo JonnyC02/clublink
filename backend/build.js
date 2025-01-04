@@ -1,4 +1,4 @@
-import { build } from 'esbuild'
+const { build } = require('esbuild');
 
 build({
     entryPoints: ['./dist/index.js'],
