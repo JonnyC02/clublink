@@ -18,7 +18,7 @@ export const authenticateToken = async (
 
     if (!token) {
         res.status(401).json({ message: 'Access Token Required' });
-        return; // Stop further execution
+        return;
     }
 
     try {
@@ -26,7 +26,7 @@ export const authenticateToken = async (
 
         if (typeof payload === 'object' && 'id' in payload && 'email' in payload) {
             (req as any).user = { id: payload.id as number, email: payload.email as string };
-            next(); // Pass control to the next middleware/route handler
+            next();
         } else {
             res.status(403).json({ message: 'Invalid Token Structure' });
         }
@@ -41,3 +41,17 @@ export const authenticateToken = async (
         }
     }
 };
+
+export const getUserId = (authHeader: string) => {
+    const token = authHeader.split(' ')[1];
+
+    try {
+        const payload = jwt.verify(token, SECRET_KEY) as JwtPayload
+
+        if (typeof payload === 'object' && 'id' in payload && 'email' in payload) {
+            return payload.id
+        }
+    } catch (err) {
+        console.error('Token Verification Error: ', err) // eslint-disable-line no-console
+    }
+}
