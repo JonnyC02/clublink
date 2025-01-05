@@ -23,7 +23,7 @@ export const hasPendingRequest = async (userId: number, clubId: number): Promise
 
         return result.rows.length > 0;
     } catch (error) {
-        console.error('Error checking pending request:', error);
+        console.error('Error checking pending request:', error); // eslint-disable-line no-console
         throw new Error('Failed to check pending request.');
     }
 };

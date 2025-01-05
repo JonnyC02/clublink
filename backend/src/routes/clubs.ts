@@ -2,7 +2,7 @@
 import express, { Request, Response } from 'express';
 import pool from '../db/db';
 import { authenticateToken, getUserId } from '../utils/authentication';
-import { hasPendingRequest, isStudent } from '../utils/User';
+import { hasPendingRequest, isStudent } from '../utils/user'
 import { joinClub, requestJoinClub } from '../utils/club';
 
 const router = express.Router();
@@ -141,7 +141,7 @@ router.get('/:id', async (req: Request, res: Response) => {
 
         res.json({ ...clubData, hasPending });
     } catch (error) {
-        console.error('Error fetching club:', error);
+        console.error('Error fetching club:', error); // eslint-disable-line no-console
         res.status(500).json({ message: 'Internal server error.' });
     }
 });
@@ -178,8 +178,10 @@ router.get('/join/:id', authenticateToken, async (req: Request, res: Response) =
 
     if (student) {
         await joinClub(id, (req as any).user?.id)
+        res.json({ message: "Successfully Joined Club" })
     } else {
         await requestJoinClub(id, (req as any).user?.id)
+        res.json({ message: "Sent Request to Join" })
     }
 })
 

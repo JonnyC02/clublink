@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom";
 import { isAuthenticated } from "../utils/auth";
 import Navbar from "../components/Navbar";
