@@ -43,6 +43,7 @@ Resources:
       VPCSecurityGroups:
         - !Ref VPCSecurityGroup
     DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
 
   S3Bucket:
     Type: AWS::S3::Bucket
@@ -52,6 +53,7 @@ Resources:
       VersioningConfiguration:
         Status: Enabled
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
 
 Outputs:
   DatabaseEndpoint:
