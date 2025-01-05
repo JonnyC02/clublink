@@ -43,15 +43,30 @@ Resources:
       VPCSecurityGroups:
         - !Ref VPCSecurityGroup
     DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
 
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub "club-images-${Environment}"
-      AccessControl: Private
       VersioningConfiguration:
         Status: Enabled
     DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+
+  S3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref S3Bucket
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Deny
+            Principal: "*"
+            Action: "s3:*"
+            Resource:
+              - !Sub "arn:aws:s3:::club-images-${Environment}/*"
+              - !Sub "arn:aws:s3:::club-images-${Environment}"
 
 Outputs:
   DatabaseEndpoint:

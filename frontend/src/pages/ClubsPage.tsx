@@ -231,8 +231,7 @@ const ClubsPage: React.FC = () => {
 
                         ) : filteredClubs.length > 0 ? (
                             filteredClubs.map((club: any) => (
-                                <div
-                                    key={club.id}
+                                <a key={club.id} className="p-6" href={`/club/${club.id}`}><div
                                     className="bg-white shadow-md rounded-lg p-6 flex items-center hover:shadow-lg transition-shadow duration-300"
                                 >
                                     <img
@@ -252,7 +251,7 @@ const ClubsPage: React.FC = () => {
                                             {club.popularity} <FontAwesomeIcon icon={faUsers} />
                                         </p>
                                     </div>
-                                </div>
+                                </div></a>
                             ))
                         ) : (
                             <div className="text-center text-gray-600">

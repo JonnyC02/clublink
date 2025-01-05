@@ -28,7 +28,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
         }
 
         if (!user.isactive) {
-            res.status(403).json({ message: "Your email is not verified!"})
+            res.status(403).json({ message: "Your email is not verified!" })
             return;
         }
 
@@ -103,7 +103,7 @@ router.get("/user", authenticateToken, async (req: Request, res: Response): Prom
             return;
         }
 
-        const users = await pool.query("SELECT id, name, email, isStudent, studentNumber, university FROM users WHERE id = $1", [userId]);
+        const users = await pool.query("SELECT id, name, email, studentNumber, university FROM users WHERE id = $1", [userId]);
 
         if (users.rowCount === 0) {
             res.status(404).json({ message: "User not found." });
@@ -113,11 +113,11 @@ router.get("/user", authenticateToken, async (req: Request, res: Response): Prom
         const user = users.rows[0];
 
         const clubs = await pool.query(`SELECT c.id, c.name FROM MemberList m INNER JOIN Clubs c ON m.clubId = c.id WHERE m.memberId = $1`, [userId]);
-
+        const isStudent = user.studentNumer ? true : false;
         const responseData = {
             name: user.name,
             email: user.email,
-            isStudent: user.isStudent,
+            isStudent,
             studentNumber: user.studentNumber,
             university: user.university,
             clubs,

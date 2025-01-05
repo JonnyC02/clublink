@@ -1,5 +1,7 @@
--- Create ENUM Type for clubType
-CREATE TYPE club_type_enum AS ENUM ('Sports', 'Society');
+-- Create ENUM Type for types
+CREATE TYPE club_type_enum AS ENUM ('Club', 'Society');
+CREATE TYPE member_type_enum AS ENUM('Member', 'Committee');
+CREATE TYPE request_type_enum AS ENUM('Approved', 'Pending', 'Denied', 'Cancelled');
 
 -- Users
 CREATE TABLE Users (
@@ -24,6 +26,7 @@ CREATE TABLE Clubs (
     clubType club_type_enum DEFAULT 'Society',
     latitude DECIMAL(9, 6),
     longitude DECIMAL (9, 6),
+    headerImage TEXT,
     image TEXT
 );
 
@@ -32,7 +35,8 @@ CREATE TABLE MemberList (
     id SERIAL PRIMARY KEY,
     memberId INT REFERENCES Users(id) ON DELETE CASCADE,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
-    memberType VARCHAR(50)
+    memberType member_type_enum DEFAULT 'Member',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 );
 
 -- ClubEvents
@@ -69,4 +73,15 @@ CREATE TABLE Universities (
     latitude DECIMAL(9, 6),
     longitude DECIMAL (9, 6),
     image TEXT
+);
+
+-- Requests
+CREATE TABLE Requests (
+    id SERIAL PRIMARY KEY,
+    clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
+    memberId INT REFERENCES Users(id) ON DELETE CASCADE,
+    status request_type_enum DEFAULT 'Pending',
+    approverId INT REFERENCES Users(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
