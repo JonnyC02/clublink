@@ -27,3 +27,33 @@ export const hasPendingRequest = async (userId: number, clubId: number): Promise
         throw new Error('Failed to check pending request.');
     }
 };
+
+export const getAllClubs = async (userId: number) => {
+    try {
+        const result = await pool.query(`
+             SELECT 
+                c.id,
+                c.image,
+                c.name,
+                c.shortDescription,
+                EXISTS (
+                    SELECT 1 
+                    FROM MemberList ml 
+                    WHERE ml.memberId = $1 
+                      AND ml.clubId = c.id 
+                      AND ml.memberType = 'Committee'
+                ) AS isCommittee
+            FROM 
+                clubs c
+            INNER JOIN 
+                MemberList m ON c.id = m.clubId
+            WHERE 
+                m.memberId = $1
+        `, [userId])
+
+        return result.rows
+    } catch (error) {
+        console.error('Error getting all user clubs: ', error); // eslint-disable-line no-console
+        throw new Error('Failed to get all user clubs')
+    }
+}
