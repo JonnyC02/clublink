@@ -146,6 +146,40 @@ router.get('/:id', async (req: Request, res: Response) => {
     }
 });
 
+router.get('/:id/all', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await pool.query('SELECT name, email, description, shortdescription, image, headerimage FROM clubs WHERE id = $1', [id])
+
+    if (result.rows.length === 0) {
+        res.status(404).json({ message: 'Club not Found' })
+        return;
+    }
+
+    const requests = await pool.query('SELECT * FROM requests WHERE clubId = $1', [id])
+
+    const memberList = await pool.query(
+        `
+        SELECT 
+            ml.memberId, 
+            ml.memberType, 
+            ml.created_at, 
+            u.name, 
+            u.studentNumber
+        FROM 
+            MemberList ml
+        INNER JOIN 
+            Users u 
+        ON 
+            ml.memberId = u.id
+        WHERE 
+            ml.clubId = $1
+        `,
+        [id]
+    );
+
+    res.json({ clubData: result.rows[0], requests: requests.rows, memberList: memberList.rows })
+})
+
 router.get('/:id/committee', async (req: Request, res: Response) => {
     const { id } = req.params;
 
@@ -171,6 +205,35 @@ router.get('/:id/committee', async (req: Request, res: Response) => {
 
     res.json(result.rows);
 })
+
+router.get('/:id/is-committee', async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const userId = getUserId(req.headers.authorization);
+
+    if (!userId) {
+        res.status(401).json({ message: 'Unauthorized' });
+        return
+    }
+
+    try {
+        const result = await pool.query(
+            `
+            SELECT EXISTS (
+                SELECT 1 
+                FROM MemberList 
+                WHERE memberId = $1 AND clubId = $2 AND memberType = 'Committee'
+            ) AS isCommittee
+            `,
+            [userId, id]
+        );
+
+        res.json({ isCommittee: result.rows[0]?.iscommittee || false });
+    } catch (err) {
+        console.error('Error checking committee status:', err); // eslint-disable-line no-console
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+
 
 router.get('/join/:id', authenticateToken, async (req: Request, res: Response) => {
     const { id } = req.params;
