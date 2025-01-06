@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Dashboard from "./pages/Dashboard";
 import VerifyPage from "./pages/VerifyPage";
 import ClubPage from "./pages/ClubPage";
+import ClubDashboard from "./pages/ClubDashboard";
 
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
@@ -40,6 +41,7 @@ function App() {
             <Route path="/verify" element={<VerifyPage />} />
             <Route path="/club/:id" element={<ClubPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/club/:id/committee" element={<ProtectedRoute><ClubDashboard /></ProtectedRoute>} />
           </>
         ) : (
           <Route path="*" element={<ErrorPage />} />

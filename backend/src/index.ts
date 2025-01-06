@@ -3,6 +3,7 @@ import cors from 'cors';
 import { hidePoweredBy } from 'helmet'
 import authRoutes from './routes/auth';
 import clubRoutes from './routes/clubs';
+import userRoutes from './routes/user';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import pool from './db/db';
@@ -33,6 +34,7 @@ app.use(hidePoweredBy());
 
 app.use('/auth', authRoutes)
 app.use('/clubs', clubRoutes)
+app.use('/user', userRoutes);
 
 app.get('/health', (req: Request, res: Response) => {
   try {
@@ -60,7 +62,7 @@ const startServer = async () => {
         console.log('No Universities Retrieved!'); // eslint-disable-line no-console
       } else {
         for (const uni of result.rows) {
-          UNIVERSITIES.push({name: uni.name, acronym: uni.acronym});
+          UNIVERSITIES.push({ name: uni.name, acronym: uni.acronym });
         }
       }
     }
