@@ -26,7 +26,7 @@ Parameters:
     Default: dev
     Description: Environment name (e.g., dev, staging, production).
   EC2InstanceType:
-    Type: string
+    Type: String
     Default: t4g.nano
     Description: EC2 Instance Type
   KeyName:
@@ -78,7 +78,7 @@ Resources:
   BackendInstance:
     Type: AWS::EC2::Instance
     Properties:
-      InstanceType: !Ref InstanceType
+      EC2InstanceType: !Ref EC2InstanceType
       KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref BackendSecurityGroup
