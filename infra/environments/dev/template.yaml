@@ -81,24 +81,15 @@ Resources:
   BackendInstance:
     Type: AWS::EC2::Instance
     Properties:
-      EC2InstanceType: !Ref EC2InstanceType
+      InstanceType: !Ref EC2InstanceType
       KeyName: !Ref KeyName
       SecurityGroupIds:
         - !Ref BackendSecurityGroup
       ImageId: ami-01816d07b1128cd2d
       NetworkInterfaces:
         - AssociatePublicIpAddress: false
-          SubnetId: !Select [0, !GetAtt VPCSecurityGroup.AvailableSubnets]
+          SubnetId: subnet-0859e630d3192e8a5
           DeviceIndex: 0
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          yum update -y
-          yum install -y nodejs git
-          cd /home/ec2-user
-          cd backend
-          npm install
-          npm start
     DeletionPolicy: Delete
     UpdateReplacePolicy: Delete
 
