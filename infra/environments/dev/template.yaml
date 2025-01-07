@@ -25,6 +25,13 @@ Parameters:
     Type: String
     Default: dev
     Description: Environment name (e.g., dev, staging, production).
+  EC2InstanceType:
+    Type: string
+    Default: t4g.nano
+    Description: EC2 Instance Type
+  KeyName:
+    Type: AWS::EC2::KeyPair::KeyName
+    Description: The name of the key pair to use for SSH access to the instance.
 
 Resources:
   RDSInstance:
@@ -68,6 +75,30 @@ Resources:
               - !Sub "arn:aws:s3:::club-images-${Environment}/*"
               - !Sub "arn:aws:s3:::club-images-${Environment}"
 
+  BackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceType
+      KeyName: !Ref KeyName
+      SecurityGroupIds:
+        - !Ref BackendSecurityGroup
+      ImageId: ami-01816d07b1128cd2d
+      NetworkInterfaces:
+        - AssociatePublicIpAddress: false
+          SubnetId: !Select [0, !GetAtt VPCSecurityGroup.AvailableSubnets]
+          DeviceIndex: 0
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install -y nodejs git
+          cd /home/ec2-user
+          cd backend
+          npm install
+          npm start
+    DeletionPolicy: Delete
+    UpdateReplacePolicy: Delete
+
 Outputs:
   DatabaseEndpoint:
     Description: Database endpoint
@@ -78,3 +109,6 @@ Outputs:
   S3BucketName:
     Description: S3 bucket name
     Value: !Ref S3Bucket
+  BackendInstancePrivateIP:
+    Description: Private IP address of the backend instance
+    Value: !GetAtt BackendInstance.PrivateIp
