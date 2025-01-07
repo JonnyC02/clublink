@@ -5,7 +5,7 @@ RUN npm ci
 COPY . .
 RUN npm run compile
 
-FROM debian:alpine
+FROM alpine
 COPY --from=builder /app/build /root/home/build
 EXPOSE 3001
 CMD ["./build/server"]
