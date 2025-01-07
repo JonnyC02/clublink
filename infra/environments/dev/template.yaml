@@ -32,6 +32,9 @@ Parameters:
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
     Description: The name of the key pair to use for SSH access to the instance.
+  BackendSecurityGroup:
+    Type: AWS::EC2::SecurityGroup::Id
+    Description: Security group for the backend EC2 instance.
 
 Resources:
   RDSInstance:
