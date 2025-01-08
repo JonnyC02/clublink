@@ -88,7 +88,6 @@ const ClubPage = () => {
             }
 
             const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs/join/${id}`, {
-                method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "application/json",
