@@ -42,8 +42,8 @@ export const authenticateToken = async (
     }
 };
 
-export const getUserId = (authHeader: string) => {
-    const token = authHeader.split(' ')[1];
+export const getUserId = (authHeader: string | undefined) => {
+    const token = authHeader?.split(' ')[1] || ''
 
     try {
         const payload = jwt.verify(token, SECRET_KEY) as JwtPayload

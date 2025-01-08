@@ -31,29 +31,26 @@ export const hasPendingRequest = async (userId: number, clubId: number): Promise
 export const getAllClubs = async (userId: number) => {
     try {
         const result = await pool.query(`
-             SELECT 
+            SELECT 
                 c.id,
-                c.image,
                 c.name,
                 c.shortDescription,
-                EXISTS (
-                    SELECT 1 
-                    FROM MemberList ml 
-                    WHERE ml.memberId = $1 
-                      AND ml.clubId = c.id 
-                      AND ml.memberType = 'Committee'
-                ) AS isCommittee
+                c.image,
+                CASE
+                    WHEN m.memberType = 'Committee' THEN true
+                    ELSE false
+                END AS isCommittee
             FROM 
-                clubs c
+                MemberList m
             INNER JOIN 
-                MemberList m ON c.id = m.clubId
+                Clubs c ON m.clubId = c.id
             WHERE 
-                m.memberId = $1
-        `, [userId])
+                m.memberId = $1;
+        `, [userId]);
 
-        return result.rows
+        return result.rows;
     } catch (error) {
-        console.error('Error getting all user clubs: ', error); // eslint-disable-line no-console
-        throw new Error('Failed to get all user clubs')
+        console.error('Error fetching user memberships:', error); // eslint-disable-line no-console
+        throw new Error('Failed to fetch user memberships');
     }
-}
+};

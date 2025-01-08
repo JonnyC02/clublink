@@ -61,10 +61,10 @@ router.post('/signup', async (req: Request, res: Response) => {
 
         const hashedPassword = await bcrypt.hash(password, 10)
         let user
-        if (studentNumber) {
-            user = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3)', [name, email, hashedPassword])
+        if (!studentNumber) {
+            user = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, hashedPassword])
         } else {
-            user = await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUE ($1, $2, $3, $4, $5, $6, $7)', [name, email, password, true, studentNumber, university])
+            user = await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *', [name, email, password, true, studentNumber, university])
         }
         if (!process.env.REACT_APP_IS_TESTING) {
             const userId = user.rows[0].id;
