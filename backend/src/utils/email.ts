@@ -1,6 +1,10 @@
 import nodemailer from 'nodemailer';
 
 export const sendVerificationEmail = async (email: string, token: string) => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+        throw new Error('Missing email configuration');
+    }
+
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
@@ -19,4 +23,4 @@ export const sendVerificationEmail = async (email: string, token: string) => {
     };
 
     await transporter.sendMail(mailOptions);
-}
+};
