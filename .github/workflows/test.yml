@@ -52,7 +52,7 @@ jobs:
           cache: 'npm'
       - name: Ensure .env.test Exists
         run: |
-          cat > ./backend/.env.test <<EOF
+          cat > .env.test <<EOF
           POSTGRES_USER=test_user
           POSTGRES_PASSWORD=test_password
           POSTGRES_DB=test_db
