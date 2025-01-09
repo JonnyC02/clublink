@@ -16,6 +16,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "aws-sdk": "^2.1692.0",
     "aws-sdk-mock": "^6.2.0",
     "bcryptjs": "^2.4.3",
     "cors": "2.8.5",
@@ -23,6 +24,7 @@
     "express-session": "^1.18.1",
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
     "pg-mem": "^3.0.4"
