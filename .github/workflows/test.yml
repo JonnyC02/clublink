@@ -54,6 +54,11 @@ jobs:
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm install
+      
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
 
       - name: Setup Docker Compose
         run: |
@@ -70,6 +75,11 @@ jobs:
 
       - name: Run Backend Integration Tests
         run: npm run test:integration
+      
+      - name: Tear Down Docker Compose
+        if: always()
+        run: docker-compose -f docker-compose.yml down
+        working-directory: ./backend
 
   frontend-tests:
     runs-on: ubuntu-latest
