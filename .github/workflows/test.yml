@@ -53,10 +53,10 @@ jobs:
       - name: Ensure .env.test Exists
         run: |
           cat > .env.test <<EOF
-          POSTGRES_USER=test_user
-          POSTGRES_PASSWORD=test_password
-          POSTGRES_DB=test_db
-          POSTGRES_HOST=localhost
+          USERNAME=test_user
+          PASSWORD=test_password
+          DATABASE=test_db
+          HOSTNAME=localhost
           EOF
         working-directory: ./backend
 
