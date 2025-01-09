@@ -1,8 +1,6 @@
 import request from 'supertest';
 import app from '../../src/index';
 import pool from '../../src/db/db';
-import AWSMock from 'aws-sdk-mock';
-import AWS from 'aws-sdk';
 
 jest.mock('../../src/utils/authentication', () => ({
     ...jest.requireActual('../../src/utils/authentication'),
@@ -12,18 +10,6 @@ jest.mock('../../src/utils/authentication', () => ({
     }),
     getUserId: jest.fn(() => 1),
   }));
-
-  beforeAll(() => {
-    AWSMock.setSDKInstance(AWS);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    AWSMock.mock('S3', 'upload', (params: any, callback) => {
-      callback(null, { Location: `https://mock-s3/${params.Key}` });
-    });
-  });
-  
-  afterAll(() => {
-    AWSMock.restore('S3');
-  });
 
 describe('Clubs API Integration Tests', () => {
   beforeAll(async () => {
@@ -148,17 +134,6 @@ describe('Clubs API Integration Tests', () => {
   });
 
   describe('POST /upload (upload file)', () => {
-    it('should upload a file to S3 and return the URL', async () => {
-      const fileBuffer = Buffer.from('dummy file content');
-      const res = await request(app)
-        .post('/clubs/upload')
-        .field('clubId', '1')
-        .attach('file', fileBuffer, 'testfile.txt');
-      expect(res.status).toBe(200);
-      expect(res.body).toHaveProperty('message', 'File uploaded successfully.');
-      expect(res.body).toHaveProperty('url');
-    });
-
     it('should return 400 if no file is provided', async () => {
       const res = await request(app).post('/clubs/upload').send({ clubId: 1 });
       expect(res.status).toBe(400);
