@@ -15,9 +15,9 @@ on:
       - 'backend/**'
   
 jobs:
-  backend-tests:
+  unit-tests-backend:
     runs-on: ubuntu-latest
-    name: Backend Tests
+    name: Backend Unit Tests
 
     steps:
       - name: Checkout Code
@@ -29,18 +29,46 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install Deps
+      - name: Install Backend Dependencies
+        working-directory: ./backend
         run: npm install
+
+      - name: Run Backend Unit Tests
+        run: npm run test:unit
+  
+  integration-tests-backend:
+    runs-on: ubuntu-latest
+    name: Backend Integration Tests
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm install
 
-      - name: Install Playwright Browsers
-        run: npx playwright install
+      - name: Setup Docker Compose
+        run: |
+          docker-compose -f docker-compose.yml up -d
+        working-directory: ./backend
+      
+      - name: Wait for Services to Be Ready
+        run: |
+          until docker-compose -f docker-compose.yml exec db pg_isready --timeout=0; do
+            echo "Waiting for database..."
+            sleep 5
+          done
+        working-directory: ./backend
 
-      - name: Run Backend Tests
-        run: npx playwright test tests/backend/**
+      - name: Run Backend Integration Tests
+        run: npm run test:integration
 
   frontend-tests:
     runs-on: ubuntu-latest

@@ -54,26 +54,30 @@ app.get('/universities', (req: Request, res: Response) => {
   }
 })
 
-const startServer = async () => {
-  try {
-    if (!process.env.REACT_APP_IS_TESTING) {
-      const result = await pool.query('SELECT acronym, name FROM universities');
-      if (result.rowCount === 0) {
-        console.log('No Universities Retrieved!'); // eslint-disable-line no-console
-      } else {
-        for (const uni of result.rows) {
-          UNIVERSITIES.push({ name: uni.name, acronym: uni.acronym });
+if (process.env.NODE_ENV !== 'test') {
+  const startServer = async () => {
+    try {
+      if (!process.env.REACT_APP_IS_TESTING) {
+        const result = await pool.query('SELECT acronym, name FROM universities');
+        if (result.rowCount === 0) {
+          console.log('No Universities Retrieved!'); // eslint-disable-line no-console
+        } else {
+          for (const uni of result.rows) {
+            UNIVERSITIES.push({ name: uni.name, acronym: uni.acronym });
+          }
         }
       }
+
+      app.listen(PORT, () => {
+        console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
+      });
+    } catch (err) {
+      console.error('Error during server initialization:', err); // eslint-disable-line no-console
+      process.exit(1);
     }
+  };
 
-    app.listen(PORT, () => {
-      console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
-    });
-  } catch (err) {
-    console.error('Error during server initialization:', err); // eslint-disable-line no-console
-    process.exit(1);
-  }
-};
+  startServer();
+}
 
-startServer();
+export default app;

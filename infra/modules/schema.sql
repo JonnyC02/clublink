@@ -39,19 +39,21 @@ CREATE TABLE MemberList (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP;
 );
 
--- ClubEvents
-CREATE TABLE ClubEvents (
+-- Events
+CREATE TABLE Events (
     id SERIAL PRIMARY KEY,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     date TIMESTAMP NOT NULL,
-    location VARCHAR(255)
+    latitude DECIMAL(9, 6),
+    longitude DECIMAL(9, 6),
+    time TIMESTAMP
 );
 
 -- Tickets
 CREATE TABLE Tickets (
     id SERIAL PRIMARY KEY,
-    eventId INT REFERENCES ClubEvents(id) ON DELETE CASCADE,
+    eventId INT REFERENCES Events(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL
 );
@@ -65,8 +67,8 @@ CREATE TABLE Transactions (
 
 -- Universities
 CREATE TABLE Universities (
-    id SERIAL PRIMARY KEY,
-    acronym VARCHAR(5) NOT NULL UNIQUE,
+    id SERIAL,
+    acronym VARCHAR(5) NOT NULL UNIQUE PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     superAdminIds JSON NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -84,4 +86,14 @@ CREATE TABLE Requests (
     approverId INT REFERENCES Users(id) ON DELETE CASCADE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
+);
+
+-- AuditLog
+CREATE TABLE AuditLog (
+    id SERIAL PRIMARY KEY,
+    clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
+    memberId INT REFERENCES Users(id) ON DELETE CASCADE,
+    userId INT REFERENCES Users(id) ON DELETE CASCADE,
+    actionType VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
