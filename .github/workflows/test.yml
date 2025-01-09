@@ -50,6 +50,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+      - name: Ensure .env.test Exists
+        run: |
+          cat > ./backend/.env.test <<EOF
+          POSTGRES_USER=test_user
+          POSTGRES_PASSWORD=test_password
+          POSTGRES_DB=test_db
+          POSTGRES_HOST=localhost
+          EOF
+        working-directory: ./backend
 
       - name: Install Backend Dependencies
         working-directory: ./backend
