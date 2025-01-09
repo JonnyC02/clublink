@@ -34,6 +34,7 @@ jobs:
         run: npm install
 
       - name: Run Backend Unit Tests
+        working-directory: ./backend
         run: npm run test:unit
   
   integration-tests-backend:
