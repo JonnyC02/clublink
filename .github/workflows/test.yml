@@ -67,7 +67,7 @@ jobs:
       
       - name: Wait for Services to Be Ready
         run: |
-          until docker-compose -f docker-compose.yml exec db pg_isready --timeout=0; do
+          until ocker-compose -f docker-compose.yml exec test_db pg_isready -U test_user -d test_db --timeout=0; do
             echo "Waiting for database..."
             sleep 5
           done
