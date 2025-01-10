@@ -11,7 +11,7 @@ const links = [
     { label: 'Home', href: '/' },
     { label: 'Browse Clubs', href: '/clubs' },
     { label: 'Events', href: '#' },
-    { label: 'About', href: '#' }
+    { label: 'About', href: '/about' }
 ]
 
 const cta = (
