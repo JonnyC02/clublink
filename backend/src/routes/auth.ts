@@ -52,7 +52,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 router.post('/signup', async (req: Request, res: Response) => {
     const { email, name, password, studentNumber, university } = req.body
     try {
-        const result = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
+        const result = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
 
         if (result.rows.length > 0) {
             res.status(400).json({ message: 'Email already in use' });
@@ -64,7 +64,14 @@ router.post('/signup', async (req: Request, res: Response) => {
         if (!studentNumber) {
             user = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, hashedPassword])
         } else {
-            user = await pool.query('INSERT INTO users (name, email, password, isStudent, studentNumber, university) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *', [name, email, password, true, studentNumber, university])
+            const student = await pool.query('SELECT id FROM users WHERE studentnumber = $1', [studentNumber])
+
+            if (student.rows.length > 0) {
+                res.status(400).json({ message: "Student Number Already in use!" })
+                return;
+            }
+
+            user = await pool.query('INSERT INTO users (name, email, password, studentNumber, university) VALUES ($1, $2, $3, $4, $5) RETURNING *', [name, email, hashedPassword, studentNumber, university])
         }
         if (!process.env.REACT_APP_IS_TESTING) {
             const userId = user.rows[0].id;

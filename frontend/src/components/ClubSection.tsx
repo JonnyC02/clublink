@@ -1,28 +1,19 @@
 import React from 'react';
 import ClubCard from './ClubCard';
 
-const clubs = [
-    {
-        image: 'path-to-image',
-        name: 'QUB Fencing Club',
-        description: 'Olympic Fencing @ QUB',
-        members: [1, 1, 1, 1]
-    },
-    {
-        image: 'path-to-image',
-        name: 'Queen\'s Computing Society',
-        description: 'Computing Society',
-        members: [1, 1, 1]
-    },
-    {
-        image: 'path-to-image',
-        name: 'Queen\'s Medical Society',
-        description: 'Doctors of Queens',
-        members: [1, 1, 1]
-    }
-]
+interface Club {
+    id: number,
+    name: string,
+    shortdescription: string,
+    image: string,
+    universitypopularity: number
+}
 
-const ClubsSection: React.FC = () => (
+interface ClubsSectionProps {
+    clubs: Club[]
+}
+
+const ClubsSection: React.FC<ClubsSectionProps> = ({ clubs }) => (
     <section className='bg-white py-16 clubsection'>
         <div className="container mx-auto text-center">
             <h2 className='text-3xl font-semibold mb-8'>Popular Clubs</h2>

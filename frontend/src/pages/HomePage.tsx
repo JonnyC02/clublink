@@ -3,14 +3,14 @@ import Hero from '../components/Hero';
 import FeaturesSection from '../components/FeatureSection';
 import ClubsSection from '../components/ClubSection';
 import Footer from '../components/Footer';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { isAuthenticated } from '../utils/auth';
 
 const links = [
-    { label: 'Home', href: '/'},
-    { label: 'Browse Clubs', href: '/clubs'},
-    { label: 'Events', href: '#'},
-    { label: 'About', href: '#'}
+    { label: 'Home', href: '/' },
+    { label: 'Browse Clubs', href: '/clubs' },
+    { label: 'Events', href: '#' },
+    { label: 'About', href: '#' }
 ]
 
 const cta = (
@@ -21,14 +21,41 @@ const cta = (
 )
 
 const HomePage: React.FC = () => {
+    const [clubs, setClubs] = useState<any[]>([])
+    const [error, setError] = useState('');
+    useEffect(() => {
+        navigator.geolocation.getCurrentPosition(async (pos) => {
+            const { latitude, longitude } = pos.coords;
+
+            try {
+                const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ longitude, latitude })
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setClubs(data);
+                } else {
+                    setError('Failed to fetch clubs');
+                }
+            } catch (err) {
+                console.error("Error fetching clubs:", err); // eslint-disable-line no-console
+                setError("An error occurred while fetching data.");
+            }
+        }, (error) => {
+            console.error("Error fetching location:", error); // eslint-disable-line no-console
+            setError("Failed to get user location.");
+        });
+    }, []);
     return (
         <div>
-        <Navbar brandName='ClubLink' links={links} cta={cta} />
-        <Hero />
-        <FeaturesSection />
-        <ClubsSection />
-        <Footer />
-      </div>
+            <Navbar brandName='ClubLink' links={links} cta={cta} />
+            <Hero />
+            <FeaturesSection />
+            <ClubsSection clubs={clubs} />
+            <Footer />
+        </div>
     )
 }
 
