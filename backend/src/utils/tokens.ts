@@ -12,3 +12,7 @@ export const generateToken = (payload: object): string => {
 export const generateVerificationToken = (userId: number) => {
     return jwt.sign({ userId }, SECRET_KEY!, { expiresIn: '1d' });
 }
+
+export const generateResetToken = (email: string) => {
+    return jwt.sign({ email }, SECRET_KEY!, { expiresIn: '1d' })
+}

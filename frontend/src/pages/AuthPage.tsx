@@ -313,12 +313,20 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                                 </a>
                             </p>
                         ) : (
-                            <p>
-                                Don&apos;t have an account?{" "}
-                                <a href="/signup" className="text-blue-500 hover:underline">
-                                    Sign Up
-                                </a>
-                            </p>
+                            <>
+                                <p>
+                                    Forgot Password?{" "}
+                                    <a href="/forgot-password" className="text-blue-500 hover:underline">
+                                        Reset Password
+                                    </a>
+                                </p>
+                                <p className="mt-4">
+                                    Don&apos;t have an account?{" "}
+                                    <a href="/signup" className="text-blue-500 hover:underline">
+                                        Sign Up
+                                    </a>
+                                </p>
+                            </>
                         )}
                     </div>
                 </div>

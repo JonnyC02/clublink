@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import Navbar from '../components/Navbar';
 import Hero from '../components/Hero';
 import FeaturesSection from '../components/FeatureSection';
@@ -22,7 +23,6 @@ const cta = (
 
 const HomePage: React.FC = () => {
     const [clubs, setClubs] = useState<any[]>([])
-    const [error, setError] = useState('');
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(async (pos) => {
             const { latitude, longitude } = pos.coords;
@@ -36,16 +36,12 @@ const HomePage: React.FC = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setClubs(data);
-                } else {
-                    setError('Failed to fetch clubs');
                 }
             } catch (err) {
                 console.error("Error fetching clubs:", err); // eslint-disable-line no-console
-                setError("An error occurred while fetching data.");
             }
         }, (error) => {
             console.error("Error fetching location:", error); // eslint-disable-line no-console
-            setError("Failed to get user location.");
         });
     }, []);
     return (
