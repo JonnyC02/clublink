@@ -58,11 +58,6 @@ jobs:
       - name: Run Backend Integration Tests
         run: npm run test:integration
         working-directory: ./backend
-      
-      - name: Tear Down Docker Compose
-        if: always()
-        run: docker-compose -f docker-compose.yml down
-        working-directory: ./backend
 
   frontend-tests:
     runs-on: ubuntu-latest
