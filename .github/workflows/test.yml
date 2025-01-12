@@ -59,9 +59,9 @@ jobs:
         run: npm run test:integration
         working-directory: ./backend
 
-  frontend-tests:
+  unit-tests-frontend:
     runs-on: ubuntu-latest
-    name: Frontend Tests
+    name: Frontend Unit Tests
 
     steps:
       - name: Checkout Code
@@ -75,16 +75,8 @@ jobs:
 
       - name: Install Deps
         run: npm install
-
-      - name: Install Frontend Dependencies
         working-directory: ./frontend
-        run: npm install
-
-      - name: Install Playwright Dependencies
-        run: npx playwright install-deps
       
-      - name: Install Playwright Browsers
-        run: npx playwright install
-
-      - name: Run Frontend Tests
-        run: npx playwright test tests/frontend/**
+      - name: Run Backend Unit Tests
+        run: npm run test:unit
+        working-directory: ./frontend

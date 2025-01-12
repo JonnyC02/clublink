@@ -6,38 +6,32 @@ import jwt from 'jsonwebtoken';
 import { sendVerificationEmail } from '../../src/utils/email';
 import { generateVerificationToken } from '../../src/utils/tokens';
 
-// Mock the database
 jest.mock('../../src/db/db', () => ({
   query: jest.fn(),
 }));
 
-// Mock bcrypt
 jest.mock('bcryptjs', () => ({
   hash: jest.fn(),
   compare: jest.fn(),
 }));
 
-// Mock JWT
 jest.mock('jsonwebtoken', () => ({
   sign: jest.fn(),
   verify: jest.fn(),
 }));
 
-// Mock email sending
 jest.mock('../../src/utils/email', () => ({
   sendVerificationEmail: jest.fn(),
 }));
 
-// Mock token generation
 jest.mock('../../src/utils/tokens', () => ({
   generateVerificationToken: jest.fn(),
 }));
 
-// Mock the authentication middleware
 jest.mock('../../src/utils/authentication', () => ({
   ...jest.requireActual('../../src/utils/authentication'),
   authenticateToken: jest.fn((req, res, next) => {
-    req.user = { id: 1 }; // Simulate authenticated user
+    req.user = { id: 1 };
     next();
   }),
 }));

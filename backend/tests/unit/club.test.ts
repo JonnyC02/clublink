@@ -67,8 +67,8 @@ describe('Club Utils', () => {
             };
 
             (pool.query as jest.Mock)
-                .mockResolvedValueOnce(mockRequestResult) // Update request
-                .mockResolvedValueOnce({}); // Join club
+                .mockResolvedValueOnce(mockRequestResult)
+                .mockResolvedValueOnce({});
 
             await approveRequest(mockRequestId, mockUserId.toString());
 
@@ -99,8 +99,8 @@ describe('Club Utils', () => {
             };
 
             (pool.query as jest.Mock)
-                .mockResolvedValueOnce(mockRequestResult) // Update request
-                .mockRejectedValueOnce(new Error('Join Club Failed')); // Join club
+                .mockResolvedValueOnce(mockRequestResult)
+                .mockRejectedValueOnce(new Error('Join Club Failed'));
 
             await expect(approveRequest(mockRequestId, mockUserId.toString())).rejects.toThrow(
                 'Join Club Failed'
