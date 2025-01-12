@@ -6,12 +6,36 @@ import ClubsSection from '../components/ClubSection';
 import Footer from '../components/Footer';
 import React, { useEffect, useState } from 'react';
 import { isAuthenticated } from '../utils/auth';
+import { faCalendarAlt, faCogs, faGift, faUser } from '@fortawesome/free-solid-svg-icons';
 
 const links = [
     { label: 'Home', href: '/' },
     { label: 'Browse Clubs', href: '/clubs' },
     { label: 'Events', href: '#' },
     { label: 'About', href: '/about' }
+]
+
+const features = [
+    {
+        title: 'Browse Clubs',
+        description: 'Find clubs that match your interests',
+        icon: faCogs
+    },
+    {
+        title: 'Event Management',
+        description: 'Stay up-to-date with upcoming club events',
+        icon: faCalendarAlt
+    },
+    {
+        title: 'Member Benefits',
+        description: 'Access resources and connect with fellow members',
+        icon: faGift
+    },
+    {
+        title: 'Create a club',
+        description: 'Start your own club and manage it easily',
+        icon: faUser
+    }
 ]
 
 const cta = (
@@ -48,7 +72,7 @@ const HomePage: React.FC = () => {
         <div>
             <Navbar brandName='ClubLink' links={links} cta={cta} />
             <Hero />
-            <FeaturesSection />
+            <FeaturesSection features={features} />
             <ClubsSection clubs={clubs} />
             <Footer />
         </div>
