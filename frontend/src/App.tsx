@@ -10,6 +10,9 @@ import VerifyPage from "./pages/VerifyPage";
 import ClubPage from "./pages/ClubPage";
 import ClubDashboard from "./pages/ClubDashboard";
 import CommitteeProtected from "./components/CommitteeProtected";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
+import AboutPage from "./pages/AboutPage";
 
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
@@ -36,9 +39,12 @@ function App() {
         {backendOnline ? (
           <>
             <Route path="/" element={<HomePage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/clubs" element={<ClubsPage />} />
             <Route path="/login" element={<AuthPage isSignup={false} />} />
             <Route path="/signup" element={<AuthPage isSignup={true} />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify" element={<VerifyPage />} />
             <Route path="/club/:id" element={<ClubPage />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -3,9 +3,10 @@ import express, { Request, Response } from 'express'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import pool from '../db/db'
-import { generateVerificationToken } from '../utils/tokens'
+import { generateResetToken, generateVerificationToken } from '../utils/tokens'
 import { sendVerificationEmail } from '../utils/email'
 import { authenticateToken } from '../utils/authentication'
+import nodemailer from 'nodemailer';
 
 const router = express.Router()
 
@@ -52,7 +53,7 @@ router.post('/login', async (req: Request, res: Response): Promise<void> => {
 router.post('/signup', async (req: Request, res: Response) => {
     const { email, name, password, studentNumber, university } = req.body
     try {
-        const result = await pool.query('SELECT id, email FROM users WHERE email = $1', [email]);
+        const result = await pool.query('SELECT id FROM users WHERE email = $1', [email]);
 
         if (result.rows.length > 0) {
             res.status(400).json({ message: 'Email already in use' });
@@ -64,7 +65,14 @@ router.post('/signup', async (req: Request, res: Response) => {
         if (!studentNumber) {
             user = await pool.query('INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING *', [name, email, hashedPassword])
         } else {
-            user = await pool.query('INSERT INTO users (name, email, password, studentNumber, university) VALUES ($1, $2, $3, $4, $5) RETURNING *', [name, email, password, studentNumber, university])
+            const student = await pool.query('SELECT id FROM users WHERE studentnumber = $1', [studentNumber])
+
+            if (student.rows.length > 0) {
+                res.status(400).json({ message: "Student Number Already in use!" })
+                return;
+            }
+
+            user = await pool.query('INSERT INTO users (name, email, password, studentNumber, university) VALUES ($1, $2, $3, $4, $5) RETURNING *', [name, email, hashedPassword, studentNumber, university])
         }
         if (!process.env.REACT_APP_IS_TESTING) {
             const userId = user.rows[0].id;
@@ -129,5 +137,57 @@ router.get("/user", authenticateToken, async (req: Request, res: Response): Prom
         res.status(500).json({ message: "Internal Server Error" });
     }
 });
+
+router.post('/forgot-password', async (req: Request, res: Response) => {
+    const { email } = req.body;
+
+    try {
+        const user = await pool.query('SELECT id FROM users WHERE email = $1', [email])
+        if (user.rows.length === 0) {
+            res.status(404).json({ message: 'No account found with this email address.' });
+            return;
+        }
+
+        const token = generateResetToken(email);
+        const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
+
+        const transporter = nodemailer.createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASSWORD,
+            },
+        });
+
+        await transporter.sendMail({
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: 'Password Reset Request',
+            html: `<p>Click the link below to reset your password:</p><a href="${resetLink}">${resetLink}</a>`,
+        });
+
+        res.status(200).json({ message: 'Password reset email sent!' });
+    } catch (error) {
+        console.error('Error during password reset:', error); // eslint-disable-line no-console
+        res.status(500).json({ message: 'An error occurred while processing your request.' });
+    }
+});
+
+router.post('/reset-password', async (req: Request, res: Response) => {
+    const { token, newPassword } = req.body
+
+    try {
+        const decoded: any = jwt.verify(token as string, process.env.JWT_SECRET!);
+        const email = decoded.email;
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10)
+        await pool.query('UPDATE users SET password = $1 WHERE email = $2', [hashedPassword, email])
+
+        res.status(200).json({ message: 'Password Successfully Updated' })
+    } catch (err) {
+        console.error('Error Resetting Password: ', err) // eslint-disable-line no-console
+        res.status(500).json({ message: 'An error occurred while resetting your password.' });
+    }
+})
 
 export default router;

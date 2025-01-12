@@ -9,7 +9,7 @@ const links = [
     { label: 'Home', href: '/' },
     { label: 'Browse Clubs', href: '/clubs' },
     { label: 'Events', href: '#' },
-    { label: 'About', href: '#' }
+    { label: 'About', href: '/about' }
 ];
 
 const cta = (
@@ -96,6 +96,7 @@ const ClubPage = () => {
 
             if (response.ok) {
                 alert("Successfully joined the club!");
+                navigate(0)
             } else {
                 const data = await response.json();
                 setJoinError(data.message || "Failed to join the club.");

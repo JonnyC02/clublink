@@ -1,11 +1,11 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';  // Type for Font Awesome icons
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
 interface FeatureCardProps {
   title: string;
   description: string;
-  icon: IconDefinition;  // Font Awesome Icon type
+  icon: IconDefinition;
 }
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ title, description, icon }) => (

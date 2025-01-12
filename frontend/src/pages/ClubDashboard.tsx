@@ -21,7 +21,7 @@ const ClubDashboard = () => {
         { label: "Home", href: "/" },
         { label: "Browse Clubs", href: "/clubs" },
         { label: "Events", href: "#" },
-        { label: "About", href: "#" },
+        { label: "About", href: "/about" },
     ];
 
     const cta = (
@@ -48,7 +48,7 @@ const ClubDashboard = () => {
                 alert("You must be logged in to perform this action.");
                 return;
             }
-    
+
             const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs/requests/${requestId}/${action}`, {
                 method: "POST",
                 headers: {
@@ -56,10 +56,9 @@ const ClubDashboard = () => {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             if (response.ok) {
                 alert(`Request ${action}d successfully!`);
-                // Refresh data
                 const updatedData = await fetch(`${process.env.REACT_APP_API_URL}/clubs/${id}/all`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -74,7 +73,7 @@ const ClubDashboard = () => {
             alert(`An error occurred while trying to ${action} the request.`);
         }
     };
-    
+
 
     useEffect(() => {
         setLoading(true);
@@ -100,7 +99,6 @@ const ClubDashboard = () => {
     return (
         <div>
             <Navbar cta={cta} links={links} />
-            {/* Full-Width Title Section */}
             <div className="bg-blue-50 w-full">
                 <TitleSection
                     title={data?.clubData?.name || "Club Details"}
@@ -126,25 +124,22 @@ const ClubDashboard = () => {
                     <div className="border-b mb-6">
                         <nav className="flex space-x-6">
                             <button
-                                className={`pb-2 px-4 ${
-                                    activeTab === "requests" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
-                                }`}
+                                className={`pb-2 px-4 ${activeTab === "requests" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
+                                    }`}
                                 onClick={() => setActiveTab("requests")}
                             >
                                 Requests
                             </button>
                             <button
-                                className={`pb-2 px-4 ${
-                                    activeTab === "memberlist" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
-                                }`}
+                                className={`pb-2 px-4 ${activeTab === "memberlist" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
+                                    }`}
                                 onClick={() => setActiveTab("memberlist")}
                             >
                                 Member List
                             </button>
                             <button
-                                className={`pb-2 px-4 ${
-                                    activeTab === "clubdetails" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
-                                }`}
+                                className={`pb-2 px-4 ${activeTab === "clubdetails" ? "border-b-2 border-blue-500 text-blue-500" : "text-gray-600"
+                                    }`}
                                 onClick={() => setActiveTab("clubdetails")}
                             >
                                 Club Details
@@ -153,92 +148,91 @@ const ClubDashboard = () => {
                     </div>
 
                     <div>
-                    {activeTab === "requests" && (
-    <div>
-        <h2 className="text-xl font-bold mb-4">Pending Requests</h2>
-        {data?.requests?.length > 0 ? (
-            <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-                    <thead>
-                        <tr className="bg-gray-100 border-b border-gray-200">
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Name
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Request Date
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data.requests
-                            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-                            .map((request: any, index: number) => (
-                                <tr
-                                    key={index}
-                                    className={`${
-                                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                                    } border-b border-gray-200`}
-                                >
-                                    <td className="px-6 py-4 text-sm text-gray-700">
-                                        {request.name || "N/A"}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm text-gray-700">
-                                        {new Date(request.created_at).toLocaleDateString("en-GB", {
-                                            year: "numeric",
-                                            month: "short",
-                                            day: "numeric",
-                                        })}
-                                    </td>
-                                    <td className="px-6 py-4 text-sm flex gap-2">
-                                        <button
-                                            onClick={() => handleRequestAction(request.id, "approve")}
-                                            className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                                        >
-                                            Approve
-                                        </button>
-                                        <button
-                                            onClick={() => handleRequestAction(request.id, "deny")}
-                                            className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                        >
-                                            Deny
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))}
-                    </tbody>
-                </table>
-            </div>
-        ) : (
-            <p className="text-gray-500">No pending requests.</p>
-        )}
-    </div>
-)}
+                        {activeTab === "requests" && (
+                            <div>
+                                <h2 className="text-xl font-bold mb-4">Pending Requests</h2>
+                                {data?.requests?.length > 0 ? (
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                                            <thead>
+                                                <tr className="bg-gray-100 border-b border-gray-200">
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Name
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Request Date
+                                                    </th>
+                                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                                        Actions
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {data.requests
+                                                    .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                                                    .map((request: any, index: number) => (
+                                                        <tr
+                                                            key={index}
+                                                            className={`${index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                                                                } border-b border-gray-200`}
+                                                        >
+                                                            <td className="px-6 py-4 text-sm text-gray-700">
+                                                                {request.name || "N/A"}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm text-gray-700">
+                                                                {new Date(request.created_at).toLocaleDateString("en-GB", {
+                                                                    year: "numeric",
+                                                                    month: "short",
+                                                                    day: "numeric",
+                                                                })}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-sm flex gap-2">
+                                                                <button
+                                                                    onClick={() => handleRequestAction(request.id, "approve")}
+                                                                    className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                                                                >
+                                                                    Approve
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => handleRequestAction(request.id, "deny")}
+                                                                    className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                                                >
+                                                                    Deny
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ) : (
+                                    <p className="text-gray-500">No pending requests.</p>
+                                )}
+                            </div>
+                        )}
                         {activeTab === "memberlist" && (
                             <div>
                                 <h2 className="text-xl font-bold mb-4">Member List</h2>
                                 <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-md mb-6">
-    <div
-        className="absolute h-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium"
-        style={{
-            width: `${(studentCount / totalMembers) * 100}%`,
-        }}
-    >
-        {Math.round((studentCount / totalMembers) * 100)}%
-    </div>
+                                    <div
+                                        className="absolute h-full bg-green-500 flex items-center justify-center text-white text-sm font-medium"
+                                        style={{
+                                            width: `${(studentCount / totalMembers) * 100}%`,
+                                        }}
+                                    >
+                                        {Math.round((studentCount / totalMembers) * 100)}%
+                                    </div>
 
-    <div
-        className="absolute h-full bg-yellow-500 flex items-center justify-center text-white text-sm font-medium"
-        style={{
-            left: `${(studentCount / totalMembers) * 100}%`,
-            width: `${(associateCount / totalMembers) * 100}%`,
-        }}
-    >
-        {Math.round((associateCount / totalMembers) * 100)}%
-    </div>
-</div>
+                                    <div
+                                        className="absolute h-full bg-yellow-500 flex items-center justify-center text-white text-sm font-medium"
+                                        style={{
+                                            left: `${(studentCount / totalMembers) * 100}%`,
+                                            width: `${(associateCount / totalMembers) * 100}%`,
+                                        }}
+                                    >
+                                        {Math.round((associateCount / totalMembers) * 100)}%
+                                    </div>
+                                </div>
 
                                 <div className="mb-4">
                                     <input
@@ -278,17 +272,16 @@ const ClubDashboard = () => {
                                                     .map((member: any, index: number) => (
                                                         <tr
                                                             key={index}
-                                                            className={`${
-                                                                index % 2 === 0
-                                                                    ? "bg-gray-50"
-                                                                    : "bg-white"
-                                                            } border-b border-gray-200`}
+                                                            className={`${index % 2 === 0
+                                                                ? "bg-gray-50"
+                                                                : "bg-white"
+                                                                } border-b border-gray-200`}
                                                         >
                                                             <td className="px-6 py-4 text-sm text-gray-700">
                                                                 {member.name || "N/A"}
                                                             </td>
                                                             <td className="px-6 py-4 text-sm text-gray-700">
-                                                                {member.membertype || "N/A"}
+                                                                {member.membertype || "Member"}
                                                             </td>
                                                             <td className="px-6 py-4 text-sm text-gray-700">
                                                                 {new Date(
@@ -301,11 +294,10 @@ const ClubDashboard = () => {
                                                             </td>
                                                             <td className="px-6 py-4 text-sm">
                                                                 <span
-                                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                                                        member.studentnumber
-                                                                            ? "bg-green-100 text-green-800"
-                                                                            : "bg-yellow-100 text-yellow-800"
-                                                                    }`}
+                                                                    className={`px-2 py-1 rounded-full text-xs font-medium ${member.studentnumber
+                                                                        ? "bg-green-100 text-green-800"
+                                                                        : "bg-yellow-100 text-yellow-800"
+                                                                        }`}
                                                                 >
                                                                     {member.studentnumber
                                                                         ? "Student"
@@ -323,133 +315,139 @@ const ClubDashboard = () => {
                             </div>
                         )}
                         {activeTab === "clubdetails" && (
-    <div>
-        <h2 className="text-xl font-bold mb-4">Edit Club Details</h2>
-        <form
-            onSubmit={async (e) => {
-                e.preventDefault();
-                try {
-                    const token = localStorage.getItem("token");
-                    if (!token) {
-                        throw new Error("You must be logged in to update club details.");
-                    }
+                            <div>
+                                <h2 className="text-xl font-bold mb-4">Edit Club Details</h2>
+                                <form
+                                    onSubmit={async (e) => {
+                                        e.preventDefault();
+                                        try {
+                                            const token = localStorage.getItem("token");
+                                            if (!token) {
+                                                throw new Error("You must be logged in to update club details.");
+                                            }
 
-                    let uploadedImageUrl = data.clubData.headerimage;
+                                            let uploadedImageUrl = data.clubData.headerimage;
 
-                    const fileInput = document.getElementById("headerImageFile") as HTMLInputElement;
-                    if (fileInput?.files?.[0]) {
-                        const formData = new FormData();
-                        formData.append("file", fileInput.files[0]);
-                        formData.append("clubId", id || "");
+                                            const fileInput = document.getElementById("headerImageFile") as HTMLInputElement;
+                                            if (fileInput?.files?.[0]) {
+                                                const formData = new FormData();
+                                                formData.append("file", fileInput.files[0]);
+                                                formData.append("clubId", id || "");
 
-                        const uploadResponse = await fetch(`${process.env.REACT_APP_API_URL}/clubs/upload`, {
-                            method: "POST",
-                            headers: {
-                                Authorization: `Bearer ${token}`,
-                            },
-                            body: formData,
-                        });
+                                                const uploadResponse = await fetch(`${process.env.REACT_APP_API_URL}/clubs/upload`, {
+                                                    method: "POST",
+                                                    headers: {
+                                                        Authorization: `Bearer ${token}`,
+                                                    },
+                                                    body: formData,
+                                                });
 
-                        if (uploadResponse.ok) {
-                            const result = await uploadResponse.json();
-                            uploadedImageUrl = result.url;
-                        } else {
-                            throw new Error("Failed to upload the image.");
-                        }
-                    }
+                                                if (uploadResponse.ok) {
+                                                    const result = await uploadResponse.json();
+                                                    uploadedImageUrl = result.url;
+                                                } else {
+                                                    throw new Error("Failed to upload the image.");
+                                                }
+                                            }
 
-                    const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs/${id}/edit`, {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`,
-                        },
-                        body: JSON.stringify({
-                            name: data.clubData.name,
-                            description: data.clubData.description,
-                            shortdescription: data.clubData.shortdescription,
-                            email: data.clubData.email,
-                            headerimage: uploadedImageUrl,
-                        }),
-                    });
+                                            const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs/${id}/edit`, {
+                                                method: "POST",
+                                                headers: {
+                                                    "Content-Type": "application/json",
+                                                    Authorization: `Bearer ${token}`,
+                                                },
+                                                body: JSON.stringify({
+                                                    name: data.clubData.name,
+                                                    description: data.clubData.description,
+                                                    shortdescription: data.clubData.shortdescription,
+                                                    email: data.clubData.email,
+                                                    headerimage: uploadedImageUrl,
+                                                }),
+                                            });
 
-                    if (response.ok) {
-                        alert("Club details updated successfully!");
-                    } else {
-                        const result = await response.json();
-                        throw new Error(result.message || "Failed to update club details.");
-                    }
-                } catch (error: any) {
-                    console.error("Error updating club details:", error); // eslint-disable-line no-console
-                    alert(error.message);
-                }
-            }}
-        >
+                                            if (response.ok) {
+                                                alert("Club details updated successfully!");
+                                            } else {
+                                                const result = await response.json();
+                                                throw new Error(result.message || "Failed to update club details.");
+                                            }
+                                        } catch (error: any) {
+                                            console.error("Error updating club details:", error); // eslint-disable-line no-console
+                                            alert(error.message);
+                                        }
+                                    }}
+                                >
 
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Description</label>
-                <textarea
-                    value={data.clubData.description || ""}
-                    onChange={(e) => setData({ ...data, clubData: { ...data.clubData, description: e.target.value } })}
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                ></textarea>
-            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">Description</label>
+                                        <textarea
+                                            value={data.clubData.description || ""}
+                                            onChange={(e) => setData({ ...data, clubData: { ...data.clubData, description: e.target.value } })}
+                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        ></textarea>
+                                    </div>
 
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Tagline</label>
-                <input
-                    type="text"
-                    value={data.clubData.shortdescription || ""}
-                    onChange={(e) =>
-                        setData({ ...data, clubData: { ...data.clubData, shortdescription: e.target.value } })
-                    }
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">Tagline</label>
+                                        <input
+                                            type="text"
+                                            value={data.clubData.shortdescription || ""}
+                                            onChange={(e) =>
+                                                setData({ ...data, clubData: { ...data.clubData, shortdescription: e.target.value } })
+                                            }
+                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        />
+                                    </div>
 
-            <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700">Header Image</label>
-                <input
-                    type="file"
-                    id="headerImageFile"
-                    accept="image/*"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                {data.clubData.headerimage && (
-                    <img
-                        src={data.clubData.headerimage}
-                        alt="Header Preview"
-                        className="mt-4 w-full max-h-40 object-cover rounded-md"
-                    />
-                )}
-            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">Header Image</label>
+                                        <input
+                                            type="file"
+                                            id="headerImageFile"
+                                            accept="image/*"
+                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        />
+                                        {data.clubData.headerimage && (
+                                            <img
+                                                src={data.clubData.headerimage}
+                                                alt="Header Preview"
+                                                className="mt-4 w-full max-h-40 object-cover rounded-md"
+                                            />
+                                        )}
+                                    </div>
 
-            <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Image</label>
-                <input
-                    type="file"
-                    id="imageFile"
-                    accept="image/*"
-                    className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                />
-                {data.clubData.image && (
-                    <img
-                        src={data.clubData.image}
-                        alt="Header Preview"
-                        className="mt-4 w-full max-h-40 object-cover rounded-md"
-                    />
-                )}
-            </div>
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium text-gray-700">Image</label>
+                                        <input
+                                            type="file"
+                                            id="imageFile"
+                                            accept="image/*"
+                                            className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+                                        />
+                                        {data.clubData.image && (
+                                            <img
+                                                src={data.clubData.image}
+                                                alt="Header Preview"
+                                                className="mt-4 w-full max-h-40 object-cover rounded-md"
+                                            />
+                                        )}
+                                    </div>
 
-            <button
-                type="submit"
-                className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-            >
-                Save Changes
-            </button>
-        </form>
-    </div>
-)}
+                                    <button
+                                        type="submit"
+                                        className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </form>
+                                <button
+                                    onClick={() => window.location.href = `/club/${id}`}
+                                    className="px-4 mt-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                                >
+                                    View Club Page &gt;&gt;
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
