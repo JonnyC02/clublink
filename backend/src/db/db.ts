@@ -1,19 +1,16 @@
 import { Pool } from 'pg';
 import dotenv from 'dotenv';
 
-dotenv.config({
-  path: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
-});
+dotenv.config();
 
 let pool: Pool;
 
 if (process.env.NODE_ENV === 'test') {
-  pool = new Pool({
-    host: process.env.HOSTNAME,
-    user: process.env.USERNAME,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE
-  })
+  pool = {
+    query: jest.fn(),
+    connect: jest.fn(),
+    end: jest.fn(),
+  } as unknown as Pool;
 } else {
   pool = new Pool({
     host: process.env.RDS_HOSTNAME,
