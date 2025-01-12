@@ -50,37 +50,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-      - name: Ensure .env.test Exists
-        run: |
-          cat > .env.test <<EOF
-          USERNAME=test_user
-          PASSWORD=test_password
-          DATABASE=test_db
-          HOSTNAME=localhost
-          EOF
-        working-directory: ./backend
 
       - name: Install Backend Dependencies
         working-directory: ./backend
         run: npm install
-      
-      - name: Install Docker Compose
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose
-
-      - name: Setup Docker Compose
-        run: |
-          docker-compose -f docker-compose.yml up -d
-        working-directory: ./backend
-      
-      - name: Wait for Services to Be Ready
-        run: |
-          until docker-compose -f docker-compose.yml exec -T test_db pg_isready -U test_user -d test_db --timeout=0; do
-            echo "Waiting for database..."
-            sleep 5
-          done
-        working-directory: ./backend
 
       - name: Run Backend Integration Tests
         run: npm run test:integration
