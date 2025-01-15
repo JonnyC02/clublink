@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import ErrorPage from "./pages/ErrorPage";
 import ClubsPage from "./pages/ClubsPage";
@@ -19,20 +19,23 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/health`, { credentials: 'include' });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/health`,
+          { credentials: "include" }
+        );
         if (response.status !== 200) {
-          setBackendOnline(false)
+          setBackendOnline(false);
         }
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
-        setBackendOnline(false)
+        setBackendOnline(false);
       }
     };
 
     if (!process.env.REACT_APP_IS_TESTING) {
-      fetchData()
+      fetchData();
     }
-  }, [])
+  }, []);
   return (
     <Router>
       <Routes>
@@ -47,8 +50,22 @@ function App() {
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/verify" element={<VerifyPage />} />
             <Route path="/club/:id" element={<ClubPage />} />
-            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-            <Route path="/club/:id/committee" element={<CommitteeProtected><ClubDashboard /></CommitteeProtected>} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/club/:id/committee"
+              element={
+                <CommitteeProtected>
+                  <ClubDashboard />
+                </CommitteeProtected>
+              }
+            />
           </>
         ) : (
           <Route path="*" element={<ErrorPage />} />
