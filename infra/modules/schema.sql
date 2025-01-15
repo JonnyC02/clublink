@@ -11,7 +11,7 @@ CREATE TABLE Users (
     password VARCHAR(255) NOT NULL,
     isActive BOOLEAN DEFAULT false,
     studentNumber VARCHAR(10),
-    university VARCHAR(5) REFERENCES Universities(acronym) ON DELETE CASCADE,
+    university VARCHAR(5) REFERENCES Universities(acronym),
     isSuperAdmin BOOLEAN DEFAULT false
 );
 
@@ -61,8 +61,8 @@ CREATE TABLE Tickets (
 -- Transactions
 CREATE TABLE Transactions (
     id SERIAL PRIMARY KEY,
-    memberId INT REFERENCES Users(id) ON DELETE CASCADE,
-    ticketId INT REFERENCES Tickets(id) ON DELETE CASCADE
+    memberId INT REFERENCES Users(id),
+    ticketId INT REFERENCES Tickets(id)
 );
 
 -- Universities
@@ -83,7 +83,7 @@ CREATE TABLE Requests (
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
     memberId INT REFERENCES Users(id) ON DELETE CASCADE,
     status request_type_enum DEFAULT 'Pending',
-    approverId INT REFERENCES Users(id) ON DELETE CASCADE,
+    approverId INT REFERENCES Users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );
@@ -92,8 +92,8 @@ CREATE TABLE Requests (
 CREATE TABLE AuditLog (
     id SERIAL PRIMARY KEY,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
-    memberId INT REFERENCES Users(id) ON DELETE CASCADE,
-    userId INT REFERENCES Users(id) ON DELETE CASCADE,
+    memberId INT REFERENCES Users(id),
+    userId INT REFERENCES Users(id),
     actionType VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
