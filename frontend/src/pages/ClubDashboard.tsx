@@ -1,22 +1,41 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import { useEffect, useState } from "react";
+import { ClubData } from "../types/ClubData";
+import { Member } from "../types/Member";
+import { Request } from "../types/Request";
+import { ClubType } from "../types/ClubType";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
   const [activeTab, setActiveTab] = useState("requests");
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<Omit<ClubData, "ismember" | "hasPending">>({
+    Club: {
+      id: 0,
+      name: "",
+      email: "",
+      description: "",
+      shortdescription: "",
+      image: "",
+      headerimage: "",
+      popularity: 0,
+      university: "",
+      clubtype: ClubType.SOCIETY,
+    },
+    MemberList: [],
+    Requests: [],
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
   const studentCount =
-    data?.memberList?.filter((member: any) => member.studentnumber).length || 0;
+    data.MemberList.filter((member: Member) => member.studentnumber).length ||
+    0;
   const associateCount =
-    data?.memberList?.filter((member: any) => !member.studentnumber).length ||
+    data.MemberList.filter((member: Member) => !member.studentnumber).length ||
     0;
   const totalMembers = studentCount + associateCount;
 
@@ -111,8 +130,8 @@ const ClubDashboard = () => {
       <Navbar cta={cta} links={links} />
       <div className="bg-blue-50 w-full">
         <TitleSection
-          title={data?.clubData?.name || "Club Details"}
-          subtitle={data?.clubData?.shortdescription || "Manage your club"}
+          title={data?.Club.name || "Club Details"}
+          subtitle={data?.Club.shortdescription || "Manage your club"}
         />
       </div>
       {loading ? (
@@ -170,7 +189,7 @@ const ClubDashboard = () => {
             {activeTab === "requests" && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Pending Requests</h2>
-                {data?.requests?.length > 0 ? (
+                {data.Requests?.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
                       <thead>
@@ -187,51 +206,50 @@ const ClubDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {data.requests
-                          .sort(
-                            (a: any, b: any) =>
-                              new Date(b.created_at).getTime() -
-                              new Date(a.created_at).getTime()
-                          )
-                          .map((request: any, index: number) => (
-                            <tr
-                              key={index}
-                              className={`${
-                                index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                              } border-b border-gray-200`}
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {request.name || "N/A"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {new Date(
-                                  request.created_at
-                                ).toLocaleDateString("en-GB", {
+                        {data.Requests.sort(
+                          (a: Request, b: Request) =>
+                            new Date(b.created_at).getTime() -
+                            new Date(a.created_at).getTime()
+                        ).map((request: Request, index: number) => (
+                          <tr
+                            key={index}
+                            className={`${
+                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                            } border-b border-gray-200`}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {request.name || "N/A"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {new Date(request.created_at).toLocaleDateString(
+                                "en-GB",
+                                {
                                   year: "numeric",
                                   month: "short",
                                   day: "numeric",
-                                })}
-                              </td>
-                              <td className="px-6 py-4 text-sm flex gap-2">
-                                <button
-                                  onClick={() =>
-                                    handleRequestAction(request.id, "approve")
-                                  }
-                                  className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                                >
-                                  Approve
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    handleRequestAction(request.id, "deny")
-                                  }
-                                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                                >
-                                  Deny
-                                </button>
-                              </td>
-                            </tr>
-                          ))}
+                                }
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm flex gap-2">
+                              <button
+                                onClick={() =>
+                                  handleRequestAction(request.id, "approve")
+                                }
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+                              >
+                                Approve
+                              </button>
+                              <button
+                                onClick={() =>
+                                  handleRequestAction(request.id, "deny")
+                                }
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Deny
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -273,7 +291,7 @@ const ClubDashboard = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                   />
                 </div>
-                {data?.memberList?.length > 0 ? (
+                {data.MemberList.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
                       <thead>
@@ -293,50 +311,46 @@ const ClubDashboard = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {data.memberList
-                          .filter((member: any) =>
-                            member.name
-                              .toLowerCase()
-                              .includes(searchQuery.toLowerCase())
-                          )
-                          .map((member: any, index: number) => (
-                            <tr
-                              key={index}
-                              className={`${
-                                index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                              } border-b border-gray-200`}
-                            >
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {member.name || "N/A"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {member.membertype || "Member"}
-                              </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
-                                {new Date(member.created_at).toLocaleDateString(
-                                  "en-US",
-                                  {
-                                    year: "numeric",
-                                    month: "short",
-                                    day: "numeric",
-                                  }
-                                )}
-                              </td>
-                              <td className="px-6 py-4 text-sm">
-                                <span
-                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                    member.studentnumber
-                                      ? "bg-green-100 text-green-800"
-                                      : "bg-yellow-100 text-yellow-800"
-                                  }`}
-                                >
-                                  {member.studentnumber
-                                    ? "Student"
-                                    : "Associate"}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
+                        {data.MemberList.filter((member: Member) =>
+                          member.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        ).map((member: Member, index: number) => (
+                          <tr
+                            key={index}
+                            className={`${
+                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                            } border-b border-gray-200`}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {member.name || "N/A"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {member.membertype || "Member"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {new Date(member.created_at).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <span
+                                className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                  member.studentnumber
+                                    ? "bg-green-100 text-green-800"
+                                    : "bg-yellow-100 text-yellow-800"
+                                }`}
+                              >
+                                {member.studentnumber ? "Student" : "Associate"}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
                       </tbody>
                     </table>
                   </div>
@@ -359,7 +373,7 @@ const ClubDashboard = () => {
                         );
                       }
 
-                      let uploadedImageUrl = data.clubData.headerimage;
+                      let uploadedImageUrl = data.Club.headerimage;
 
                       const fileInput = document.getElementById(
                         "headerImageFile"
@@ -397,10 +411,10 @@ const ClubDashboard = () => {
                             Authorization: `Bearer ${token}`,
                           },
                           body: JSON.stringify({
-                            name: data.clubData.name,
-                            description: data.clubData.description,
-                            shortdescription: data.clubData.shortdescription,
-                            email: data.clubData.email,
+                            name: data.Club.name,
+                            description: data.Club.description,
+                            shortdescription: data.Club.shortdescription,
+                            email: data.Club.email,
                             headerimage: uploadedImageUrl,
                           }),
                         }
@@ -414,9 +428,9 @@ const ClubDashboard = () => {
                           result.message || "Failed to update club details."
                         );
                       }
-                    } catch (error: any) {
+                    } catch (error: unknown) {
                       console.error("Error updating club details:", error); // eslint-disable-line no-console
-                      alert(error.message);
+                      alert(error);
                     }
                   }}
                 >
@@ -425,12 +439,12 @@ const ClubDashboard = () => {
                       Description
                     </label>
                     <textarea
-                      value={data.clubData.description || ""}
+                      value={data.Club.description || ""}
                       onChange={(e) =>
                         setData({
                           ...data,
-                          clubData: {
-                            ...data.clubData,
+                          Club: {
+                            ...data.Club,
                             description: e.target.value,
                           },
                         })
@@ -445,12 +459,12 @@ const ClubDashboard = () => {
                     </label>
                     <input
                       type="text"
-                      value={data.clubData.shortdescription || ""}
+                      value={data.Club.shortdescription || ""}
                       onChange={(e) =>
                         setData({
                           ...data,
-                          clubData: {
-                            ...data.clubData,
+                          Club: {
+                            ...data.Club,
                             shortdescription: e.target.value,
                           },
                         })
@@ -469,9 +483,9 @@ const ClubDashboard = () => {
                       accept="image/*"
                       className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                     />
-                    {data.clubData.headerimage && (
+                    {data.Club.headerimage && (
                       <img
-                        src={data.clubData.headerimage}
+                        src={data.Club.headerimage}
                         alt="Header Preview"
                         className="mt-4 w-full max-h-40 object-cover rounded-md"
                       />
@@ -488,9 +502,9 @@ const ClubDashboard = () => {
                       accept="image/*"
                       className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
                     />
-                    {data.clubData.image && (
+                    {data.Club.image && (
                       <img
-                        src={data.clubData.image}
+                        src={data.Club.image}
                         alt="Header Preview"
                         className="mt-4 w-full max-h-40 object-cover rounded-md"
                       />

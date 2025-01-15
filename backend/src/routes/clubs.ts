@@ -1,43 +1,51 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import express, { Request, Response } from 'express';
-import pool from '../db/db';
-import { authenticateToken, getUserId } from '../utils/authentication';
-import { hasPendingRequest, isStudent } from '../utils/user'
-import { approveRequest, denyRequest, joinClub, requestJoinClub } from '../utils/club';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
-import multer from 'multer';
-import dotenv from 'dotenv';
-dotenv.config()
-
+import express, { Request, Response } from "express";
+import pool from "../db/db";
+import { authenticateToken, getUserId } from "../utils/authentication";
+import { hasPendingRequest, isStudent } from "../utils/user";
+import {
+  approveRequest,
+  denyRequest,
+  joinClub,
+  requestJoinClub,
+} from "../utils/club";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import multer from "multer";
+import dotenv from "dotenv";
+import { AuthRequest } from "../types/AuthRequest";
+dotenv.config();
 
 const router = express.Router();
 
 const s3 = new S3Client({
-    credentials: {
-        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
-    },
-    region: process.env.AWS_REGION || 'us-east-1',
+  credentials: {
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
+  },
+  region: process.env.AWS_REGION || "us-east-1",
 });
 
 const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fileSize: 2 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 2 * 1024 * 1024 },
 });
 
-router.post('/', async (req: Request & { user?: { id: number } }, res: Response) => {
-    const { latitude, longitude } = req.body;
+router.post("/", async (req: AuthRequest, res: Response) => {
+  const { latitude, longitude } = req.body;
 
-    try {
-        const userId = (req as any).user?.id;
-        let query: string;
-        let params: any[] = [];
+  try {
+    const userId = req.user?.id;
+    let query: string;
+    let params: string[] = [];
 
-        const userResult = await pool.query('SELECT university FROM Users WHERE id = $1', [userId]);
-        const userUniversity = userResult.rows.length > 0 ? userResult.rows[0].university : null;
+    const userResult = await pool.query(
+      "SELECT university FROM Users WHERE id = $1",
+      [userId]
+    );
+    const userUniversity =
+      userResult.rows.length > 0 ? userResult.rows[0].university : null;
 
-        if (latitude && longitude) {
-            query = `
+    if (latitude && longitude) {
+      query = `
                 SELECT 
                     c.id, 
                     c.name, 
@@ -64,9 +72,9 @@ router.post('/', async (req: Request & { user?: { id: number } }, res: Response)
                     distance ASC,
                     popularity DESC;
             `;
-            params = [latitude, longitude, userUniversity];
-        } else {
-            query = `
+      params = [latitude, longitude, userUniversity];
+    } else {
+      query = `
                 SELECT 
                     c.id, 
                     c.name, 
@@ -86,31 +94,31 @@ router.post('/', async (req: Request & { user?: { id: number } }, res: Response)
                     universityPriority DESC,
                     popularity DESC;
             `;
-            params = [userUniversity];
-        }
-        const result = await pool.query(query, params);
-        res.json(result.rows);
-    } catch (error) {
-        console.error('Error fetching clubs:', error); // eslint-disable-line no-console
-        res.status(500).json({ message: 'Internal Server Error' });
+      params = [userUniversity];
     }
+    const result = await pool.query(query, params);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Error fetching clubs:", error); // eslint-disable-line no-console
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
-router.get('/:id', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    let userId;
-    if (req.headers['authorization']) {
-        userId = getUserId(req.headers['authorization'])
-    }
+router.get("/:id", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  let userId;
+  if (req.headers["authorization"]) {
+    userId = getUserId(req.headers["authorization"]);
+  }
 
-    if (!id) {
-        res.status(400).json({ message: 'Invalid request. Missing club ID.' });
-        return;
-    }
+  if (!id) {
+    res.status(400).json({ message: "Invalid request. Missing club ID." });
+    return;
+  }
 
-    try {
-        const result = await pool.query(
-            `
+  try {
+    const result = await pool.query(
+      `
             SELECT 
                 c.id, 
                 c.name, 
@@ -141,38 +149,44 @@ router.get('/:id', async (req: Request, res: Response) => {
             GROUP BY 
                 c.id, c.name, c.description, c.university, c.email, c.clubtype, c.headerimage, u.name;
             `,
-            [userId, id]
-        );
-
-        if (result.rows.length === 0) {
-            res.status(404).json({ message: 'Club not found.' });
-            return;
-        }
-
-        const clubData = result.rows[0];
-        let hasPending = false;
-
-        if (userId) {
-            hasPending = await hasPendingRequest(userId, parseInt(id));
-        }
-
-        res.json({ ...clubData, hasPending });
-    } catch (error) {
-        console.error('Error fetching club:', error); // eslint-disable-line no-console
-        res.status(500).json({ message: 'Internal server error.' });
-    }
-});
-
-router.get('/:id/all', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const result = await pool.query('SELECT name, email, description, shortdescription, image, headerimage FROM clubs WHERE id = $1', [id])
+      [userId, id]
+    );
 
     if (result.rows.length === 0) {
-        res.status(404).json({ message: 'Club not Found' })
-        return;
+      res.status(404).json({ message: "Club not found." });
+      return;
     }
 
-    const requests = await pool.query(`
+    const clubData = result.rows[0];
+    let hasPending = false;
+    const ismember = clubData.ismember;
+    delete clubData.ismember;
+
+    if (userId) {
+      hasPending = await hasPendingRequest(userId, parseInt(id));
+    }
+
+    res.json({ Club: clubData, hasPending, ismember });
+  } catch (error) {
+    console.error("Error fetching club:", error); // eslint-disable-line no-console
+    res.status(500).json({ message: "Internal server error." });
+  }
+});
+
+router.get("/:id/all", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await pool.query(
+    "SELECT name, email, description, shortdescription, image, headerimage FROM clubs WHERE id = $1",
+    [id]
+  );
+
+  if (result.rows.length === 0) {
+    res.status(404).json({ message: "Club not Found" });
+    return;
+  }
+
+  const requests = await pool.query(
+    `
         SELECT 
             r.id,
             r.memberid,
@@ -187,10 +201,12 @@ router.get('/:id/all', async (req: Request, res: Response) => {
             r.memberid = u.id
         WHERE 
             r.clubId = $1 AND r.status = 'Pending'
-    `, [id]);    
-    
-    const memberList = await pool.query(
-        `
+    `,
+    [id]
+  );
+
+  const memberList = await pool.query(
+    `
         SELECT 
             ml.memberId, 
             ml.memberType, 
@@ -206,87 +222,97 @@ router.get('/:id/all', async (req: Request, res: Response) => {
         WHERE 
             ml.clubId = $1
         `,
-        [id]
-    );
+    [id]
+  );
 
-    res.json({ clubData: result.rows[0], requests: requests.rows, memberList: memberList.rows })
-})
+  res.json({
+    Club: result.rows[0],
+    Request: requests.rows,
+    MemberList: memberList.rows,
+  });
+});
 
-router.get('/:id/committee', async (req: Request, res: Response) => {
-    const { id } = req.params;
+router.get("/:id/committee", async (req: Request, res: Response) => {
+  const { id } = req.params;
 
-    if (!id) {
-        res.status(400).json({ message: "No Id Provided!" })
-        return;
-    }
+  if (!id) {
+    res.status(400).json({ message: "No Id Provided!" });
+    return;
+  }
 
-    const result = await pool.query(
-        `
+  const result = await pool.query(
+    `
         SELECT u.id, u.name
         FROM MemberList ml
         JOIN Users u ON ml.memberId = u.id
         WHERE ml.clubId = $1 AND ml.memberType = 'Committee';
         `,
-        [id]
-    );
+    [id]
+  );
 
-    if (result.rows.length === 0) {
-        res.status(404).json({ message: "No committee members found." });
-        return;
-    }
+  if (result.rows.length === 0) {
+    res.status(404).json({ message: "No committee members found." });
+    return;
+  }
 
-    res.json(result.rows);
-})
+  res.json(result.rows);
+});
 
-router.get('/:id/is-committee', async (req: Request, res: Response) => {
-    const { id } = req.params;
-    const userId = getUserId(req.headers.authorization);
+router.get("/:id/is-committee", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = getUserId(req.headers.authorization);
 
-    if (!userId) {
-        res.status(401).json({ message: 'Unauthorized' });
-        return
-    }
+  if (!userId) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
 
-    try {
-        const result = await pool.query(
-            `
+  try {
+    const result = await pool.query(
+      `
             SELECT EXISTS (
                 SELECT 1 
                 FROM MemberList 
                 WHERE memberId = $1 AND clubId = $2 AND memberType = 'Committee'
             ) AS isCommittee
             `,
-            [userId, id]
-        );
+      [userId, id]
+    );
 
-        res.json({ isCommittee: result.rows[0]?.iscommittee || false });
-    } catch (err) {
-        console.error('Error checking committee status:', err); // eslint-disable-line no-console
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
+    res.json({ isCommittee: result.rows[0]?.iscommittee || false });
+  } catch (err) {
+    console.error("Error checking committee status:", err); // eslint-disable-line no-console
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
-
-router.get('/join/:id', authenticateToken, async (req: Request, res: Response) => {
+router.get(
+  "/join/:id",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const student = await isStudent((req as any).user?.id)
-
+    const userId = req.user?.id;
+    const student = await isStudent(userId);
     if (student) {
-        await joinClub(id, (req as any).user?.id)
-        res.json({ message: "Successfully Joined Club" })
+      await joinClub(id, userId);
+      res.json({ message: "Successfully Joined Club" });
     } else {
-        await requestJoinClub(id, (req as any).user?.id)
-        res.json({ message: "Sent Request to Join" })
+      await requestJoinClub(id, userId);
+      res.json({ message: "Sent Request to Join" });
     }
-})
+  }
+);
 
-router.post('/:id/edit', authenticateToken, async (req: Request, res: Response) => {
+router.post(
+  "/:id/edit",
+  authenticateToken,
+  async (req: Request, res: Response) => {
     const { id } = req.params;
     const { description, shortdescription, headerimage, image } = req.body;
 
     try {
-        const result = await pool.query(
-            `
+      const result = await pool.query(
+        `
             UPDATE clubs
             SET 
                 description = $1,
@@ -296,80 +322,97 @@ router.post('/:id/edit', authenticateToken, async (req: Request, res: Response) 
             WHERE id = $5
             RETURNING *;
             `,
-            [description, shortdescription, headerimage, image, id]
-        );
+        [description, shortdescription, headerimage, image, id]
+      );
 
-        if (result.rowCount === 0) {
-            res.status(404).json({ message: 'Club not found.' });
-            return;
-        }
+      if (result.rowCount === 0) {
+        res.status(404).json({ message: "Club not found." });
+        return;
+      }
 
-        res.json({ message: 'Club details updated successfully.', club: result.rows[0] });
-    } catch (err: any) {
-        console.error('Error updating club details:', err); // eslint-disable-line no-console
-        res.status(500).json({ message: 'Internal server error.' });
+      res.json({
+        message: "Club details updated successfully.",
+        club: result.rows[0],
+      });
+    } catch (err) {
+      console.error("Error updating club details:", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal server error." });
     }
-})
+  }
+);
 
-router.post('/upload', authenticateToken, upload.single('file'), async (req: Request, res: Response) => {
+router.post(
+  "/upload",
+  authenticateToken,
+  upload.single("file"),
+  async (req: Request, res: Response) => {
     try {
-        const file = req.file;
-        const { clubId } = req.body;
+      const file = req.file;
+      const { clubId } = req.body;
 
-        if (!file || !clubId) {
-            res.status(400).json({ message: 'File and clubId are required.' });
-            return;
-        }
+      if (!file || !clubId) {
+        res.status(400).json({ message: "File and clubId are required." });
+        return;
+      }
 
-        const params = {
-            Bucket: process.env.AWS_S3_BUCKET_NAME || '',
-            Key: `clubs/${clubId}/${Date.now()}_${file.originalname}`,
-            Body: file.buffer,
-            ContentType: file.mimetype,
-        };
+      const params = {
+        Bucket: process.env.AWS_S3_BUCKET_NAME || "",
+        Key: `clubs/${clubId}/${Date.now()}_${file.originalname}`,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      };
 
-        const command = new PutObjectCommand(params);
-        await s3.send(command);
-        
-        const uploadResult = {
-            Location: `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`,
-        };
-        res.status(200).json({
-            message: 'File uploaded successfully.',
-            url: uploadResult.Location,
-        });
+      const command = new PutObjectCommand(params);
+      await s3.send(command);
+
+      const uploadResult = {
+        Location: `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`,
+      };
+      res.status(200).json({
+        message: "File uploaded successfully.",
+        url: uploadResult.Location,
+      });
     } catch (error) {
-        console.error('Error uploading file:', error); // eslint-disable-line no-console
-        res.status(500).json({ message: 'Failed to upload file.' });
+      console.error("Error uploading file:", error); // eslint-disable-line no-console
+      res.status(500).json({ message: "Failed to upload file." });
     }
-})
+  }
+);
 
-router.post('/requests/:id/approve', authenticateToken, async (req: Request, res: Response) => {
+router.post(
+  "/requests/:id/approve",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
 
-    const userId = (req as any).user.id
+    const userId = req.user?.id;
 
     try {
-        await approveRequest(id, userId);
-        res.json({ message: "Successfully approved requests"})
+      await approveRequest(id, userId);
+      res.json({ message: "Successfully approved requests" });
     } catch (err) {
-        console.error(err) // eslint-disable-line no-console
-        res.status(500).json({ messsage: "Failed to approve request"});
+      console.error(err); // eslint-disable-line no-console
+      res.status(500).json({ messsage: "Failed to approve request" });
     }
-})
+  }
+);
 
-router.post('/requests/:id/deny', authenticateToken, async (req: Request, res: Response) => {
+router.post(
+  "/requests/:id/deny",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    
-    const userId = (req as any).user.id
+
+    const userId = req.user?.id;
 
     try {
-        await denyRequest(id, userId);
-        res.json({ message: "Successfully denied request"})
+      await denyRequest(id, userId);
+      res.json({ message: "Successfully denied request" });
     } catch (err) {
-        console.error(err) // eslint-disable-line no-console
-        res.status(500).json({ message: 'Failed to deny request'})
+      console.error(err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Failed to deny request" });
     }
-})
+  }
+);
 
 export default router;

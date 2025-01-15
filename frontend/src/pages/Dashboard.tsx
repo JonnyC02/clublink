@@ -1,12 +1,13 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
+import { UserClubsResp } from "../types/responses/UserClubsResp";
+import { UserResp } from "../types/responses/UserResp";
 
 const Dashboard: React.FC = () => {
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<UserResp>();
   const [loading, setLoading] = useState(true);
-  const [clubs, setClubs] = useState<any[]>([]);
+  const [clubs, setClubs] = useState<UserClubsResp[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
@@ -88,7 +89,7 @@ const Dashboard: React.FC = () => {
         .includes(searchQuery.toLowerCase())
   );
 
-  const ClubCard = ({ club }: { club: any }) => (
+  const ClubCard = ({ club }: { club: UserClubsResp }) => (
     <div className="bg-gray-50 shadow-md rounded-lg p-4 hover:shadow-lg transition">
       <img
         src={club.image}
