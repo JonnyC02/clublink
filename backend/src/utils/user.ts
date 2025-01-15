@@ -2,17 +2,18 @@ import pool from "../db/db"
 
 export const isStudent = async (id: number | undefined) => {
     try {
-        const result = await pool.query('SELECT studentnumber FROM users WHERE id = $1', [id])
+        const result = await pool.query('SELECT studentnumber FROM users WHERE id = $1', [id]);
 
         if (result.rowCount === 0) {
-            throw new Error('User not found!')
+            throw new Error('User not found!');
         }
 
-        return !!result.rows[0].studentnumber
+        return !!result.rows[0].studentnumber;
     } catch (err) {
-        console.error('Error Checking: ', err) // eslint-disable-line no-console
+        console.error('Error Checking: ', err); // eslint-disable-line no-console
+        throw err;
     }
-}
+};
 
 export const hasPendingRequest = async (userId: number, clubId: number): Promise<boolean> => {
     try {

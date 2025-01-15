@@ -13,7 +13,7 @@ export const authenticateToken = async (
     res: Response,
     next: NextFunction
 ): Promise<void> => {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers?.['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
 
     if (!token) {
@@ -31,9 +31,9 @@ export const authenticateToken = async (
             res.status(403).json({ message: 'Invalid Token Structure' });
         }
     } catch (err: any) {
-        if (err.name === 'TokenExpiredError') {
+        if (err instanceof jwt.TokenExpiredError) {
             res.status(403).json({ message: 'Token has expired' });
-        } else if (err.name === 'JsonWebTokenError') {
+        } else if (err instanceof jwt.JsonWebTokenError) {
             res.status(403).json({ message: 'Invalid Token' });
         } else {
             console.error('Token verification error:', err); // eslint-disable-line no-console
@@ -43,15 +43,18 @@ export const authenticateToken = async (
 };
 
 export const getUserId = (authHeader: string | undefined) => {
-    const token = authHeader?.split(' ')[1] || ''
+    if (!authHeader) return undefined;
+
+    const token = authHeader.split(' ')[1] || '';
 
     try {
-        const payload = jwt.verify(token, SECRET_KEY) as JwtPayload
+        const payload = jwt.verify(token, SECRET_KEY) as JwtPayload;
 
         if (typeof payload === 'object' && 'id' in payload && 'email' in payload) {
-            return payload.id
+            return payload.id;
         }
     } catch (err) {
-        console.error('Token Verification Error: ', err) // eslint-disable-line no-console
+        console.error('Token Verification Error: ', err); // eslint-disable-line no-console
+        return undefined;
     }
-}
+};

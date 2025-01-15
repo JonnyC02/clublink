@@ -4,7 +4,7 @@ import pool from '../db/db';
 import { authenticateToken, getUserId } from '../utils/authentication';
 import { hasPendingRequest, isStudent } from '../utils/user'
 import { approveRequest, denyRequest, joinClub, requestJoinClub } from '../utils/club';
-import AWS from 'aws-sdk';
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import multer from 'multer';
 import dotenv from 'dotenv';
 dotenv.config()
@@ -12,10 +12,12 @@ dotenv.config()
 
 const router = express.Router();
 
-const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
+const s3 = new S3Client({
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
+    },
+    region: process.env.AWS_REGION || 'us-east-1',
 });
 
 const upload = multer({
@@ -23,7 +25,7 @@ const upload = multer({
     limits: { fileSize: 2 * 1024 * 1024 },
 });
 
-router.post('/', async (req: Request, res: Response) => {
+router.post('/', async (req: Request & { user?: { id: number } }, res: Response) => {
     const { latitude, longitude } = req.body;
 
     try {
@@ -280,7 +282,7 @@ router.get('/join/:id', authenticateToken, async (req: Request, res: Response) =
 
 router.post('/:id/edit', authenticateToken, async (req: Request, res: Response) => {
     const { id } = req.params;
-    const { description, shortdescription, headerimage } = req.body;
+    const { description, shortdescription, headerimage, image } = req.body;
 
     try {
         const result = await pool.query(
@@ -289,11 +291,12 @@ router.post('/:id/edit', authenticateToken, async (req: Request, res: Response) 
             SET 
                 description = $1,
                 shortdescription = $2,
-                headerimage = $3
-            WHERE id = $4
+                headerimage = $3,
+                image = $4
+            WHERE id = $5
             RETURNING *;
             `,
-            [description, shortdescription, headerimage, id]
+            [description, shortdescription, headerimage, image, id]
         );
 
         if (result.rowCount === 0) {
@@ -325,8 +328,12 @@ router.post('/upload', authenticateToken, upload.single('file'), async (req: Req
             ContentType: file.mimetype,
         };
 
-        const uploadResult = await s3.upload(params).promise();
-
+        const command = new PutObjectCommand(params);
+        await s3.send(command);
+        
+        const uploadResult = {
+            Location: `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`,
+        };
         res.status(200).json({
             message: 'File uploaded successfully.',
             url: uploadResult.Location,

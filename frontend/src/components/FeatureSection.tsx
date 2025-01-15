@@ -1,31 +1,18 @@
 import React from 'react';
 import FeatureCard from './FeatureCard';
-import { faCalendarAlt, faCogs, faGift, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
 
-const features = [
-    {
-        title: 'Browse Clubs',
-        description: 'Find clubs that match your interests',
-        icon: faCogs
-    },
-    {
-        title: 'Event Management',
-        description: 'Stay up-to-date with upcoming club events',
-        icon: faCalendarAlt
-    },
-    {
-        title: 'Member Benefits',
-        description: 'Access resources and connect with fellow members',
-        icon: faGift
-    },
-    {
-        title: 'Create a club',
-        description: 'Start your own club and manage it easily',
-        icon: faUsers
-    }
-]
+interface Feature {
+    title: string,
+    description: string,
+    icon: IconDefinition
+}
 
-const FeaturesSection: React.FC = () => (
+interface FeatureSectionProps {
+    features: Feature[]
+}
+
+const FeaturesSection: React.FC<FeatureSectionProps> = ({ features }) => (
     <section className="py-16 bg-gray-50">
         <div className="container mx-auto text-center">
             <h2 className='text-3xl font-semibold'>Why use ClubLink?</h2>

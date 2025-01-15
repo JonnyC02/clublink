@@ -9,9 +9,17 @@ export const requestJoinClub = async (clubId: string, userId: number | undefined
 }
 
 export const approveRequest = async (requestId: string, userId: string) => {
-    const result = await pool.query("UPDATE requests SET status = 'Approved', approverid = $1, updated_at = $2 WHERE id = $3 RETURNING clubid, memberid", [userId, new Date().toISOString(), requestId])
+    const result = await pool.query(
+        "UPDATE requests SET status = 'Approved', approverid = $1, updated_at = $2 WHERE id = $3 RETURNING clubid, memberid",
+        [userId, new Date().toISOString(), requestId]
+    );
+
+    if (result.rows.length === 0) {
+        throw new Error('Unable to approve request: No rows returned');
+    }
+
     await joinClub(result.rows[0].clubid, +result.rows[0].memberid);
-}
+};
 
 export const denyRequest = async (requestId: string, userId: string) => {
     await pool.query("UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3", [userId, new Date().toISOString(), requestId])

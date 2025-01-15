@@ -121,7 +121,7 @@ router.get("/user", authenticateToken, async (req: Request, res: Response): Prom
         const user = users.rows[0];
 
         const clubs = await pool.query(`SELECT c.id, c.name FROM MemberList m INNER JOIN Clubs c ON m.clubId = c.id WHERE m.memberId = $1`, [userId]);
-        const isStudent = user.studentNumer ? true : false;
+        const isStudent = user.studentNumber ? true : false;
         const responseData = {
             name: user.name,
             email: user.email,
