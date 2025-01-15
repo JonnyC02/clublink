@@ -22,7 +22,11 @@ describe("ClubDashboard Integration Tests", () => {
   it("renders components together", async () => {
     (global.fetch as jest.Mock).mockResolvedValue({
       ok: true,
-      json: async () => [],
+      json: async () => ({
+        Club: {},
+        MemberList: [],
+        Requests: [],
+      }),
     });
     const clubId = 1;
     render(
