@@ -108,12 +108,14 @@ describe("Clubs API Integration Tests", () => {
       const res = await request(app)
         .get("/clubs/1")
         .set("Authorization", "Bearer valid_token");
-
       expect(res.status).toBe(200);
       expect(res.body).toMatchObject({
-        id: 1,
-        name: "Test Club",
-        description: "Detailed desc",
+        Club: {
+          id: 1,
+          name: "Test Club",
+          description: "Detailed desc",
+          university: "QUB",
+        },
         hasPending: false,
       });
       expect(mockQuery).toHaveBeenCalledTimes(1);

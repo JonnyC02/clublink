@@ -82,12 +82,12 @@ describe("Club Utils", () => {
         .mockResolvedValueOnce(mockRequestResult)
         .mockResolvedValueOnce({});
 
-      await approveRequest(mockRequestId, mockUserId.toString());
+      await approveRequest(mockRequestId, mockUserId);
 
       expect(pool.query).toHaveBeenNthCalledWith(
         1,
         "UPDATE requests SET status = 'Approved', approverid = $1, updated_at = $2 WHERE id = $3 RETURNING clubid, memberid",
-        [mockUserId.toString(), mockDate, mockRequestId]
+        [mockUserId, mockDate, mockRequestId]
       );
 
       expect(pool.query).toHaveBeenNthCalledWith(
@@ -100,9 +100,9 @@ describe("Club Utils", () => {
     it("should throw an error if no rows are returned by the update", async () => {
       (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
 
-      await expect(
-        approveRequest(mockRequestId, mockUserId.toString())
-      ).rejects.toThrow("Unable to approve request: No rows returned");
+      await expect(approveRequest(mockRequestId, mockUserId)).rejects.toThrow(
+        "Unable to approve request: No rows returned"
+      );
     });
 
     it("should throw an error if joining the club fails", async () => {
@@ -114,9 +114,9 @@ describe("Club Utils", () => {
         .mockResolvedValueOnce(mockRequestResult)
         .mockRejectedValueOnce(new Error("Join Club Failed"));
 
-      await expect(
-        approveRequest(mockRequestId, mockUserId.toString())
-      ).rejects.toThrow("Join Club Failed");
+      await expect(approveRequest(mockRequestId, mockUserId)).rejects.toThrow(
+        "Join Club Failed"
+      );
     });
   });
 
@@ -124,11 +124,11 @@ describe("Club Utils", () => {
     it('should update the request and set the status to "Denied"', async () => {
       (pool.query as jest.Mock).mockResolvedValueOnce({});
 
-      await denyRequest(mockRequestId, mockUserId.toString());
+      await denyRequest(mockRequestId, mockUserId);
 
       expect(pool.query).toHaveBeenCalledWith(
         "UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3",
-        [mockUserId.toString(), mockDate, mockRequestId]
+        [mockUserId, mockDate, mockRequestId]
       );
     });
 
@@ -137,9 +137,9 @@ describe("Club Utils", () => {
         new Error("Database Error")
       );
 
-      await expect(
-        denyRequest(mockRequestId, mockUserId.toString())
-      ).rejects.toThrow("Database Error");
+      await expect(denyRequest(mockRequestId, mockUserId)).rejects.toThrow(
+        "Database Error"
+      );
     });
   });
 });

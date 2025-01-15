@@ -10,7 +10,7 @@ router.get(
   authenticateToken,
   async (req: AuthRequest, res: Response) => {
     try {
-      const clubs = await getAllClubs(req.user.id);
+      const clubs = await getAllClubs(req.user?.id);
       res.json(clubs);
     } catch (error) {
       console.error("Error fetching clubs:", error); // eslint-disable-line no-console
