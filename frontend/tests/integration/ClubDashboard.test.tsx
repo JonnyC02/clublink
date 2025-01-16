@@ -26,6 +26,7 @@ describe("ClubDashboard Integration Tests", () => {
         Club: {},
         MemberList: [],
         Requests: [],
+        AuditLog: [],
       }),
     });
     const clubId = 1;
