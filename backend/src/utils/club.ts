@@ -1,4 +1,5 @@
 import pool from "../db/db";
+import { addAudit } from "./audit";
 
 export const joinClub = async (clubId: string, userId: number | undefined) => {
   await pool.query(
@@ -32,8 +33,10 @@ export const approveRequest = async (
   if (result.rows.length === 0) {
     throw new Error("Unable to approve request: No rows returned");
   }
-
-  await joinClub(result.rows[0].clubid, +result.rows[0].memberid);
+  const clubId = result.rows[0].clubid;
+  const memberId = +result.rows[0].memberid;
+  await addAudit(clubId, userId, memberId, "approve");
+  await joinClub(clubId, memberId);
 };
 
 export const denyRequest = async (
@@ -43,8 +46,16 @@ export const denyRequest = async (
   if (!userId) {
     throw new Error("No User Id");
   }
-  await pool.query(
-    "UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3",
+  const result = await pool.query(
+    "UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3 RETURNING clubid, memberid",
     [userId, new Date().toISOString(), requestId]
   );
+
+  if (result.rows?.length === 0) {
+    throw new Error("Unable to process request: No rows returned");
+  }
+
+  const clubId = result.rows[0].clubid;
+  const memberId = +result.rows[0].memberid;
+  await addAudit(clubId, userId, memberId, "deny");
 };

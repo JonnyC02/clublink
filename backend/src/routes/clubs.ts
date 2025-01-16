@@ -225,10 +225,33 @@ router.get("/:id/all", async (req: Request, res: Response) => {
     [id]
   );
 
+  const auditlog = await pool.query(
+    `
+    SELECT
+      al.id,
+      al.actionType,
+      al.created_at,
+      actor.name AS user,
+      target.name AS member
+    FROM
+      AuditLog al
+    LEFT JOIN
+      Users actor ON al.memberId = actor.id
+    LEFT JOIN
+      Users target ON al.userId = target.id
+    WHERE
+      al.clubId = $1
+    ORDER BY
+      al.created_at DESC;
+  `,
+    [id]
+  );
+
   res.json({
     Club: result.rows[0],
     Request: requests.rows,
     MemberList: memberList.rows,
+    AuditLog: auditlog.rows,
   });
 });
 

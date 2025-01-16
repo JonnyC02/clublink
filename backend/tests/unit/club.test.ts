@@ -80,6 +80,7 @@ describe("Club Utils", () => {
 
       (pool.query as jest.Mock)
         .mockResolvedValueOnce(mockRequestResult)
+        .mockResolvedValueOnce({})
         .mockResolvedValueOnce({});
 
       await approveRequest(mockRequestId, mockUserId);
@@ -92,6 +93,12 @@ describe("Club Utils", () => {
 
       expect(pool.query).toHaveBeenNthCalledWith(
         2,
+        "INSERT INTO auditlog (clubid, memberid, userid, actiontype) VALUES ($1, $2, $3, $4);",
+        [mockClubId, mockUserId, mockUserId, "approve"]
+      );
+
+      expect(pool.query).toHaveBeenNthCalledWith(
+        3,
         "INSERT INTO memberlist (memberId, clubId) VALUES ($1, $2)",
         [mockUserId, mockClubId]
       );
@@ -122,12 +129,14 @@ describe("Club Utils", () => {
 
   describe("denyRequest", () => {
     it('should update the request and set the status to "Denied"', async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({});
+      (pool.query as jest.Mock).mockResolvedValueOnce({
+        rows: [{ clubid: 1, memberid: 2 }],
+      });
 
       await denyRequest(mockRequestId, mockUserId);
 
       expect(pool.query).toHaveBeenCalledWith(
-        "UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3",
+        "UPDATE requests SET status = 'Denied', approverid = $1, updated_at = $2 WHERE id = $3 RETURNING clubid, memberid",
         [mockUserId, mockDate, mockRequestId]
       );
     });
