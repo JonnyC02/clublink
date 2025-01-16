@@ -26,6 +26,7 @@ describe("ClubDashboard Integration Tests", () => {
         Club: {},
         MemberList: [],
         Requests: [],
+        AuditLog: [],
       }),
     });
     const clubId = 1;
@@ -41,6 +42,7 @@ describe("ClubDashboard Integration Tests", () => {
       expect(screen.getByText("Member List")).toBeDefined();
       expect(screen.getByText("Club Details")).toBeDefined();
       expect(screen.getByText("Pending Requests")).toBeDefined();
+      expect(screen.getByText("Audit Log")).toBeDefined();
       expect(screen.getByText("No pending requests.")).toBeDefined();
     });
     await waitFor(() => {

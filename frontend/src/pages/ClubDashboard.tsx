@@ -2,10 +2,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import { useEffect, useState } from "react";
-import { ClubData } from "../types/ClubData";
+import { ClubData } from "../types/responses/ClubData";
 import { Member } from "../types/Member";
 import { Request } from "../types/Request";
 import { ClubType } from "../types/ClubType";
+import { AuditLog } from "../types/AuditLog";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,10 +26,12 @@ const ClubDashboard = () => {
     },
     MemberList: [],
     Requests: [],
+    AuditLog: [],
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [auditSearch, setAuditSearch] = useState("");
   const navigate = useNavigate();
 
   const studentCount =
@@ -125,6 +128,26 @@ const ClubDashboard = () => {
     fetchData();
   }, [id]);
 
+  const filteredLogs = data.AuditLog.filter((log: AuditLog) => {
+    const searchLower = auditSearch.toLowerCase();
+
+    return (
+      log.id.toString().includes(searchLower) ||
+      (log.member && log.member.toLowerCase().includes(searchLower)) ||
+      (log.user && log.user.toLowerCase().includes(searchLower)) ||
+      (log.actionType && log.actionType.toLowerCase().includes(searchLower)) ||
+      (log.created_at &&
+        new Date(log.created_at)
+          .toLocaleDateString("en-GB", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+          .toLowerCase()
+          .includes(searchLower))
+    );
+  });
+
   return (
     <div>
       <Navbar cta={cta} links={links} />
@@ -181,6 +204,16 @@ const ClubDashboard = () => {
                 onClick={() => setActiveTab("clubdetails")}
               >
                 Club Details
+              </button>
+              <button
+                className={`pb-2 px-4 ${
+                  activeTab === "auditlog"
+                    ? "border-b-2 border-blue-500 text-blue-500"
+                    : "text-gray-600"
+                }`}
+                onClick={() => setActiveTab("auditlog")}
+              >
+                Audit Log
               </button>
             </nav>
           </div>
@@ -330,7 +363,7 @@ const ClubDashboard = () => {
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
                               {new Date(member.created_at).toLocaleDateString(
-                                "en-US",
+                                "en-GB",
                                 {
                                   year: "numeric",
                                   month: "short",
@@ -524,6 +557,80 @@ const ClubDashboard = () => {
                 >
                   View Club Page &gt;&gt;
                 </button>
+              </div>
+            )}
+            {activeTab === "auditlog" && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Audit Log</h2>
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search audit log..."
+                    value={auditSearch}
+                    onChange={(e) => setAuditSearch(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                  />
+                </div>
+                {filteredLogs.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                      <thead>
+                        <tr className="bg-gray-100 border-b border-gray-200">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Id
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Target
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Committee
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Action
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredLogs.map((log: AuditLog, index: number) => (
+                          <tr
+                            key={index}
+                            className={`${
+                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                            } border-b border-gray-200`}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {log.id || "N/A"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {log.member || "Member"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {log.user || "Committee"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {log.actionType || "Action"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {new Date(log.created_at).toLocaleDateString(
+                                "en-GB",
+                                {
+                                  year: "numeric",
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No logs found.</p>
+                )}
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@ import { isAuthenticated } from "../utils/auth";
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import { useEffect, useState } from "react";
-import { ClubData } from "../types/ClubData";
+import { ClubData } from "../types/responses/ClubData";
 import { ClubType } from "../types/ClubType";
 import { CommitteeResp } from "../types/responses/CommitteeResp";
 
@@ -37,7 +37,9 @@ const cta = (
 const ClubPage = () => {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
-  const [clubData, setClubData] = useState<ClubData>({
+  const [clubData, setClubData] = useState<
+    Omit<ClubData, "Requests" | "MemberList" | "AuditLog">
+  >({
     Club: {
       id: 0,
       name: "",
@@ -50,8 +52,6 @@ const ClubPage = () => {
       clubtype: ClubType.SOCIETY,
       popularity: 0,
     },
-    Requests: [],
-    MemberList: [],
     ismember: false,
     hasPending: false,
   });
