@@ -8,26 +8,24 @@ import {
   joinClub,
   requestJoinClub,
 } from "../utils/club";
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import multer from "multer";
 import dotenv from "dotenv";
 import { AuthRequest } from "../types/AuthRequest";
+import { convertToWebp, uploadFile } from "../utils/file";
+import { addAudit } from "../utils/audit";
 dotenv.config();
 
 const router = express.Router();
-
-const s3 = new S3Client({
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-  },
-  region: process.env.AWS_REGION || "us-east-1",
-});
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 2 * 1024 * 1024 },
 });
+
+const uploadMiddleware = upload.fields([
+  { name: "headerImage", maxCount: 1 },
+  { name: "image", maxCount: 1 },
+]);
 
 router.post("/", async (req: AuthRequest, res: Response) => {
   const { latitude, longitude } = req.body;
@@ -329,7 +327,7 @@ router.get(
 router.post(
   "/:id/edit",
   authenticateToken,
-  async (req: Request, res: Response) => {
+  async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const { description, shortdescription, headerimage, image } = req.body;
 
@@ -340,8 +338,8 @@ router.post(
             SET 
                 description = $1,
                 shortdescription = $2,
-                headerimage = $3,
-                image = $4
+                headerimage = COALESCE($3, headerimage),
+                image = COALESCE($4, image)
             WHERE id = $5
             RETURNING *;
             `,
@@ -352,6 +350,8 @@ router.post(
         res.status(404).json({ message: "Club not found." });
         return;
       }
+
+      await addAudit(+id, req.user?.id, undefined, "Edit Club Details");
 
       res.json({
         message: "Club details updated successfully.",
@@ -367,33 +367,42 @@ router.post(
 router.post(
   "/upload",
   authenticateToken,
-  upload.single("file"),
+  uploadMiddleware,
   async (req: Request, res: Response) => {
     try {
-      const file = req.file;
-      const { clubId } = req.body;
-
-      if (!file || !clubId) {
-        res.status(400).json({ message: "File and clubId are required." });
-        return;
+      const files = req.files as Record<string, Express.Multer.File[]>;
+      let headerimage = undefined;
+      let image = undefined;
+      if (files.headerImage?.length > 0) {
+        headerimage = files.headerImage[0];
       }
 
-      const params = {
-        Bucket: process.env.AWS_S3_BUCKET_NAME || "",
-        Key: `clubs/${clubId}/${Date.now()}_${file.originalname}`,
-        Body: file.buffer,
-        ContentType: file.mimetype,
-      };
+      if (files.image?.length > 0) {
+        image = files.image[0];
+      }
 
-      const command = new PutObjectCommand(params);
-      await s3.send(command);
+      const { clubId } = req.body;
+      let imageUrl = undefined;
+      let headerImageUrl = undefined;
 
-      const uploadResult = {
-        Location: `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}`,
-      };
+      if ((!headerimage && !image) || !clubId) {
+        res.status(400).json({ message: "Files and clubId are required." });
+        return;
+      }
+      if (image) {
+        const uploadImage = await convertToWebp(image);
+        imageUrl = await uploadFile(uploadImage, clubId);
+      }
+
+      if (headerimage) {
+        const uploadHeaderImage = await convertToWebp(headerimage);
+        headerImageUrl = await uploadFile(uploadHeaderImage, clubId);
+      }
+
       res.status(200).json({
         message: "File uploaded successfully.",
-        url: uploadResult.Location,
+        headerImageUrl,
+        imageUrl,
       });
     } catch (error) {
       console.error("Error uploading file:", error); // eslint-disable-line no-console
