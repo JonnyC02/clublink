@@ -70,8 +70,6 @@ describe("uploadFile", () => {
     } as Express.Multer.File;
 
     const clubId = "123";
-    const expectedKey = `clubs/${clubId}/${Date.now()}_testImage.webp`;
-    const expectedUrl = `https://bucket-name.s3.us-east-1.amazonaws.com/${expectedKey}`;
 
     mockSend.mockResolvedValueOnce({});
 
