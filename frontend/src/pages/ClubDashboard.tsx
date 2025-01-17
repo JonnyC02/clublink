@@ -406,33 +406,47 @@ const ClubDashboard = () => {
                         );
                       }
 
-                      let uploadedImageUrl = data.Club.headerimage;
+                      let imageUrl = data.Club.image;
+                      let headerImageUrl = data.Club.headerimage;
 
-                      const fileInput = document.getElementById(
+                      const headerFileInput = document.getElementById(
                         "headerImageFile"
                       ) as HTMLInputElement;
-                      if (fileInput?.files?.[0]) {
-                        const formData = new FormData();
-                        formData.append("file", fileInput.files[0]);
-                        formData.append("clubId", id || "");
 
-                        const uploadResponse = await fetch(
-                          `${process.env.REACT_APP_API_URL}/clubs/upload`,
-                          {
-                            method: "POST",
-                            headers: {
-                              Authorization: `Bearer ${token}`,
-                            },
-                            body: formData,
-                          }
+                      const imageFileInput = document.getElementById(
+                        "imageFile"
+                      ) as HTMLInputElement;
+
+                      const formData = new FormData();
+                      formData.append("clubId", id || "");
+
+                      if (headerFileInput?.files?.[0]) {
+                        formData.append(
+                          "headerImage",
+                          headerFileInput.files[0]
                         );
+                      }
+                      if (imageFileInput?.files?.[0]) {
+                        formData.append("image", imageFileInput.files[0]);
+                      }
 
-                        if (uploadResponse.ok) {
-                          const result = await uploadResponse.json();
-                          uploadedImageUrl = result.url;
-                        } else {
-                          throw new Error("Failed to upload the image.");
+                      const uploadResponse = await fetch(
+                        `${process.env.REACT_APP_API_URL}/clubs/upload`,
+                        {
+                          method: "POST",
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                          },
+                          body: formData,
                         }
+                      );
+
+                      if (uploadResponse.ok) {
+                        const result = await uploadResponse.json();
+                        imageUrl = result.imageUrl;
+                        headerImageUrl = result.headerImageUrl;
+                      } else {
+                        throw new Error("Failed to upload the image.");
                       }
 
                       const response = await fetch(
@@ -448,7 +462,8 @@ const ClubDashboard = () => {
                             description: data.Club.description,
                             shortdescription: data.Club.shortdescription,
                             email: data.Club.email,
-                            headerimage: uploadedImageUrl,
+                            headerimage: headerImageUrl,
+                            image: imageUrl,
                           }),
                         }
                       );

@@ -2,8 +2,8 @@ import pool from "../db/db";
 
 export const addAudit = async (
   clubId: number,
-  userId: number,
-  memberId: number,
+  userId: number | undefined,
+  memberId: number | undefined,
   action: string
 ) => {
   await pool.query(
