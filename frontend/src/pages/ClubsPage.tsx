@@ -6,6 +6,8 @@ import { University } from "../types/University";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { Club } from "../types/Club";
+import Filters from "../components/Filters";
+import { FilterOption } from "../types/FilterOption";
 
 const links = [
   { label: "Home", href: "/" },
@@ -36,7 +38,7 @@ const cta = (
 
 const ClubsPage: React.FC = () => {
   const [clubs, setClubs] = useState([]);
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<Record<string, string | boolean>>({
     university: "",
     clubtype: "",
     popularity: "",
@@ -95,12 +97,67 @@ const ClubsPage: React.FC = () => {
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setFilters((prev) => ({ ...prev, [name]: value }));
+    const target = e.target as HTMLInputElement | HTMLSelectElement;
+
+    if (target instanceof HTMLInputElement) {
+      if (target.type === "checkbox") {
+        setFilters((prev) => ({
+          ...prev,
+          [target.name]: target.checked,
+        }));
+      } else {
+        setFilters((prev) => ({
+          ...prev,
+          [target.name]: target.value,
+        }));
+      }
+    } else if (target instanceof HTMLSelectElement) {
+      setFilters((prev) => ({
+        ...prev,
+        [target.name]: target.value,
+      }));
+    }
   };
 
+  const filterOptions: FilterOption[] = [
+    {
+      id: "search",
+      label: "Search",
+      type: "text",
+      placeholder: "Search by Club Name",
+    },
+    {
+      id: "university",
+      label: "University",
+      type: "select",
+      options: universities?.map((uni) => ({
+        value: uni.acronym,
+        label: uni.name,
+      })),
+    },
+    {
+      id: "clubtype",
+      label: "Club Type",
+      type: "select",
+      options: [
+        { value: "Club", label: "Club" },
+        { value: "Society", label: "Society" },
+      ],
+    },
+    {
+      id: "popularity",
+      label: "Club Size",
+      type: "select",
+      options: [
+        { value: "small", label: "Small (1-10)" },
+        { value: "medium", label: "Medium (11-30)" },
+        { value: "large", label: "Large (30+)" },
+      ],
+    },
+  ];
+
   const filteredClubs = clubs.filter((club: Club) => {
-    const searchLower = filters.search.toLowerCase();
+    const searchLower = filters.search.toString().toLowerCase();
     if (
       filters.search &&
       !(
@@ -136,110 +193,11 @@ const ClubsPage: React.FC = () => {
       <Navbar brandName="ClubLink" links={links} cta={cta} />
       <TitleSection title="Browse Clubs" subtitle="Find clubs near you" />
       <div className="container mx-auto p-6 flex gap-6">
-        <div className="w-1/4 bg-white shadow-md p-4 rounded-lg self-start">
-          <h2 className="text-lg font-bold mb-4">Filters</h2>
-          <div className="mb-4">
-            <label
-              htmlFor="search"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Search
-            </label>
-            <input
-              type="text"
-              id="search"
-              name="search"
-              placeholder="Search by Club Name"
-              value={filters.search}
-              onChange={handleFilterChange}
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="university"
-              className="block text-sm font-medium text-gray-700"
-            >
-              University
-            </label>
-            <select
-              id="university"
-              name="university"
-              value={filters.university}
-              onChange={handleFilterChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-            >
-              <option value="" disabled>
-                Select your University
-              </option>
-              <option value="">All</option>
-              {universities?.map((university) => (
-                <option key={university.acronym} value={university.acronym}>
-                  {university.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="clubtype"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Club Type
-            </label>
-            <select
-              id="clubtype"
-              name="clubtype"
-              value={filters.clubtype}
-              onChange={handleFilterChange}
-              required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-            >
-              <option value="" disabled>
-                Select your Club Type
-              </option>
-              <option value="">All</option>
-              <option key="Club" value="Club">
-                Club
-              </option>
-              <option key="Society" value="Society">
-                Society
-              </option>
-            </select>
-          </div>
-          <div className="mb-4">
-            <label
-              htmlFor="clubSize"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Club Size
-            </label>
-            <select
-              name="popularity"
-              id="popularity"
-              value={filters.popularity}
-              onChange={handleFilterChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-            >
-              <option value="" disabled>
-                Select your Club Size
-              </option>
-              <option key="" value="">
-                All
-              </option>
-              <option key="small" value="small">
-                Small (1-10)
-              </option>
-              <option key="medium" value="medium">
-                Medium (11-30)
-              </option>
-              <option key="large" value="large">
-                Large (30+)
-              </option>
-            </select>
-          </div>
-        </div>
+        <Filters
+          filterOptions={filterOptions}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+        />
         <div className="flex-grow">
           <div className="space-y-6">
             {loading ? (
@@ -275,7 +233,6 @@ const ClubsPage: React.FC = () => {
                 <a key={club.id} className="p-6" href={`/club/${club.id}`}>
                   <div className="bg-white shadow-md rounded-lg p-6 flex items-center hover:shadow-lg transition-shadow duration-300">
                     <img
-                      // deepcode ignore DOMXSS: All images come from my S3 bucket and are named based on club details
                       src={club.image}
                       alt={club.name}
                       className="w-24 h-24 object-cover rounded-md mr-6"

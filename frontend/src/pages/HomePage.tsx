@@ -67,6 +67,7 @@ const cta = (
 
 const HomePage: React.FC = () => {
   const [clubs, setClubs] = useState<[]>([]);
+  const [loading, setLoading] = useState(true);
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -78,11 +79,12 @@ const HomePage: React.FC = () => {
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ longitude, latitude }),
+              body: JSON.stringify({ longitude, latitude, limit: 3 }),
             }
           );
           if (response.ok) {
             const data = await response.json();
+            setLoading(false);
             setClubs(data);
           }
         } catch (err) {
@@ -99,7 +101,14 @@ const HomePage: React.FC = () => {
       <Navbar brandName="ClubLink" links={links} cta={cta} />
       <Hero />
       <FeaturesSection features={features} />
-      <ClubsSection clubs={clubs} />
+      {loading ? (
+        <div className="flex justify-center items-center h-screen">
+          <div className="w-12 h-12 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
+          <p className="ml-4 text-blue-500">Loading Clubs...</p>
+        </div>
+      ) : (
+        <ClubsSection clubs={clubs} />
+      )}
       <Footer />
     </div>
   );

@@ -52,8 +52,18 @@ describe("HomePage Integration Tests", () => {
     });
   });
 
-  it("renders all main components together", () => {
-    render(<HomePage />);
+  it("renders all main components together", async () => {
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
+      ok: true,
+      json: async () => [
+        { id: 1, name: "Club 1" },
+        { id: 2, name: "Club 2" },
+      ],
+    });
+
+    await act(async () => {
+      render(<HomePage />);
+    });
 
     expect(screen.getByTestId("navbar")).toBeDefined();
     expect(screen.getByTestId("hero")).toBeDefined();
