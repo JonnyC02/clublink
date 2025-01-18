@@ -3,9 +3,8 @@ import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import pool from "../db/db";
 import { generateResetToken, generateVerificationToken } from "../utils/tokens";
-import { sendVerificationEmail } from "../utils/email";
+import { sendEmail, sendVerificationEmail } from "../utils/email";
 import { authenticateToken } from "../utils/authentication";
-import nodemailer from "nodemailer";
 import { resetToken, verifyToken } from "../types/token";
 import { AuthRequest } from "../types/AuthRequest";
 
@@ -180,20 +179,14 @@ router.post("/forgot-password", async (req: Request, res: Response) => {
     const token = generateResetToken(email);
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD,
-      },
-    });
-
-    await transporter.sendMail({
+    const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
       subject: "Password Reset Request",
       html: `<p>Click the link below to reset your password:</p><a href="${resetLink}">${resetLink}</a>`,
-    });
+    };
+
+    await sendEmail(email, mailOptions);
 
     res.status(200).json({ message: "Password reset email sent!" });
   } catch (error) {

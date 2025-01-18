@@ -28,7 +28,7 @@ const uploadMiddleware = upload.fields([
 ]);
 
 router.post("/", async (req: AuthRequest, res: Response) => {
-  const { latitude, longitude } = req.body;
+  const { latitude, longitude, limit } = req.body;
 
   try {
     const userId = req.user?.id;
@@ -68,9 +68,11 @@ router.post("/", async (req: AuthRequest, res: Response) => {
                 ORDER BY 
                     universityPriority DESC,
                     distance ASC,
-                    popularity DESC;
+                    popularity DESC
+                ${limit ? "LIMIT $4" : ""};
             `;
       params = [latitude, longitude, userUniversity];
+      if (limit) params.push(limit);
     } else {
       query = `
                 SELECT 
@@ -90,9 +92,11 @@ router.post("/", async (req: AuthRequest, res: Response) => {
                 GROUP BY c.id
                 ORDER BY 
                     universityPriority DESC,
-                    popularity DESC;
+                    popularity DESC
+                ${limit ? "LIMIT $2" : ""};
             `;
       params = [userUniversity];
+      if (limit) params.push(limit);
     }
     const result = await pool.query(query, params);
     res.json(result.rows);
