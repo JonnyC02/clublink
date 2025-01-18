@@ -19,6 +19,10 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 };
 
 export const sendEmail = async (email: string, mailOptions: MailOptions) => {
+  if (!email) {
+    throw new Error("Email address is required");
+  }
+
   if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
     throw new Error("Missing Email Config");
   }
