@@ -12,12 +12,4 @@ This will concurrently run the backend and frontend for ClubLink
 
 ### Testing
 
-```npx playwright test```
-
-This will run all frontend and backend tests for ClubLink to set the tests up for the repository you must first install all dependencies and then install the playwright browsers to run the tests.
-
-```npm i```
-
-Then
-
-```npx playwright install```
+Each service in the repository contains unit and integration tests. These can be ran by changing directory to either backend or frontend and running `npm run test:unit` for unit tests and `npm run test:integration` for integration tests
