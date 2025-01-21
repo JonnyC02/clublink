@@ -451,4 +451,37 @@ router.post(
   }
 );
 
+router.post(
+  "/:id/kick",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { memberId } = req.body;
+    if (!id || !memberId) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const result = await pool.query(
+        "DELETE FROM MemberList WHERE clubId = $1 AND memberId = $2 RETURNING id",
+        [id, memberId]
+      );
+
+      if (result.rows.length === 0) {
+        res.status(404).json({ message: "Member not found." });
+        return;
+      }
+
+      await addAudit(+id, req.user?.id, memberId, "Kick");
+      res.status(200).json({ message: "Member removed successfully" });
+    } catch (err) {
+      console.error("Error removing member:", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
+
 export default router;
