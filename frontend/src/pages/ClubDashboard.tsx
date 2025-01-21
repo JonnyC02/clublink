@@ -148,6 +148,51 @@ const ClubDashboard = () => {
     );
   });
 
+  const handleKick = async (userId: number) => {
+    if (!window.confirm("Are you sure you want to remove this member?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("You must be logged in to perform this action.");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/kick`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ userId }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Member removed successfully!");
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        const error = await response.json();
+        alert(error.message || "Failed to remove the member.");
+      }
+    } catch (err) {
+      console.error("Error removing member:", err); // eslint-disable-line no-console
+      alert("An error occurred while trying to remove the member.");
+    }
+  };
+
   return (
     <div>
       <Navbar cta={cta} links={links} />
@@ -341,6 +386,9 @@ const ClubDashboard = () => {
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Status
                           </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actions
+                          </th>
                         </tr>
                       </thead>
                       <tbody>
@@ -381,6 +429,14 @@ const ClubDashboard = () => {
                               >
                                 {member.studentnumber ? "Student" : "Associate"}
                               </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <button
+                                onClick={() => handleKick(member.memberid)}
+                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Kick
+                              </button>
                             </td>
                           </tr>
                         ))}
