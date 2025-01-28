@@ -1,6 +1,10 @@
 import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
+import stripe from "../../src/utils/stripe";
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const mockStripe = stripe as jest.Mocked<typeof stripe>;
 
 jest.mock("../../src/db/db", () => ({
   query: jest.fn(),
