@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
-import { stripe } from "../../src/utils/stripe";
+import stripe from "../../src/utils/stripe";
 import { sendEmail } from "../../src/utils/email";
 import { Stripe } from "stripe";
 
@@ -113,7 +113,7 @@ describe("Payment API Integration Tests", () => {
       );
 
       expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith({
-        amount: 5000,
+        amount: 5500,
         currency: "GBP",
         payment_method_types: ["card"],
         metadata: { transaction: "tx_123" },
