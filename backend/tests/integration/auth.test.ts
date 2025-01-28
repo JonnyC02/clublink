@@ -5,10 +5,6 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../../src/utils/email";
 import { generateVerificationToken } from "../../src/utils/tokens";
-import stripe from "../../src/utils/stripe";
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-const mockStripe = stripe as jest.Mocked<typeof stripe>;
 
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {

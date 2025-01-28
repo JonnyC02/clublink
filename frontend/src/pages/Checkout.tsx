@@ -16,6 +16,11 @@ const Checkout = () => {
   const [success, setSuccess] = useState(false);
   const [ticket, setTicket] = useState<Ticket>();
 
+  const ticketPrice = Number(ticket?.price) || 0;
+
+  const paymentFee = Number((ticketPrice * 0.1).toFixed(2));
+  const totalPrice = Number((ticketPrice + paymentFee).toFixed(2));
+
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
@@ -61,7 +66,7 @@ const Checkout = () => {
             "Content-type": "application/json; charset=utf-8",
           },
           body: JSON.stringify({
-            amount: ticket?.price,
+            amount: ticketPrice,
             desc: ticket?.name,
             id: ticket?.id,
           }),
@@ -166,28 +171,24 @@ const Checkout = () => {
                 <div className="space-y-2">
                   <div className="grid grid-cols-3 gap-4">
                     <span className="text-gray-600 font-medium">
-                      Ticket ID:
+                      Ticket Price:
                     </span>
                     <span className="col-span-2 text-gray-800">
-                      #{ticket?.id || "N/A"}
+                      £{ticketPrice.toFixed(2)}
                     </span>
                   </div>
                   <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 font-medium">Name:</span>
+                    <span className="text-gray-600 font-medium">
+                      Payment Fee:
+                    </span>
                     <span className="col-span-2 text-gray-800">
-                      {ticket?.name || "General Admission"}
+                      £{paymentFee.toFixed(2)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 font-medium">Type:</span>
-                    <span className="col-span-2 text-gray-800 capitalize">
-                      {ticket?.tickettype || "standard"}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 font-medium">Price:</span>
+                  <div className="grid grid-cols-3 gap-4 font-semibold">
+                    <span className="text-gray-600 font-medium">Total:</span>
                     <span className="col-span-2 text-gray-800">
-                      {ticket?.price ? `£${ticket.price}` : "N/A"}
+                      £{totalPrice.toFixed(2)}
                     </span>
                   </div>
                 </div>
