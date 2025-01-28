@@ -13,7 +13,13 @@ import CommitteeProtected from "./components/CommitteeProtected";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import AboutPage from "./pages/AboutPage";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import Checkout from "./pages/Checkout";
 
+const stripePromise = process.env.REACT_APP_PUBLISH_KEY
+  ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
+  : null;
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
   useEffect(() => {
@@ -38,39 +44,49 @@ function App() {
   }, []);
   return (
     <Router>
-      <Routes>
-        {backendOnline ? (
-          <>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/clubs" element={<ClubsPage />} />
-            <Route path="/login" element={<AuthPage isSignup={false} />} />
-            <Route path="/signup" element={<AuthPage isSignup={true} />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify" element={<VerifyPage />} />
-            <Route path="/club/:id" element={<ClubPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/club/:id/committee"
-              element={
-                <CommitteeProtected>
-                  <ClubDashboard />
-                </CommitteeProtected>
-              }
-            />
-          </>
-        ) : (
-          <Route path="*" element={<ErrorPage />} />
-        )}
-      </Routes>
+      <Elements stripe={stripePromise}>
+        <Routes>
+          {backendOnline && stripePromise ? (
+            <>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/clubs" element={<ClubsPage />} />
+              <Route path="/login" element={<AuthPage isSignup={false} />} />
+              <Route path="/signup" element={<AuthPage isSignup={true} />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/verify" element={<VerifyPage />} />
+              <Route path="/club/:id" element={<ClubPage />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/club/:id/committee"
+                element={
+                  <CommitteeProtected>
+                    <ClubDashboard />
+                  </CommitteeProtected>
+                }
+              />
+              <Route
+                path="/payment/:id"
+                element={
+                  <ProtectedRoute>
+                    <Checkout />
+                  </ProtectedRoute>
+                }
+              />
+            </>
+          ) : (
+            <Route path="*" element={<ErrorPage />} />
+          )}
+        </Routes>
+      </Elements>
     </Router>
   );
 }
