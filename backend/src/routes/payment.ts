@@ -1,7 +1,8 @@
 import express, { Response, Request } from "express";
 import { AuthRequest } from "../types/AuthRequest";
 import { authenticateToken } from "../utils/authentication";
-import { calculateFee, stripe } from "../utils/stripe";
+import { stripe } from "../utils/stripe";
+import { calculateFee } from "../utils/payment";
 import pool from "../db/db";
 import Stripe from "stripe";
 import dotenv from "dotenv";

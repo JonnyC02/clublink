@@ -15,6 +15,7 @@ jest.mock("@stripe/react-stripe-js", () => ({
   ...jest.requireActual("@stripe/react-stripe-js"),
   useStripe: jest.fn(),
   useElements: jest.fn(),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   CardElement: ({ options }: { options: any }) => (
     <input data-testid="mock-card-element" {...options} />
   ),
