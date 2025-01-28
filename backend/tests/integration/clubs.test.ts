@@ -7,6 +7,15 @@ import stripe from "../../src/utils/stripe";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const mockStripe = stripe as jest.Mocked<typeof stripe>;
 
+jest.mock("../../src/utils/stripe", () => ({
+  paymentIntents: {
+    create: jest.fn(),
+  },
+  webhooks: {
+    constructEvent: jest.fn(),
+  },
+}));
+
 jest.mock("../../src/db/db", () => ({
   query: jest.fn(),
 }));
