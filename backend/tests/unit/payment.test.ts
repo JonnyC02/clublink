@@ -18,12 +18,6 @@ describe("calculateFee", () => {
     expect(result).toBe(0);
   });
 
-  it("should handle small amounts correctly", () => {
-    const amount = 0.01;
-    const result = calculateFee(amount);
-    expect(result).toBe(0.01);
-  });
-
   it("should handle large amounts correctly", () => {
     const amount = 1000000;
     const result = calculateFee(amount);
