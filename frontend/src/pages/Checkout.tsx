@@ -170,6 +170,12 @@ const Checkout = () => {
 
                 <div className="space-y-2">
                   <div className="grid grid-cols-3 gap-4">
+                    <span className="text-gray-600 font-medium">Ticket:</span>
+                    <span className="col-span-2 text-gray-800">
+                      {ticket?.name}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-4">
                     <span className="text-gray-600 font-medium">
                       Ticket Price:
                     </span>

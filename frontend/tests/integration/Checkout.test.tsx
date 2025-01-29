@@ -92,8 +92,12 @@ describe("Checkout Component", () => {
         2,
         expect.stringContaining("undefined/payments"),
         expect.objectContaining({
+          body: '{"amount":0}',
+          headers: {
+            Authorization: "Bearer mock-jwt-token",
+            "Content-type": "application/json; charset=utf-8",
+          },
           method: "POST",
-          body: JSON.stringify({}),
         })
       );
       expect(mockStripe.confirmCardPayment).toHaveBeenCalledWith(
