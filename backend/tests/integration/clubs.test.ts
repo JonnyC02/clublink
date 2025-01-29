@@ -3,6 +3,15 @@ import app from "../../src/index";
 import pool from "../../src/db/db";
 import { addAudit } from "../../src/utils/audit";
 
+jest.mock("../../src/utils/stripe", () => ({
+  paymentIntents: {
+    create: jest.fn(),
+  },
+  webhooks: {
+    constructEvent: jest.fn(),
+  },
+}));
+
 jest.mock("../../src/db/db", () => ({
   query: jest.fn(),
 }));

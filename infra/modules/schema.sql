@@ -2,7 +2,8 @@
 CREATE TYPE club_type_enum AS ENUM ('Club', 'Society');
 CREATE TYPE member_type_enum AS ENUM('Member', 'Committee');
 CREATE TYPE request_type_enum AS ENUM('Approved', 'Pending', 'Denied', 'Cancelled');
-
+CREATE TYPE ticket_type_enum AS ENUM('Membership', 'Event');
+CREATE TYPE transaction_status_enum AS ENUM('processing', 'succeeded', 'failed', 'cancelled', 'refunded', 'disputed');
 -- Users
 CREATE TABLE Users (
     id SERIAL PRIMARY KEY,
@@ -44,7 +45,7 @@ CREATE TABLE Events (
     id SERIAL PRIMARY KEY,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
-    date TIMESTAMP NOT NULL,
+    date TIMESTAMP,
     latitude DECIMAL(9, 6),
     longitude DECIMAL(9, 6),
     time TIMESTAMP
@@ -55,14 +56,19 @@ CREATE TABLE Tickets (
     id SERIAL PRIMARY KEY,
     eventId INT REFERENCES Events(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL
+    price DECIMAL(10, 2) NOT NULL,
+    ticketType ticket_type_enum DEFAULT 'Event'
 );
 
 -- Transactions
 CREATE TABLE Transactions (
     id SERIAL PRIMARY KEY,
-    memberId INT REFERENCES Users(id),
-    ticketId INT REFERENCES Tickets(id)
+    memberId INT REFERENCES Users(id) NOT NULL,
+    ticketId INT REFERENCES Tickets(id) NOT NULL,
+    amount DECIMAL (5, 2) NOT NULL,
+    status transaction_type_enum DEFAULT 'completed',
+    time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP
 );
 
 -- Universities

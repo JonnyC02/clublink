@@ -6,6 +6,15 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../../src/utils/email";
 import { generateVerificationToken } from "../../src/utils/tokens";
 
+jest.mock("../../src/utils/stripe", () => ({
+  paymentIntents: {
+    create: jest.fn(),
+  },
+  webhooks: {
+    constructEvent: jest.fn(),
+  },
+}));
+
 jest.mock("../../src/db/db", () => ({
   query: jest.fn(),
 }));

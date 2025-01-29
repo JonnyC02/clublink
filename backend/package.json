@@ -27,7 +27,8 @@
     "nodemailer": "^6.9.16",
     "pg": "^8.13.1",
     "pg-mem": "^3.0.4",
-    "sharp": "^0.33.5"
+    "sharp": "^0.33.5",
+    "stripe": "^17.5.0"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
