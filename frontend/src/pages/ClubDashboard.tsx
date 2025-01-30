@@ -23,6 +23,7 @@ const ClubDashboard = () => {
       popularity: 0,
       university: "",
       clubtype: ClubType.SOCIETY,
+      ratio: 0,
     },
     MemberList: [],
     Requests: [],

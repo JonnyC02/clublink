@@ -103,7 +103,7 @@ const Checkout = () => {
         brandName="ClubLink"
         links={[
           { label: "Home", href: "/" },
-          { label: "Clubs", href: "/clubs" },
+          { label: "Browse Clubs", href: "/clubs" },
           { label: "Browse Events", href: "/events" },
           { label: "About", href: "/about" },
         ]}

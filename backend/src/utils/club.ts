@@ -1,11 +1,38 @@
 import pool from "../db/db";
+import { MailOptions } from "../types/MailOptions";
 import { addAudit } from "./audit";
+import dotenv from "dotenv";
+dotenv.config();
 
 export const joinClub = async (clubId: string, userId: number | undefined) => {
   await pool.query(
     "INSERT INTO memberlist (memberId, clubId) VALUES ($1, $2)",
     [userId, clubId]
   );
+  const results = await pool.query(
+    "SELECT * FROM memberlist WHERE clubId = $1",
+    [clubId]
+  );
+  let student = 0;
+  let associate = 0;
+  for (const row of results.rows) {
+    switch (row.membertype) {
+      case "Member": {
+        student++;
+        break;
+      }
+      case "Associate": {
+        associate++;
+        break;
+      }
+    }
+  }
+
+  const ratio = +(associate / student).toFixed(2);
+  await pool.query("UPDATE clubs SET ratio = $1 WHERE id = $2", [
+    ratio,
+    clubId,
+  ]);
 };
 
 export const requestJoinClub = async (

@@ -1,4 +1,4 @@
 export enum TicketType {
-  Membership = "Membership",
-  Event = "Event",
+  MEMBERSHIP = "Membership",
+  EVENT = "Event",
 }

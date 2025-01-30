@@ -9,6 +9,9 @@ import userRoutes from "./routes/user";
 import session from "express-session";
 import dotenv from "dotenv";
 import pool from "./db/db";
+import queue from "./utils/queue";
+import { sendEmail } from "./utils/email";
+import { MailOptions } from "./types/MailOptions";
 dotenv.config();
 
 const UNIVERSITIES: object[] = [];
@@ -65,6 +68,40 @@ app.get("/universities", (req: Request, res: Response) => {
 if (process.env.NODE_ENV !== "test") {
   const startServer = async () => {
     try {
+      const mailOptions: MailOptions = {
+        from: process.env.EMAIL_USER,
+        to: "conneryjonathan@gmail.com",
+        subject: `Space in Club`,
+        html: `
+    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; text-align: center;">
+      <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);">
+        <h2 style="color: #333; text-align: center;">You're Invited to Join XYZ Club!</h2>
+        <p style="text-align: center;">Great news! A spot has opened up in <strong>XYZ Club</strong>, and we’d love to have you onboard.</p>
+        <p style="font-weight: bold; text-align: center;">You have 48 hours to accept or decline this invitation before it expires.</p>
+
+        <div style="margin: 20px 0; text-align: center;">
+          <a href="https://yourclubsite.com/accept?userId=USER_ID&clubId=XYZ" 
+             style="display: inline-block; padding: 12px 20px; background-color: #28a745; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold; margin-right: 10px;">
+             ✅ Accept Invitation
+          </a>
+
+          <a href="https://yourclubsite.com/decline?userId=USER_ID&clubId=XYZ" 
+             style="display: inline-block; padding: 12px 20px; background-color: #dc3545; color: #fff; text-decoration: none; border-radius: 5px; font-weight: bold;">
+             ❌ Decline Invitation
+          </a>
+        </div>
+
+        <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+
+        <p style="color: #555; text-align: center;">If you do not respond within 48 hours, your spot will be offered to the next person on the waitlist.</p>
+
+        <p style="color: #777; font-size: 12px; text-align: center;">This is an automated email. Please do not reply.</p>
+      </div>
+    </div>
+  `,
+      };
+
+      queue.start();
       if (!process.env.REACT_APP_IS_TESTING) {
         const result = await pool.query(
           "SELECT acronym, name FROM universities"

@@ -20,6 +20,7 @@ import Checkout from "./pages/Checkout";
 const stripePromise = process.env.REACT_APP_PUBLISH_KEY
   ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
   : null;
+
 function App() {
   const [backendOnline, setBackendOnline] = useState(true);
   useEffect(() => {

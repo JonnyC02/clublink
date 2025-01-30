@@ -128,7 +128,8 @@ router.get("/:id", async (req: Request, res: Response) => {
                 c.university, 
                 c.email,
                 c.clubtype, 
-                c.headerimage, 
+                c.headerimage,
+                c.ratio,
                 u.name AS university,
                  
                 COUNT(m.memberId) AS popularity,
@@ -317,8 +318,12 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
+    const clubRatio = await pool.query(
+      "SELECT ratio FROM clubs WHERE id = $1",
+      [id]
+    );
     const student = await isStudent(userId);
-    if (student) {
+    if (student || clubRatio.rows[0].ratio < 0.2) {
       await joinClub(id, userId);
       res.json({ message: "Successfully Joined Club" });
     } else {
