@@ -16,6 +16,7 @@ import AboutPage from "./pages/AboutPage";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Checkout from "./pages/Checkout";
+import Action from "./pages/Action";
 
 const stripePromise = process.env.REACT_APP_PUBLISH_KEY
   ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
@@ -58,6 +59,8 @@ function App() {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="/verify" element={<VerifyPage />} />
               <Route path="/club/:id" element={<ClubPage />} />
+              <Route path="/accept" element={<Action />} />
+              <Route path="/deny" element={<Action />} />
               <Route
                 path="/dashboard"
                 element={

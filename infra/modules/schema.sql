@@ -61,6 +61,7 @@ CREATE TABLE Tickets (
     eventId INT REFERENCES Events(id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
+    clubId INT REFERENCES Clubs(id),
     ticketType ticket_type_enum DEFAULT 'Event',
     ticketFlag ticket_flag_enum DEFAULT 'Associate'
 );

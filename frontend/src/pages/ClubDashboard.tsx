@@ -4,13 +4,12 @@ import TitleSection from "../components/TitleSection";
 import { useEffect, useState } from "react";
 import { ClubData } from "../types/responses/ClubData";
 import { Member } from "../types/Member";
-import { Request } from "../types/Request";
 import { ClubType } from "../types/ClubType";
 import { AuditLog } from "../types/AuditLog";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState("requests");
+  const [activeTab, setActiveTab] = useState("memberlist");
   const [data, setData] = useState<Omit<ClubData, "ismember" | "hasPending">>({
     Club: {
       id: 0,
@@ -26,7 +25,6 @@ const ClubDashboard = () => {
       ratio: 0,
     },
     MemberList: [],
-    Requests: [],
     AuditLog: [],
   });
   const [loading, setLoading] = useState(true);
@@ -63,48 +61,6 @@ const ClubDashboard = () => {
       </a>
     </>
   );
-
-  const handleRequestAction = async (
-    requestId: number,
-    action: "approve" | "deny"
-  ) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("You must be logged in to perform this action.");
-        return;
-      }
-
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/requests/${requestId}/${action}`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      if (response.ok) {
-        alert(`Request ${action}d successfully!`);
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
-        setData(updatedData);
-      } else {
-        alert(`Failed to ${action} the request.`);
-      }
-    } catch (error) {
-      console.error(`Error ${action}ing request:`, error); // eslint-disable-line no-console
-      alert(`An error occurred while trying to ${action} the request.`);
-    }
-  };
 
   useEffect(() => {
     setLoading(true);
@@ -148,6 +104,51 @@ const ClubDashboard = () => {
           .includes(searchLower))
     );
   });
+
+  const activateMember = async (memberId: number) => {
+    if (!window.confirm("Are you sure you want to activate this member?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must be logged in to perform this action");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/activate`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ memberId }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Member Activated Successfully");
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        const error = await response.json();
+        alert(error.message || "Failed to activate the member.");
+      }
+    } catch (err) {
+      console.error("Error activating member: ", err); // eslint-disable-line no-console
+    }
+  };
 
   const handleKick = async (userId: number) => {
     if (!window.confirm("Are you sure you want to remove this member?")) {
@@ -223,16 +224,6 @@ const ClubDashboard = () => {
             <nav className="flex space-x-6">
               <button
                 className={`pb-2 px-4 ${
-                  activeTab === "requests"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => setActiveTab("requests")}
-              >
-                Requests
-              </button>
-              <button
-                className={`pb-2 px-4 ${
                   activeTab === "memberlist"
                     ? "border-b-2 border-blue-500 text-blue-500"
                     : "text-gray-600"
@@ -265,78 +256,6 @@ const ClubDashboard = () => {
           </div>
 
           <div>
-            {activeTab === "requests" && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Pending Requests</h2>
-                {data.Requests?.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-                      <thead>
-                        <tr className="bg-gray-100 border-b border-gray-200">
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Request Date
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.Requests.sort(
-                          (a: Request, b: Request) =>
-                            new Date(b.created_at).getTime() -
-                            new Date(a.created_at).getTime()
-                        ).map((request: Request, index: number) => (
-                          <tr
-                            key={index}
-                            className={`${
-                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                            } border-b border-gray-200`}
-                          >
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {request.name || "N/A"}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {new Date(request.created_at).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
-                                }
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm flex gap-2">
-                              <button
-                                onClick={() =>
-                                  handleRequestAction(request.id, "approve")
-                                }
-                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
-                              >
-                                Approve
-                              </button>
-                              <button
-                                onClick={() =>
-                                  handleRequestAction(request.id, "deny")
-                                }
-                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                              >
-                                Deny
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No pending requests.</p>
-                )}
-              </div>
-            )}
             {activeTab === "memberlist" && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Member List</h2>
@@ -388,6 +307,9 @@ const ClubDashboard = () => {
                             Status
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Active
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Actions
                           </th>
                         </tr>
@@ -432,6 +354,28 @@ const ClubDashboard = () => {
                               </span>
                             </td>
                             <td className="px-6 py-4 text-sm">
+                              <input
+                                type="checkbox"
+                                checked={member.activated}
+                                disabled
+                                className={`w-5 h-5 border-2 rounded ${
+                                  member.activated
+                                    ? "bg-blue-500 border-blue-500"
+                                    : "bg-gray-200 border-gray-300"
+                                } cursor-not-allowed`}
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              {!member.activated && (
+                                <button
+                                  onClick={() =>
+                                    activateMember(member.memberid)
+                                  }
+                                  className="px-4 py-2 mr-4 bg-green-500 text-white rounded hover:bg-green-600"
+                                >
+                                  Activate
+                                </button>
+                              )}
                               <button
                                 onClick={() => handleKick(member.memberid)}
                                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"

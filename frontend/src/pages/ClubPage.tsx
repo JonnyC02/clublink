@@ -136,7 +136,10 @@ const ClubPage = () => {
 
       if (response.ok) {
         alert("Successfully joined the club!");
-        navigate(0);
+        const { ticket } = await response.json();
+        if (ticket) {
+          navigate(`/payment/${ticket}`);
+        }
       } else {
         const data = await response.json();
         setJoinError(data.message || "Failed to join the club.");

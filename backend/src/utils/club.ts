@@ -1,5 +1,4 @@
 import pool from "../db/db";
-import { MailOptions } from "../types/MailOptions";
 import { addAudit } from "./audit";
 import dotenv from "dotenv";
 dotenv.config();
@@ -64,6 +63,7 @@ export const approveRequest = async (
   const memberId = +result.rows[0].memberid;
   await addAudit(clubId, userId, memberId, "approve");
   await joinClub(clubId, memberId);
+  return clubId;
 };
 
 export const denyRequest = async (
@@ -85,4 +85,35 @@ export const denyRequest = async (
   const clubId = result.rows[0].clubid;
   const memberId = +result.rows[0].memberid;
   await addAudit(clubId, userId, memberId, "deny");
+};
+
+export const expireRequest = async (requestId: string | undefined) => {
+  await pool.query(
+    "UPDATE requests SET status = 'Cancelled', updated_at = $1 WHERE id = $2",
+    [new Date().toISOString(), requestId]
+  );
+};
+
+export const activateMembership = async (
+  userId: number | undefined,
+  clubId: string
+) => {
+  await pool.query(
+    "UPDATE MemberList SET activated = true WHERE userId = $1 AND clubId = $2",
+    [userId, clubId]
+  );
+
+  await addAudit(+clubId, userId, userId, "activate membership");
+};
+
+export const deactivateMembership = async (
+  userId: number | undefined,
+  clubId: string
+) => {
+  await pool.query(
+    "UPDATE MemberList SET activated = false WHERE userId = $1 and clubId = $2",
+    [userId, clubId]
+  );
+
+  await addAudit(+clubId, userId, userId, "deactivate membership");
 };

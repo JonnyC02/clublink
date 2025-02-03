@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
@@ -15,6 +15,8 @@ const Checkout = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [ticket, setTicket] = useState<Ticket>();
+  const [payInCash, setPayInCash] = useState(false);
+  const navigate = useNavigate();
 
   const ticketPrice = Number(ticket?.price) || 0;
 
@@ -40,19 +42,42 @@ const Checkout = () => {
     fetchTicketData();
   }, [id]);
 
+  const navDash = () => {
+    navigate("/dashboard");
+  };
+
   const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) {
-      setError("Stripe.js has not loaded. Please try again.");
-      return;
-    }
 
     setLoading(true);
     setError("");
 
     try {
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No authentication token found");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      if (payInCash) {
+        try {
+          setSuccess(true);
+        } catch (err) {
+          setError(
+            err instanceof Error
+              ? err.message
+              : "Error processing cash payment."
+          );
+        } finally {
+          setLoading(false);
+        }
+        return;
+      }
+
+      if (!stripe || !elements) {
+        setError("Stripe.js has not loaded. Please try again.");
+        return;
+      }
 
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) throw new Error("Card element not found");
@@ -89,7 +114,7 @@ const Checkout = () => {
       setError(
         err instanceof Error
           ? err.message
-          : "An error occurred while processing your payment."
+          : "An error occurred while processing your payment. If this persists, please contact your card issuer."
       );
       console.error(err); // eslint-disable-line no-console
     } finally {
@@ -145,9 +170,17 @@ const Checkout = () => {
             <div className="text-center text-green-600">
               <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
               <p>
-                Thank you for your payment. You will receive a confirmation
-                email shortly.
+                {payInCash
+                  ? "Your ticket has been reserved for cash payment."
+                  : "Thank you for your payment. You will receive a confirmation email shortly."}
               </p>
+              <button
+                onClick={navDash}
+                type="submit"
+                className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
+              >
+                Continue to Dashboard &gt;&gt;
+              </button>
             </div>
           ) : (
             <>
@@ -183,49 +216,69 @@ const Checkout = () => {
                       £{ticketPrice.toFixed(2)}
                     </span>
                   </div>
-                  <div className="grid grid-cols-3 gap-4">
-                    <span className="text-gray-600 font-medium">
-                      Payment Fee:
-                    </span>
-                    <span className="col-span-2 text-gray-800">
-                      £{paymentFee.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 font-semibold">
-                    <span className="text-gray-600 font-medium">Total:</span>
-                    <span className="col-span-2 text-gray-800">
-                      £{totalPrice.toFixed(2)}
-                    </span>
-                  </div>
+                  {!payInCash && (
+                    <>
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="text-gray-600 font-medium">
+                          Payment Fee:
+                        </span>
+                        <span className="col-span-2 text-gray-800">
+                          £{paymentFee.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-4 font-semibold">
+                        <span className="text-gray-600 font-medium">
+                          Total:
+                        </span>
+                        <span className="col-span-2 text-gray-800">
+                          £{totalPrice.toFixed(2)}
+                        </span>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
+              <div className="mb-4">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={payInCash}
+                    onChange={() => setPayInCash(!payInCash)}
+                    className="h-5 w-5 text-blue-600 border-gray-300 rounded"
+                  />
+                  <span className="text-gray-700">Pay in Cash</span>
+                </label>
+              </div>
+
               <form onSubmit={handlePayment} data-testid="payment-form">
-                <div className="mb-4">
-                  <label
-                    htmlFor="card-element"
-                    className="block text-sm font-medium text-gray-700 mb-1"
-                  >
-                    Card Details
-                  </label>
-                  <div className="p-2 border border-gray-300 rounded-md">
-                    <CardElement
-                      id="card-element"
-                      options={{
-                        style: {
-                          base: {
-                            fontSize: "16px",
-                            color: "#32325d",
-                            "::placeholder": { color: "#aab7c4" },
+                {!payInCash && (
+                  <div className="mb-4">
+                    <label
+                      htmlFor="card-element"
+                      className="block text-sm font-medium text-gray-700 mb-1"
+                    >
+                      Card Details
+                    </label>
+                    <div className="p-2 border border-gray-300 rounded-md">
+                      <CardElement
+                        id="card-element"
+                        options={{
+                          style: {
+                            base: {
+                              fontSize: "16px",
+                              color: "#32325d",
+                              "::placeholder": { color: "#aab7c4" },
+                            },
+                            invalid: { color: "#fa755a" },
                           },
-                          invalid: { color: "#fa755a" },
-                        },
-                        hidePostalCode: true,
-                        disableLink: true,
-                      }}
-                    />
+                          hidePostalCode: true,
+                          disableLink: true,
+                        }}
+                      />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {error && (
                   <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded mb-4">
@@ -238,7 +291,11 @@ const Checkout = () => {
                   disabled={!stripe || loading}
                   className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
                 >
-                  {loading ? "Processing..." : "Pay Now"}
+                  {loading
+                    ? "Processing..."
+                    : payInCash
+                    ? "Reserve Ticket"
+                    : "Pay Now"}
                 </button>
               </form>
             </>

@@ -40,28 +40,54 @@ export const getAllClubs = async (userId: number | undefined) => {
     if (!userId) {
       throw new Error("No User Id");
     }
+
     const result = await pool.query(
       `
-            SELECT 
-                c.id,
-                c.name,
-                c.shortDescription,
-                c.image,
-                CASE
-                    WHEN m.memberType = 'Committee' THEN true
-                    ELSE false
-                END AS isCommittee
-            FROM 
-                MemberList m
-            INNER JOIN 
-                Clubs c ON m.clubId = c.id
-            WHERE 
-                m.memberId = $1;
-        `,
+      SELECT 
+          c.id AS clubId,
+          c.name AS clubName,
+          c.shortDescription,
+          c.image,
+          m.activated,
+          CASE
+              WHEN m.memberType = 'Committee' THEN true
+              ELSE false
+          END AS isCommittee,
+          t.id AS ticketId,
+          t.name AS ticketName,
+          t.price AS ticketPrice,
+          t.ticketType,
+          t.ticketFlag
+      FROM 
+          MemberList m
+      INNER JOIN 
+          Clubs c ON m.clubId = c.id
+      LEFT JOIN 
+          Tickets t ON m.clubId = t.clubId 
+          AND t.ticketType = 'Membership'
+      WHERE 
+          m.memberId = $1;
+      `,
       [userId]
     );
 
-    return result.rows;
+    return result.rows.map((row) => ({
+      id: row.clubid,
+      name: row.clubname,
+      shortdescription: row.shortdescription,
+      image: row.image,
+      activated: row.activated,
+      iscommittee: row.iscommittee,
+      membershipticket: row.activated
+        ? null
+        : {
+            ticketId: row.ticketid,
+            ticketName: row.ticketname,
+            ticketPrice: row.ticketprice,
+            ticketType: row.tickettype,
+            ticketFlag: row.ticketflag,
+          },
+    }));
   } catch (error) {
     console.error("Error fetching user memberships:", error); // eslint-disable-line no-console
     throw new Error("Failed to fetch user memberships");
