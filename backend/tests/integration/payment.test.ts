@@ -2,7 +2,6 @@ import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
 import stripe from "../../src/utils/stripe";
-import { sendEmail } from "../../src/utils/email";
 import { Stripe } from "stripe";
 import { stopQueue } from "../../src/utils/queue";
 
