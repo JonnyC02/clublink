@@ -19,7 +19,7 @@ const Action = () => {
 
       if (isAccept) {
         const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/requests/approve`,
+          `${process.env.REACT_APP_API_URL}/clubs/requests/approve`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -28,6 +28,7 @@ const Action = () => {
             body: JSON.stringify({ request }),
           }
         );
+        setMessage("Accepted");
         const res = await response.json();
         if (!res.ticket) {
           navigate("/dashboard");
@@ -35,13 +36,14 @@ const Action = () => {
           navigate(`/payment/${res.ticket}`);
         }
       } else {
-        await fetch(`${process.env.REACT_APP_API_URL}/requests/deny`, {
+        await fetch(`${process.env.REACT_APP_API_URL}/clubs/requests/deny`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           method: "POST",
           body: JSON.stringify({ request }),
         });
+        setMessage("Denied");
       }
       navigate(`/dashboard`);
     };
