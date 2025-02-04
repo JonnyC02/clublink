@@ -164,8 +164,33 @@ router.post(
           const mailOptions: MailOptions = {
             from: process.env.EMAIL_USER,
             to: email,
-            subject: "Payment Failed",
-            html: "Payment Failed - Change Later",
+            subject: "Payment Failed - Action Required",
+            html: `
+      <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f8f9fa;">
+        <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 2px 8px rgba(0,0,0,0.1);">
+          <h2 style="color: #e63946; text-align: center; margin-bottom: 20px;">Payment Failed</h2>
+          <p style="font-size: 16px; color: #333333;">
+            Dear Customer,
+          </p>
+          <p style="font-size: 16px; color: #333333;">
+            Unfortunately, your recent payment attempt was unsuccessful. Please check your payment details and try again. If the issue persists, feel free to contact our support team for assistance.
+          </p>
+          <div style="margin: 20px 0; text-align: center;">
+            <a href="${process.env.FRONTEND_URL}/payments/1"
+               style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">
+               Retry Payment
+            </a>
+          </div>
+          <hr style="border: none; border-top: 1px solid #eeeeee; margin: 20px 0;">
+          <p style="font-size: 14px; color: #666666; text-align: center;">
+            If you have any questions or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@clublink.com" style="color: #007bff;">support@clublink.com</a>.
+          </p>
+          <p style="font-size: 12px; color: #999999; text-align: center; margin-top: 20px;">
+            This is an automated email. Please do not reply.
+          </p>
+        </div>
+      </div>
+    `,
           };
 
           await sendEmail(email, mailOptions);
