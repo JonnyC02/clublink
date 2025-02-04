@@ -96,4 +96,8 @@ const queue = cron.schedule(
   }
 );
 
+export const stopQueue = () => {
+  queue.stop();
+};
+
 export default queue;

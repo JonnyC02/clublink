@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../../src/index";
 import { getAllClubs } from "../../src/utils/user";
+import { stopQueue } from "../../src/utils/queue";
 
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {
@@ -30,6 +31,10 @@ jest.mock("../../src/utils/authentication", () => ({
 describe("Users API Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    stopQueue();
   });
 
   it("should fetch all clubs for an authenticated user", async () => {
