@@ -51,6 +51,7 @@ const ClubPage = () => {
       university: "",
       clubtype: ClubType.SOCIETY,
       popularity: 0,
+      ratio: 0,
     },
     ismember: false,
     hasPending: false,
@@ -135,7 +136,10 @@ const ClubPage = () => {
 
       if (response.ok) {
         alert("Successfully joined the club!");
-        navigate(0);
+        const { ticket } = await response.json();
+        if (ticket) {
+          navigate(`/payment/${ticket}`);
+        }
       } else {
         const data = await response.json();
         setJoinError(data.message || "Failed to join the club.");
@@ -220,6 +224,8 @@ const ClubPage = () => {
                   ? "Pending"
                   : isStudent
                   ? "Join Club"
+                  : clubData.Club.ratio < 0.2
+                  ? "Join Club"
                   : "Request to Join"}
               </button>
               {joinError && (
@@ -229,6 +235,9 @@ const ClubPage = () => {
               )}
               <h3 className="text-xl font-bold mb-4 mt-8">
                 Member Count: {clubData.Club.popularity}
+              </h3>
+              <h3 className="text-xl font-bold mb-4 mt-8">
+                Club Ratio: {clubData.Club.ratio * 100}%
               </h3>
               <h3 className="text-xl font-bold mb-4 mt-8">
                 Committee Members:

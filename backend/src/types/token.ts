@@ -5,3 +5,7 @@ export type verifyToken = {
 export type resetToken = {
   email: string;
 };
+
+export type requestToken = {
+  reqId: string;
+};

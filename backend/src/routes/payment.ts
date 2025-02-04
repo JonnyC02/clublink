@@ -7,6 +7,7 @@ import pool from "../db/db";
 import Stripe from "stripe";
 import dotenv from "dotenv";
 import { sendEmail } from "../utils/email";
+import { MailOptions } from "../types/MailOptions";
 dotenv.config();
 
 const router = express.Router();
@@ -23,27 +24,64 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       "INSERT INTO transactions (memberId, ticketId) VALUES ($1, $2) RETURNING id",
       [req.user?.id, id]
     );
+    const ticketPrice = (integer / 100).toFixed(2);
+    const paymentFee = ((final - integer) / 100).toFixed(2);
+    const totalPrice = (final / 100).toFixed(2);
     const paymentIntent = await stripe.paymentIntents.create({
       amount: final,
       currency: "GBP",
       payment_method_types: ["card"],
       metadata: {
         transaction: transaction.rows[0].id,
+        ticketPrice,
+        paymentFee,
+        totalPrice,
+        email: req.user?.email || "",
+        desc,
       },
     });
     res.json({
       clientSecret: paymentIntent.client_secret,
     });
+  } catch (err) {
+    console.error("Error creating payment: ", err); // eslint-disable-line no-console
+    res.status(500).json({ error: err });
+  }
+});
 
-    const ticketPrice = (integer / 100).toFixed(2);
-    const paymentFee = ((final - integer) / 100).toFixed(2);
-    const totalPrice = (final / 100).toFixed(2);
+router.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req: Request, res: Response) => {
+    const statusMap: Record<string, string> = {
+      "payment_intent.succeeded": "succeeded",
+      "payment_intent.payment_failed": "failed",
+      "payment_intent.canceled": "cancelled",
+    };
+    try {
+      const sig = req.headers["stripe-signature"]!;
+      const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+      const event = stripe.webhooks.constructEvent(
+        req.body,
+        sig,
+        endpointSecret
+      );
+      if (event.type.startsWith("payment_intent.")) {
+        const paymentIntent = event.data.object as Stripe.PaymentIntent;
+        const transaction = paymentIntent.metadata.transaction;
+        const ticketPrice = paymentIntent.metadata.ticketPrice;
+        const paymentFee = paymentIntent.metadata.paymentFee;
+        const totalPrice = paymentIntent.metadata.totalPrice;
+        const email = paymentIntent.metadata.email;
+        const desc = paymentIntent.metadata.desc;
+        const status = statusMap[event.type] || paymentIntent.status;
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: req.user?.email || "",
-      subject: "Your ClubLink Receipt",
-      html: `
+        if (status === "succeeded") {
+          const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Your ClubLink Receipt",
+            html: `
     <!DOCTYPE html>
     <html lang="en">
     <head>
@@ -85,7 +123,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
                 <div class="details-box">
                     <div class="detail-item">
                         <span class="label">Transaction ID:</span>
-                        <span class="value">${transaction.rows[0].id}</span>
+                        <span class="value">${transaction}</span>
                     </div>
                     <div class="detail-item">
                         <span class="label">Description:</span>
@@ -117,36 +155,21 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     </body>
     </html>
   `,
-    };
+          };
 
-    await sendEmail(req.user?.email || "", mailOptions);
-  } catch (err) {
-    console.error("Error creating payment: ", err); // eslint-disable-line no-console
-    res.status(500).json({ error: err });
-  }
-});
+          await sendEmail(email, mailOptions);
+        }
 
-router.post(
-  "/webhook",
-  express.raw({ type: "application/json" }),
-  async (req: Request, res: Response) => {
-    const statusMap: Record<string, string> = {
-      "payment_intent.succeeded": "succeeded",
-      "payment_intent.payment_failed": "failed",
-      "payment_intent.canceled": "cancelled",
-    };
-    try {
-      const sig = req.headers["stripe-signature"]!;
-      const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
-      const event = stripe.webhooks.constructEvent(
-        req.body,
-        sig,
-        endpointSecret
-      );
-      if (event.type.startsWith("payment_intent.")) {
-        const paymentIntent = event.data.object as Stripe.PaymentIntent;
-        const transaction = paymentIntent.metadata.transaction;
-        const status = statusMap[event.type] || paymentIntent.status;
+        if (status === "failed") {
+          const mailOptions: MailOptions = {
+            from: process.env.EMAIL_USER,
+            to: email,
+            subject: "Payment Failed",
+            html: "Payment Failed - Change Later",
+          };
+
+          await sendEmail(email, mailOptions);
+        }
 
         if (!transaction) {
           throw new Error("No Transaction Reference");

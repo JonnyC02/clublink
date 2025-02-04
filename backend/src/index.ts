@@ -9,6 +9,7 @@ import userRoutes from "./routes/user";
 import session from "express-session";
 import dotenv from "dotenv";
 import pool from "./db/db";
+import queue from "./utils/queue";
 dotenv.config();
 
 const UNIVERSITIES: object[] = [];
@@ -24,12 +25,17 @@ app.use(
     secret: SECRET,
     resave: false,
     saveUninitialized: true,
-    // deepcode ignore WebCookieSecureDisabledExplicitly: environment variable set to true on production
     cookie: { secure: PRODUCTION, sameSite: "strict" },
   })
 );
 
-app.use(express.json());
+app.use((req, res, next) => {
+  if (req.originalUrl === "/payments/webhook") {
+    next();
+  } else {
+    express.json()(req, res, next);
+  }
+});
 app.use(
   cors({
     origin: process.env.FRONTEND_URL || "http://localhost:3000",
@@ -65,6 +71,7 @@ app.get("/universities", (req: Request, res: Response) => {
 if (process.env.NODE_ENV !== "test") {
   const startServer = async () => {
     try {
+      queue.start();
       if (!process.env.REACT_APP_IS_TESTING) {
         const result = await pool.query(
           "SELECT acronym, name FROM universities"

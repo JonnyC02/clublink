@@ -71,8 +71,8 @@ describe("Checkout Component", () => {
     render(<Checkout />);
 
     await waitFor(() => {
-      expect(screen.getByText(/VIP Ticket/i)).toBeInTheDocument();
-      expect(screen.getByText(/£50/i)).toBeInTheDocument();
+      expect(screen.getByText(/VIP Ticket/i)).toBeDefined();
+      expect(screen.getByText(/£50/i)).toBeDefined();
     });
   });
 
@@ -106,7 +106,7 @@ describe("Checkout Component", () => {
           payment_method: { card: {} },
         })
       );
-      expect(screen.getByText(/Payment Successful!/i)).toBeInTheDocument();
+      expect(screen.getByText(/Payment Successful!/i)).toBeDefined();
     });
   });
 
@@ -121,9 +121,7 @@ describe("Checkout Component", () => {
     fireEvent.submit(screen.getByTestId("payment-form"));
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Your card has been declined./i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Your card has been declined./i)).toBeDefined();
     });
   });
 
@@ -140,7 +138,7 @@ describe("Checkout Component", () => {
     await waitFor(() => screen.getByText(/Pay Now/i));
     fireEvent.submit(screen.getByTestId("payment-form"));
 
-    expect(screen.getByText(/Processing.../i)).toBeInTheDocument();
+    expect(screen.getByText(/Processing.../i)).toBeDefined();
   });
 
   test("handles API fetch errors", async () => {
@@ -151,9 +149,7 @@ describe("Checkout Component", () => {
     render(<Checkout />);
 
     await waitFor(() => {
-      expect(
-        screen.getByText(/Failed to fetch ticket data/i)
-      ).toBeInTheDocument();
+      expect(screen.getByText(/Failed to fetch ticket data/i)).toBeDefined();
     });
   });
 
@@ -165,6 +161,6 @@ describe("Checkout Component", () => {
     await waitFor(() => screen.getByText(/Pay Now/i));
     fireEvent.submit(screen.getByTestId("payment-form"));
 
-    expect(screen.getByText(/Stripe.js has not loaded/i)).toBeInTheDocument();
+    expect(screen.getByText(/Stripe.js has not loaded/i)).toBeDefined();
   });
 });

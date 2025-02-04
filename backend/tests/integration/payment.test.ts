@@ -2,8 +2,8 @@ import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
 import stripe from "../../src/utils/stripe";
-import { sendEmail } from "../../src/utils/email";
 import { Stripe } from "stripe";
+import { stopQueue } from "../../src/utils/queue";
 
 jest.mock("../../src/db/db", () => ({
   query: jest.fn(),
@@ -31,9 +31,11 @@ jest.mock("../../src/utils/authentication", () => ({
 
 const mockQuery = pool.query as jest.Mock;
 const mockStripe = stripe as jest.Mocked<typeof stripe>;
-const mockSendEmail = sendEmail as jest.Mock;
 
 describe("Payment API Integration Tests", () => {
+  afterAll(() => {
+    stopQueue();
+  });
   const mockTransaction = { rows: [{ id: "tx_123" }] };
 
   const mockPaymentIntent: Stripe.Response<Stripe.PaymentIntent> = {
@@ -116,16 +118,15 @@ describe("Payment API Integration Tests", () => {
         amount: 5500,
         currency: "GBP",
         payment_method_types: ["card"],
-        metadata: { transaction: "tx_123" },
+        metadata: {
+          transaction: "tx_123",
+          desc: "Test Ticket",
+          email: "user@example.com",
+          paymentFee: "5.00",
+          ticketPrice: "50.00",
+          totalPrice: "55.00",
+        },
       });
-
-      expect(mockSendEmail).toHaveBeenCalledWith(
-        "user@example.com",
-        expect.objectContaining({
-          subject: "Your ClubLink Receipt",
-          html: expect.stringContaining("£50"),
-        })
-      );
     });
 
     it("should handle invalid amount", async () => {

@@ -13,6 +13,7 @@ export type Club = {
   longitude: string;
   clubtype: ClubType;
   popularity: number;
+  ratio: number;
 };
 
 export type ClubResp = Omit<Club, "longitude" | "latitude">;

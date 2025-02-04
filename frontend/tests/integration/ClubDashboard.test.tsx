@@ -38,12 +38,9 @@ describe("ClubDashboard Integration Tests", () => {
       </MemoryRouter>
     );
     await waitFor(() => {
-      expect(screen.getByText("Requests")).toBeDefined();
-      expect(screen.getByText("Member List")).toBeDefined();
+      expect(screen.getAllByText("Member List")).toBeDefined();
       expect(screen.getByText("Club Details")).toBeDefined();
-      expect(screen.getByText("Pending Requests")).toBeDefined();
       expect(screen.getByText("Audit Log")).toBeDefined();
-      expect(screen.getByText("No pending requests.")).toBeDefined();
     });
     await waitFor(() => {
       screen.findByText("Member List").then(async (ele) => {

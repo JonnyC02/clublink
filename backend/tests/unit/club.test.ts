@@ -28,7 +28,21 @@ describe("Club Utils", () => {
 
   describe("joinClub", () => {
     it("should insert a membership into the MemberList table", async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({});
+      (pool.query as jest.Mock).mockResolvedValueOnce({
+        rows: [],
+      });
+
+      (pool.query as jest.Mock).mockResolvedValueOnce({
+        rows: [
+          { membertype: "Member" },
+          { membertype: "Associate" },
+          { membertype: "Member" },
+        ],
+      });
+
+      (pool.query as jest.Mock).mockResolvedValueOnce({
+        rows: [],
+      });
 
       await joinClub(mockClubId, mockUserId);
 
@@ -78,10 +92,7 @@ describe("Club Utils", () => {
         rows: [{ clubid: mockClubId, memberid: mockUserId }],
       };
 
-      (pool.query as jest.Mock)
-        .mockResolvedValueOnce(mockRequestResult)
-        .mockResolvedValueOnce({})
-        .mockResolvedValueOnce({});
+      (pool.query as jest.Mock).mockResolvedValue(mockRequestResult);
 
       await approveRequest(mockRequestId, mockUserId);
 

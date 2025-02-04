@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../../src/utils/email";
 import { generateVerificationToken } from "../../src/utils/tokens";
+import { stopQueue } from "../../src/utils/queue";
 
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {
@@ -56,6 +57,10 @@ const mockGenerateVerificationToken = generateVerificationToken as jest.Mock;
 describe("Authentication API Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    stopQueue();
   });
 
   describe("POST /auth/login", () => {

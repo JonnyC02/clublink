@@ -3,8 +3,10 @@ import pool from "../db/db";
 import { authenticateToken, getUserId } from "../utils/authentication";
 import { hasPendingRequest, isStudent } from "../utils/user";
 import {
+  activateMembership,
   approveRequest,
   denyRequest,
+  expireRequest,
   joinClub,
   requestJoinClub,
 } from "../utils/club";
@@ -13,6 +15,8 @@ import dotenv from "dotenv";
 import { AuthRequest } from "../types/AuthRequest";
 import { convertToWebp, uploadFile } from "../utils/file";
 import { addAudit } from "../utils/audit";
+import jwt from "jsonwebtoken";
+import { requestToken } from "../types/token";
 dotenv.config();
 
 const router = express.Router();
@@ -128,7 +132,8 @@ router.get("/:id", async (req: Request, res: Response) => {
                 c.university, 
                 c.email,
                 c.clubtype, 
-                c.headerimage, 
+                c.headerimage,
+                c.ratio,
                 u.name AS university,
                  
                 COUNT(m.memberId) AS popularity,
@@ -187,32 +192,13 @@ router.get("/:id/all", async (req: Request, res: Response) => {
     return;
   }
 
-  const requests = await pool.query(
-    `
-        SELECT 
-            r.id,
-            r.memberid,
-            r.status,
-            r.created_at, 
-            u.name AS name
-        FROM 
-            requests r
-        JOIN 
-            users u 
-        ON 
-            r.memberid = u.id
-        WHERE 
-            r.clubId = $1 AND r.status = 'Pending'
-    `,
-    [id]
-  );
-
   const memberList = await pool.query(
     `
         SELECT 
             ml.memberId, 
             ml.memberType, 
-            ml.created_at, 
+            ml.created_at,
+            ml.activated, 
             u.name, 
             u.studentNumber
         FROM 
@@ -251,11 +237,45 @@ router.get("/:id/all", async (req: Request, res: Response) => {
 
   res.json({
     Club: result.rows[0],
-    Request: requests.rows,
     MemberList: memberList.rows,
     AuditLog: auditlog.rows,
   });
 });
+
+router.post(
+  "/:id/activate",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { memberId } = req.body;
+
+    if (!id || !memberId) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const result = await pool.query(
+        "UPDATE memberlist SET activated = true WHERE memberId = $1 AND clubId = $2 RETURNING memberId",
+        [memberId, id]
+      );
+
+      if (result.rows.length === 0) {
+        res.status(404).json({ message: "Member not found." });
+        return;
+      }
+
+      await addAudit(+id, req.user?.id, memberId, "activate membership");
+
+      res.status(200).json({ message: "Member activated successfully" });
+    } catch (err) {
+      console.error("Error activating member:", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal server error" });
+    }
+  }
+);
 
 router.get("/:id/committee", async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -317,13 +337,30 @@ router.get(
   async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
     const userId = req.user?.id;
+    const clubRatio = await pool.query(
+      "SELECT ratio FROM clubs WHERE id = $1",
+      [id]
+    );
     const student = await isStudent(userId);
-    if (student) {
+    if (student || clubRatio.rows[0].ratio < 0.2) {
       await joinClub(id, userId);
-      res.json({ message: "Successfully Joined Club" });
+      const result = await pool.query(
+        "SELECT id FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = 'Student'",
+        [id]
+      );
+
+      if (result.rows.length < 1) {
+        await activateMembership(userId, id);
+        res.json({ message: "Successfully Joined Club" });
+      } else {
+        res.json({
+          message: "Successfully Joined Club",
+          ticket: result.rows[0].id,
+        });
+      }
     } else {
       await requestJoinClub(id, userId);
-      res.json({ message: "Sent Request to Join" });
+      res.json({ message: "Sent Request to Join", type: "request" });
     }
   }
 );
@@ -416,16 +453,41 @@ router.post(
 );
 
 router.post(
-  "/requests/:id/approve",
+  "/requests/approve",
   authenticateToken,
   async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-
-    const userId = req.user?.id;
+    const { request } = req.body;
 
     try {
-      await approveRequest(id, userId);
-      res.json({ message: "Successfully approved requests" });
+      const decoded = jwt.decode(request) as requestToken | null;
+
+      if (!decoded || !decoded.reqId) {
+        res.status(400).json({
+          message: "Invalid request token.",
+        });
+        await expireRequest(decoded?.reqId);
+        return;
+      }
+
+      const reqId = decoded.reqId;
+
+      jwt.verify(request, process.env.JWT_SECRET!);
+
+      const userId = req.user?.id;
+      const clubId = await approveRequest(reqId, userId);
+      const result = await pool.query(
+        "SELECT id FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = 'Associate'",
+        [clubId]
+      );
+      if (result.rows.length <= 0) {
+        await activateMembership(userId, clubId);
+        res.json({ message: "Successfully accepted request" });
+      } else {
+        res.json({
+          message: "Successfully accepted request",
+          ticket: result.rows[0].id,
+        });
+      }
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
       res.status(500).json({ messsage: "Failed to approve request" });
@@ -434,19 +496,33 @@ router.post(
 );
 
 router.post(
-  "/requests/:id/deny",
+  "/requests/deny",
   authenticateToken,
   async (req: AuthRequest, res: Response) => {
-    const { id } = req.params;
-
-    const userId = req.user?.id;
+    const { request } = req.body;
 
     try {
-      await denyRequest(id, userId);
+      const decoded = jwt.decode(request) as requestToken | null;
+
+      if (!decoded || !decoded.reqId) {
+        res.status(400).json({
+          message: "Invalid request token.",
+        });
+        await expireRequest(decoded?.reqId);
+        return;
+      }
+      const reqId = decoded.reqId;
+
+      jwt.verify(request, process.env.JWT_SECRET!);
+
+      const userId = req.user?.id;
+      await denyRequest(reqId, userId);
       res.json({ message: "Successfully denied request" });
     } catch (err) {
       console.error(err); // eslint-disable-line no-console
-      res.status(500).json({ message: "Failed to deny request" });
+      res.status(500).json({
+        message: "Failed to deny request the request may have expired",
+      });
     }
   }
 );
@@ -456,8 +532,8 @@ router.post(
   authenticateToken,
   async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const { memberId } = req.body;
-    if (!id || !memberId) {
+    const { userId } = req.body;
+    if (!id || !userId) {
       res.status(400).json({
         message: "Invalid request. Club ID and Member ID are required.",
       });
@@ -467,7 +543,7 @@ router.post(
     try {
       const result = await pool.query(
         "DELETE FROM MemberList WHERE clubId = $1 AND memberId = $2 RETURNING id",
-        [id, memberId]
+        [id, userId]
       );
 
       if (result.rows.length === 0) {
@@ -475,7 +551,7 @@ router.post(
         return;
       }
 
-      await addAudit(+id, req.user?.id, memberId, "Kick");
+      await addAudit(+id, req.user?.id, userId, "Kick");
       res.status(200).json({ message: "Member removed successfully" });
     } catch (err) {
       console.error("Error removing member:", err); // eslint-disable-line no-console

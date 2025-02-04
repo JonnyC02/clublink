@@ -1,6 +1,7 @@
 import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
+import { stopQueue } from "../../src/utils/queue";
 
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {
@@ -37,6 +38,9 @@ jest.mock("../../src/utils/authentication", () => ({
 const mockQuery = pool.query as jest.Mock;
 
 describe("Tickets API Integration Tests", () => {
+  afterAll(() => {
+    stopQueue();
+  });
   const mockTicket = {
     id: 1,
     name: "VIP Ticket",

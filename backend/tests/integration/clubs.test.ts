@@ -2,6 +2,7 @@ import request from "supertest";
 import app from "../../src/index";
 import pool from "../../src/db/db";
 import { addAudit } from "../../src/utils/audit";
+import { stopQueue } from "../../src/utils/queue";
 
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {
@@ -34,6 +35,10 @@ const mockQuery = pool.query as jest.Mock;
 describe("Clubs API Integration Tests", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+  });
+
+  afterAll(() => {
+    stopQueue();
   });
 
   describe("POST / (fetch clubs)", () => {
@@ -128,7 +133,7 @@ describe("Clubs API Integration Tests", () => {
       const res = await request(app)
         .post("/clubs/1/kick")
         .set("Authorization", "Bearer valid_token")
-        .send({ memberId: 2 });
+        .send({ userId: 2 });
 
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("message", "Member removed successfully");
@@ -145,7 +150,7 @@ describe("Clubs API Integration Tests", () => {
       const res = await request(app)
         .post("/clubs/1/kick")
         .set("Authorization", "Bearer valid_token")
-        .send({ memberId: 999 });
+        .send({ userId: 999 });
 
       expect(res.status).toBe(404);
       expect(res.body).toHaveProperty("message", "Member not found.");
@@ -157,7 +162,7 @@ describe("Clubs API Integration Tests", () => {
       const res = await request(app)
         .post("/clubs/1/kick")
         .set("Authorization", "Bearer valid_token")
-        .send({ memberId: 3 });
+        .send({ userId: 3 });
 
       expect(res.status).toBe(500);
       expect(res.body).toHaveProperty("message", "Internal server error");
@@ -187,7 +192,7 @@ describe("Clubs API Integration Tests", () => {
       const res = await request(app)
         .post("/clubs//kick")
         .set("Authorization", "Bearer valid_token")
-        .send({ memberId: 2 });
+        .send({ userId: 2 });
 
       expect(res.status).toBe(404);
       expect(mockQuery).not.toHaveBeenCalled();

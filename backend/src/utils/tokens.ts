@@ -25,3 +25,11 @@ export const generateResetToken = (email: string) => {
   }
   return jwt.sign({ email }, SECRET_KEY!, { expiresIn: "1h" });
 };
+
+export const generateRequestToken = (reqId: number) => {
+  const SECRET_KEY = process.env.JWT_SECRET;
+  if (!SECRET_KEY) {
+    throw new Error("Missing JWT_SECRET environment variable");
+  }
+  return jwt.sign({ reqId }, SECRET_KEY!, { expiresIn: "48h" });
+};
