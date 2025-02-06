@@ -90,6 +90,7 @@ if (process.env.NODE_ENV !== "test") {
       });
     } catch (err) {
       console.error("Error during server initialization:", err); // eslint-disable-line no-console
+      console.error("Is the PostgreSQL Docker Running??") // eslint-disable-line no-console
       process.exit(1);
     }
   };
