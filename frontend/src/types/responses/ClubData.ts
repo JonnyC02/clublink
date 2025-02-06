@@ -1,6 +1,7 @@
 import { AuditLog } from "../AuditLog";
 import { ClubResp } from "../Club";
 import { Member } from "../Member";
+import { Ticket } from "./TicketData";
 
 export type ClubData = {
   Club: ClubResp;
@@ -8,4 +9,5 @@ export type ClubData = {
   AuditLog: AuditLog[];
   ismember: boolean;
   hasPending: boolean;
+  Tickets: Ticket[];
 };

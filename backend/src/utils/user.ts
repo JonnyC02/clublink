@@ -62,9 +62,14 @@ export const getAllClubs = async (userId: number | undefined) => {
           MemberList m
       INNER JOIN 
           Clubs c ON m.clubId = c.id
+      INNER JOIN 
+          Users u ON m.memberId = u.id
       LEFT JOIN 
           Tickets t ON m.clubId = t.clubId 
-          AND t.ticketType = 'Membership'
+          AND (
+              (u.studentNumber IS NOT NULL AND t.ticketFlag = 'Student') OR
+              (u.studentNumber IS NULL AND t.ticketFlag = 'Associate')
+          )
       WHERE 
           m.memberId = $1;
       `,

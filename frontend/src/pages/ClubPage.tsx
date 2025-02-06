@@ -38,7 +38,7 @@ const ClubPage = () => {
   const { id } = useParams<{ id: string }>();
   const [loading, setLoading] = useState(true);
   const [clubData, setClubData] = useState<
-    Omit<ClubData, "Requests" | "MemberList" | "AuditLog">
+    Omit<ClubData, "Requests" | "MemberList" | "AuditLog" | "Tickets">
   >({
     Club: {
       id: 0,
