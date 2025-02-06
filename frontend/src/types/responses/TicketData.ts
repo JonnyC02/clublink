@@ -1,3 +1,4 @@
+import { ticketExpiry } from "../TicketExpiry";
 import { TicketFlag } from "../TicketFlag";
 import { TicketType } from "../TicketType";
 
@@ -7,5 +8,6 @@ export type Ticket = {
   name: string;
   price: number;
   tickettype: TicketType;
-  ticketFlag: TicketFlag;
+  ticketflag: TicketFlag;
+  ticketexpiry: ticketExpiry;
 };

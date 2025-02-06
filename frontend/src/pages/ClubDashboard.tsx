@@ -1,4 +1,4 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import { useEffect, useState } from "react";
@@ -6,11 +6,17 @@ import { ClubData } from "../types/responses/ClubData";
 import { Member } from "../types/Member";
 import { ClubType } from "../types/ClubType";
 import { AuditLog } from "../types/AuditLog";
+import { Ticket } from "../types/responses/TicketData";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState("memberlist");
-  const [data, setData] = useState<Omit<ClubData, "ismember" | "hasPending">>({
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(
+    searchParams.get("tab") || "memberlist"
+  );
+  const [data, setData] = useState<
+    Omit<ClubData, "ismember" | "hasPending" | "Tickets">
+  >({
     Club: {
       id: 0,
       name: "",
@@ -31,6 +37,7 @@ const ClubDashboard = () => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [auditSearch, setAuditSearch] = useState("");
+  const [tickets, setTickets] = useState<Ticket[]>([]);
   const navigate = useNavigate();
 
   const studentCount =
@@ -73,6 +80,8 @@ const ClubDashboard = () => {
           throw new Error("Failed to fetch club data");
         }
         const data = await response.json();
+        setTickets(data.Tickets);
+        delete data.Tickets;
         setData(data);
       } catch (err) {
         console.error("Failed to fetch club data:", err); // eslint-disable-line no-console
@@ -104,6 +113,46 @@ const ClubDashboard = () => {
           .includes(searchLower))
     );
   });
+
+  const handleTicketChange = (
+    ticketId: number,
+    field: keyof Ticket,
+    value: unknown
+  ) => {
+    setTickets((prevTickets) =>
+      prevTickets.map((ticket) =>
+        ticket.id === ticketId ? { ...ticket, [field]: value } : ticket
+      )
+    );
+  };
+
+  const saveTicketChanges = async () => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      return;
+    }
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/tickets/edit`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tickets }),
+      }
+    );
+
+    if (response.ok) {
+      alert("Ticket's Updated Successfully!");
+      navigate("?tab=membership");
+    } else {
+      alert(
+        "There was an error updating the memberships, please try again later!"
+      );
+      navigate("?tab=membership");
+    }
+  };
 
   const activateMember = async (memberId: number) => {
     if (!window.confirm("Are you sure you want to activate this member?")) {
@@ -228,7 +277,10 @@ const ClubDashboard = () => {
                     ? "border-b-2 border-blue-500 text-blue-500"
                     : "text-gray-600"
                 }`}
-                onClick={() => setActiveTab("memberlist")}
+                onClick={() => {
+                  navigate("?tab=memberlist");
+                  setActiveTab("memberlist");
+                }}
               >
                 Member List
               </button>
@@ -238,7 +290,10 @@ const ClubDashboard = () => {
                     ? "border-b-2 border-blue-500 text-blue-500"
                     : "text-gray-600"
                 }`}
-                onClick={() => setActiveTab("clubdetails")}
+                onClick={() => {
+                  navigate("?tab=clubdetails");
+                  setActiveTab("clubdetails");
+                }}
               >
                 Club Details
               </button>
@@ -248,9 +303,25 @@ const ClubDashboard = () => {
                     ? "border-b-2 border-blue-500 text-blue-500"
                     : "text-gray-600"
                 }`}
-                onClick={() => setActiveTab("auditlog")}
+                onClick={() => {
+                  navigate("?tab=auditlog");
+                  setActiveTab("auditlog");
+                }}
               >
                 Audit Log
+              </button>
+              <button
+                className={`pb-2 px-4 ${
+                  activeTab === "membership"
+                    ? "border-b-2 border-blue-500 text-blue-500"
+                    : "text-gray-600"
+                }`}
+                onClick={() => {
+                  navigate("?tab=membership");
+                  setActiveTab("membership");
+                }}
+              >
+                Membership
               </button>
             </nav>
           </div>
@@ -647,6 +718,91 @@ const ClubDashboard = () => {
                 ) : (
                   <p className="text-gray-500">No logs found.</p>
                 )}
+              </div>
+            )}
+            {activeTab === "membership" && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Membership</h2>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                    <thead>
+                      <tr className="bg-gray-100 border-b border-gray-200">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ticket Flag
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Expiry
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {tickets
+                        .filter((ticket: Ticket) =>
+                          ticket.name
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        )
+                        .map((ticket: Ticket, index: number) => (
+                          <tr
+                            key={index}
+                            className={`${
+                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                            } border-b border-gray-200`}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {ticket.name || "N/A"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {ticket.ticketflag || "N/A"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              <input
+                                type="text"
+                                className="w-20 px-2 py-1 border border-gray-300 rounded"
+                                defaultValue={ticket.price?.toString() || ""}
+                                placeholder="Enter price"
+                                onChange={(e) =>
+                                  handleTicketChange(
+                                    ticket.id,
+                                    "price",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm text-center">
+                              <select
+                                defaultValue={ticket.ticketexpiry}
+                                className="w-40 px-2 py-1 border border-gray-300 rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                onChange={(e) =>
+                                  handleTicketChange(
+                                    ticket.id,
+                                    "ticketexpiry",
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                <option value="Academic">Academic Year</option>
+                                <option value="Yearly">Yearly</option>
+                              </select>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
+                  <button
+                    onClick={saveTicketChanges}
+                    className="px-4 mt-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </div>
             )}
           </div>
