@@ -417,6 +417,10 @@ router.post(
   async (req: Request, res: Response) => {
     try {
       const files = req.files as Record<string, Express.Multer.File[]>;
+      if (Object.keys(JSON.stringify(files))) {
+        res.status(200).json({ message: "No Files to upload" });
+        return;
+      }
       let headerimage = undefined;
       let image = undefined;
       if (files.headerImage?.length > 0) {

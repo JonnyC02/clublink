@@ -554,8 +554,9 @@ const ClubDashboard = () => {
                             description: data.Club.description,
                             shortdescription: data.Club.shortdescription,
                             email: data.Club.email,
-                            headerimage: headerImageUrl,
-                            image: imageUrl,
+                            headerimage:
+                              headerImageUrl || data.Club.headerimage,
+                            image: imageUrl || data.Club.image,
                           }),
                         }
                       );
