@@ -114,6 +114,12 @@ const ClubDashboard = () => {
     );
   });
 
+  const calculateTotal = (value: number) => {
+    const price = +value;
+    const total = price + price * 0.1;
+    return total.toFixed(2);
+  };
+
   const handleTicketChange = (
     ticketId: number,
     field: keyof Ticket,
@@ -131,6 +137,20 @@ const ClubDashboard = () => {
     if (!token) {
       return;
     }
+
+    let badPrice = false;
+    for (const ticket of tickets) {
+      if (ticket.price < 2) {
+        alert("The minimum ticket price is £2, please fix this and try again!");
+        badPrice = true;
+        break;
+      }
+    }
+
+    if (badPrice) {
+      return;
+    }
+
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/tickets/edit`,
       {
@@ -775,6 +795,7 @@ const ClubDashboard = () => {
                                   )
                                 }
                               />
+                              <div>Total = {calculateTotal(ticket.price)}</div>
                             </td>
                             <td className="px-6 py-4 text-sm text-center">
                               <select
