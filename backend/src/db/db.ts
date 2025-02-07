@@ -1,11 +1,11 @@
-import { Pool } from 'pg';
-import dotenv from 'dotenv';
+import { Pool } from "pg";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 let pool: Pool;
 
-if (process.env.NODE_ENV === 'test') {
+if (process.env.NODE_ENV === "test") {
   pool = {
     query: jest.fn(),
     connect: jest.fn(),
@@ -17,10 +17,7 @@ if (process.env.NODE_ENV === 'test') {
     user: process.env.RDS_USERNAME,
     password: process.env.RDS_PASSWORD,
     database: process.env.RDS_DATABASE,
-    port: 8080,
-    ssl: {
-      rejectUnauthorized: false,
-    }
+    port: 5432,
   });
 }
 

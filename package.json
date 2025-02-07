@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx concurrently \"npm run dev --prefix backend\" \"npm start --prefix frontend\"",
-    "lint": "eslint \"frontend/**/*.{ts,tsx}\" \"backend/**/*.ts\""
+    "lint": "eslint \"frontend/**/*.{ts,tsx}\" \"backend/**/*.ts\"",
+    "up": "cd infra && docker-compose up -d",
+    "down": "cd infra && docker-compose stop"
   },
   "keywords": [],
   "author": "",
