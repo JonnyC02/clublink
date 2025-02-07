@@ -125,7 +125,6 @@ const ClubDashboard = () => {
     field: keyof Ticket,
     value: unknown
   ) => {
-    console.log(value);
     setTickets((prevTickets) =>
       prevTickets.map((ticket) =>
         ticket.id === ticketId ? { ...ticket, [field]: value } : ticket
