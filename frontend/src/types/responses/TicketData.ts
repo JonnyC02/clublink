@@ -10,4 +10,5 @@ export type Ticket = {
   tickettype: TicketType;
   ticketflag: TicketFlag;
   ticketexpiry: ticketExpiry;
+  cashenabled: boolean;
 };

@@ -38,8 +38,8 @@ router.post(
       for (const ticket of tickets) {
         const price = +ticket.price;
         await pool.query(
-          "UPDATE tickets SET price = $1, ticketExpiry = $2 WHERE id = $3",
-          [price, ticket.ticketexpiry, ticket.id]
+          "UPDATE tickets SET price = $1, ticketExpiry = $2, cashEnabled = $3 WHERE id = $4",
+          [price, ticket.ticketexpiry, ticket.cashenabled, ticket.id]
         );
       }
       res.status(200).json({ message: "Tickets Updated" });

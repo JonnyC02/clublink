@@ -125,6 +125,7 @@ const ClubDashboard = () => {
     field: keyof Ticket,
     value: unknown
   ) => {
+    console.log(value);
     setTickets((prevTickets) =>
       prevTickets.map((ticket) =>
         ticket.id === ticketId ? { ...ticket, [field]: value } : ticket
@@ -759,6 +760,9 @@ const ClubDashboard = () => {
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Expiry
                         </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Allow Cash
+                        </th>
                       </tr>
                     </thead>
                     <tbody>
@@ -812,6 +816,20 @@ const ClubDashboard = () => {
                                 <option value="Academic">Academic Year</option>
                                 <option value="Yearly">Yearly</option>
                               </select>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-center">
+                              <input
+                                type="checkbox"
+                                className={`w-5 h-5 border-2 rounded bg-blue-500 border-blue-500`}
+                                checked={ticket.cashenabled}
+                                onChange={(e) =>
+                                  handleTicketChange(
+                                    ticket.id,
+                                    "cashenabled",
+                                    e.target.checked
+                                  )
+                                }
+                              />
                             </td>
                           </tr>
                         ))}
