@@ -6,6 +6,7 @@ CREATE TYPE ticket_type_enum AS ENUM('Membership', 'Event');
 CREATE TYPE ticket_flag_enum AS ENUM('Student', 'Associate');
 CREATE TYPE ticket_expiry_enum AS ENUM('Academic', 'Yearly');
 CREATE TYPE transaction_status_enum AS ENUM('processing', 'succeeded', 'failed', 'cancelled', 'refunded', 'disputed');
+CREATE TYPE transaction_type_enum AS ENUM('Card', 'Cash');
 
 -- Users
 CREATE TABLE Users (
@@ -65,7 +66,8 @@ CREATE TABLE Tickets (
     clubId INT REFERENCES Clubs(id),
     ticketType ticket_type_enum DEFAULT 'Event',
     ticketFlag ticket_flag_enum DEFAULT 'Associate',
-    ticketExpiry ticket_expiry_enum DEFAULT 'Yearly'
+    ticketExpiry ticket_expiry_enum DEFAULT 'Yearly',
+    cashEnabled BOOLEAN DEFAULT true
 );
 
 -- Transactions
@@ -75,6 +77,7 @@ CREATE TABLE Transactions (
     ticketId INT REFERENCES Tickets(id) NOT NULL,
     amount DECIMAL (5, 2) NOT NULL,
     status transaction_type_enum DEFAULT 'completed',
+    type transaction_type_enum,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
 );

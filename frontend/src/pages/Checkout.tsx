@@ -239,17 +239,19 @@ const Checkout = () => {
                 </div>
               </div>
 
-              <div className="mb-4">
-                <label className="flex items-center space-x-2">
-                  <input
-                    type="checkbox"
-                    checked={payInCash}
-                    onChange={() => setPayInCash(!payInCash)}
-                    className="h-5 w-5 text-blue-600 border-gray-300 rounded"
-                  />
-                  <span className="text-gray-700">Pay in Cash</span>
-                </label>
-              </div>
+              {ticket?.cashenabled && (
+                <div className="mb-4">
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={payInCash}
+                      onChange={() => setPayInCash(!payInCash)}
+                      className="h-5 w-5 text-blue-600 border-gray-300 rounded"
+                    />
+                    <span className="text-gray-700">Pay in Cash</span>
+                  </label>
+                </div>
+              )}
 
               <form onSubmit={handlePayment} data-testid="payment-form">
                 {!payInCash && (
