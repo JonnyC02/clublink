@@ -272,7 +272,7 @@ router.post(
         return;
       }
 
-      await addAudit(+id, req.user?.id, memberId, "activate membership");
+      await addAudit(+id, memberId, req.user?.id, "Activate Membership");
 
       res.status(200).json({ message: "Member activated successfully" });
     } catch (err) {

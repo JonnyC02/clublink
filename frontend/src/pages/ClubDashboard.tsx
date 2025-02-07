@@ -101,7 +101,7 @@ const ClubDashboard = () => {
       log.id.toString().includes(searchLower) ||
       (log.member && log.member.toLowerCase().includes(searchLower)) ||
       (log.user && log.user.toLowerCase().includes(searchLower)) ||
-      (log.actionType && log.actionType.toLowerCase().includes(searchLower)) ||
+      (log.actiontype && log.actiontype.toLowerCase().includes(searchLower)) ||
       (log.created_at &&
         new Date(log.created_at)
           .toLocaleDateString("en-GB", {
@@ -698,7 +698,7 @@ const ClubDashboard = () => {
                               {log.user || "Committee"}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
-                              {log.actionType || "Action"}
+                              {log.actiontype || "Action"}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
                               {new Date(log.created_at).toLocaleDateString(

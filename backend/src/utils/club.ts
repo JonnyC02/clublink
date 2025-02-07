@@ -61,7 +61,7 @@ export const approveRequest = async (
   }
   const clubId = result.rows[0].clubid;
   const memberId = +result.rows[0].memberid;
-  await addAudit(clubId, userId, memberId, "approve");
+  await addAudit(clubId, memberId, userId, "approve");
   await joinClub(clubId, memberId);
   return clubId;
 };
@@ -84,7 +84,7 @@ export const denyRequest = async (
 
   const clubId = result.rows[0].clubid;
   const memberId = +result.rows[0].memberid;
-  await addAudit(clubId, userId, memberId, "deny");
+  await addAudit(clubId, memberId, userId, "deny");
 };
 
 export const expireRequest = async (requestId: string | undefined) => {
@@ -103,7 +103,7 @@ export const activateMembership = async (
     [userId, clubId]
   );
 
-  await addAudit(+clubId, userId, userId, "activate membership");
+  await addAudit(+clubId, userId, undefined, "Activate Membership");
 };
 
 export const deactivateMembership = async (
@@ -115,5 +115,5 @@ export const deactivateMembership = async (
     [userId, clubId]
   );
 
-  await addAudit(+clubId, userId, userId, "deactivate membership");
+  await addAudit(+clubId, userId, undefined, "Deactivate Membership");
 };
