@@ -684,9 +684,6 @@ const ClubDashboard = () => {
                       <thead>
                         <tr className="bg-gray-100 border-b border-gray-200">
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Id
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Target
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -708,9 +705,6 @@ const ClubDashboard = () => {
                               index % 2 === 0 ? "bg-gray-50" : "bg-white"
                             } border-b border-gray-200`}
                           >
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {log.id || "N/A"}
-                            </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
                               {log.member || "Member"}
                             </td>
