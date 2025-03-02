@@ -1,11 +1,11 @@
 import React from 'react';
 import FeatureCard from './FeatureCard';
-import { IconDefinition } from '@fortawesome/free-solid-svg-icons';
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 interface Feature {
     title: string,
     description: string,
-    icon: IconDefinition
+    icon: IconProp
 }
 
 interface FeatureSectionProps {

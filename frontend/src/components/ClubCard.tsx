@@ -1,5 +1,6 @@
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import React from "react";
 
 interface ClubCardProps {
@@ -24,7 +25,7 @@ const ClubCard: React.FC<ClubCardProps> = ({
     <h3 className="text-xl font-medium mt-4">{name}</h3>
     <p className="text-gray-600 mt-2">{shortdescription}</p>
     <p className="text-gray-800 font-medium">
-      Members: {popularity} <FontAwesomeIcon icon={faUsers} />
+      Members: {popularity} <FontAwesomeIcon icon={faUsers as IconProp} />
     </p>
   </div>
 );
