@@ -2,28 +2,29 @@ import FeatureSection from '../../src/components/FeatureSection';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { faCalendarAlt, faCogs, faGift, faUsers } from '@fortawesome/free-solid-svg-icons';
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 
 describe('FeatureSection Component', () => {
     const features = [
         {
             title: 'Browse Clubs',
             description: 'Find clubs that match your interests',
-            icon: faCogs
+            icon: faCogs as IconProp
         },
         {
             title: 'Event Management',
             description: 'Stay up-to-date with upcoming club events',
-            icon: faCalendarAlt
+            icon: faCalendarAlt as IconProp
         },
         {
             title: 'Member Benefits',
             description: 'Access resources and connect with fellow members',
-            icon: faGift
+            icon: faGift as IconProp
         },
         {
             title: 'Create a club',
             description: 'Start your own club and manage it easily',
-            icon: faUsers
+            icon: faUsers as IconProp
         }
     ]
     it('renders feature section with features', () => {

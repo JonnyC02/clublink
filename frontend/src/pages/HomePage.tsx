@@ -5,6 +5,7 @@ import ClubsSection from "../components/ClubSection";
 import Footer from "../components/Footer";
 import React, { useEffect, useState } from "react";
 import { isAuthenticated } from "../utils/auth";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import {
   faCalendarAlt,
   faCogs,
@@ -23,22 +24,22 @@ const features = [
   {
     title: "Browse Clubs",
     description: "Find clubs that match your interests",
-    icon: faCogs,
+    icon: faCogs as IconProp,
   },
   {
     title: "Event Management",
     description: "Stay up-to-date with upcoming club events",
-    icon: faCalendarAlt,
+    icon: faCalendarAlt as IconProp,
   },
   {
     title: "Member Benefits",
     description: "Access resources and connect with fellow members",
-    icon: faGift,
+    icon: faGift as IconProp,
   },
   {
     title: "Create a club",
     description: "Start your own club and manage it easily",
-    icon: faUser,
+    icon: faUser as IconProp,
   },
 ];
 

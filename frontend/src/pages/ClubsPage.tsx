@@ -5,6 +5,7 @@ import { isAuthenticated } from "../utils/auth";
 import { University } from "../types/University";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUsers } from "@fortawesome/free-solid-svg-icons";
+import { IconProp } from "@fortawesome/fontawesome-svg-core";
 import { Club } from "../types/Club";
 import Filters from "../components/Filters";
 import { FilterOption } from "../types/FilterOption";
@@ -243,7 +244,7 @@ const ClubsPage: React.FC = () => {
                         {club.shortdescription}
                       </p>
                       <p className="text-md text-gray-600">
-                        {club.popularity} <FontAwesomeIcon icon={faUsers} />
+                        {club.popularity} <FontAwesomeIcon icon={faUsers as IconProp} />
                       </p>
                     </div>
                   </div>
