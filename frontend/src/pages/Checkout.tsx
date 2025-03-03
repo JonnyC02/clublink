@@ -81,8 +81,7 @@ const Checkout = () => {
 
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) throw new Error("Card element not found");
-
-      const { clientSecret } = await fetch(
+      const paymentResp = await fetch(
         `${process.env.REACT_APP_API_URL}/payments`,
         {
           method: "POST",
@@ -96,7 +95,14 @@ const Checkout = () => {
             id: ticket?.id,
           }),
         }
-      ).then((res) => res.json());
+      );
+      const { clientSecret, message } = await paymentResp.json();
+      if (!paymentResp.ok) {
+        if (message === "Token has expired") {
+          navigate("/login");
+          return;
+        }
+      }
 
       const { error: paymentError } = await stripe.confirmCardPayment(
         clientSecret,
