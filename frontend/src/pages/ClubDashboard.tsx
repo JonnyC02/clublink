@@ -138,16 +138,27 @@ const ClubDashboard = () => {
       return;
     }
 
-    let badPrice = false;
+    let badElement = false;
     for (const ticket of tickets) {
       if (ticket.price < 2) {
         alert("The minimum ticket price is £2, please fix this and try again!");
-        badPrice = true;
+        badElement = true;
+        break;
+      }
+      const dateChange = new Date(ticket.date);
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+      dateChange.setHours(0, 0, 0, 0);
+
+      if (today >= dateChange) {
+        alert("You cannot set the ticket date to be in the past or today!");
+        badElement = true;
         break;
       }
     }
 
-    if (badPrice) {
+    if (badElement) {
       return;
     }
 
@@ -749,13 +760,16 @@ const ClubDashboard = () => {
                           Ticket Flag
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
+                          Price
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Expiry
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Allow Cash
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Final Date
                         </th>
                       </tr>
                     </thead>
@@ -821,6 +835,19 @@ const ClubDashboard = () => {
                                     ticket.id,
                                     "cashenabled",
                                     e.target.checked
+                                  )
+                                }
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm text-center">
+                              <input
+                                type="date"
+                                value={ticket.date}
+                                onChange={(e) =>
+                                  handleTicketChange(
+                                    ticket.id,
+                                    "date",
+                                    e.target.value
                                   )
                                 }
                               />
