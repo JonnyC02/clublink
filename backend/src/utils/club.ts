@@ -9,24 +9,18 @@ export const joinClub = async (clubId: string, userId: number | undefined) => {
     [userId, clubId]
   );
   const results = await pool.query(
-    "SELECT * FROM memberlist WHERE clubId = $1",
+    "SELECT * FROM memberlist ml INNER JOIN users u ON u.id = ml.memberId WHERE ml.clubId = $1",
     [clubId]
   );
   let student = 0;
   let associate = 0;
   for (const row of results.rows) {
-    switch (row.membertype) {
-      case "Member": {
-        student++;
-        break;
-      }
-      case "Associate": {
-        associate++;
-        break;
-      }
+    if (row.studentnumber) {
+      student++;
+    } else {
+      associate++;
     }
   }
-
   const ratio = +(associate / student).toFixed(2);
   await pool.query("UPDATE clubs SET ratio = $1 WHERE id = $2", [
     ratio,
