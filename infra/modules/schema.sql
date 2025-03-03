@@ -67,7 +67,8 @@ CREATE TABLE Tickets (
     ticketType ticket_type_enum DEFAULT 'Event',
     ticketFlag ticket_flag_enum DEFAULT 'Associate',
     ticketExpiry ticket_expiry_enum DEFAULT 'Yearly',
-    cashEnabled BOOLEAN DEFAULT true
+    cashEnabled BOOLEAN DEFAULT true,
+    date VARCHAR(15)
 );
 
 -- Transactions

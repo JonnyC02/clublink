@@ -41,8 +41,14 @@ router.post(
       for (const ticket of tickets) {
         const price = +ticket.price;
         result = await pool.query(
-          "UPDATE tickets SET price = $1, ticketExpiry = $2, cashEnabled = $3 WHERE id = $4 RETURNING clubId",
-          [price, ticket.ticketexpiry, ticket.cashenabled, ticket.id]
+          "UPDATE tickets SET price = $1, ticketExpiry = $2, cashEnabled = $3, date = $4 WHERE id = $5 RETURNING clubId",
+          [
+            price,
+            ticket.ticketexpiry,
+            ticket.cashenabled,
+            ticket.date,
+            ticket.id,
+          ]
         );
       }
       await addAudit(

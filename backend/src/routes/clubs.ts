@@ -348,16 +348,26 @@ router.get(
     );
     const student = await isStudent(userId);
     if (student || clubRatio.rows[0].ratio < 0.2) {
-      await joinClub(id, userId);
       const result = await pool.query(
-        "SELECT id FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = 'Student'",
+        "SELECT id, date FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = 'Student'",
         [id]
       );
 
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const ticketDate = new Date(result.rows[0].date);
+      ticketDate.setHours(0, 0, 0, 0);
+
       if (result.rows.length < 1) {
+        await joinClub(id, userId);
         await activateMembership(userId, id);
         res.json({ message: "Successfully Joined Club" });
+      } else if (ticketDate <= today) {
+        res
+          .status(403)
+          .json({ message: "Club Membership has ended for the year!" });
       } else {
+        await joinClub(id, userId);
         res.json({
           message: "Successfully Joined Club",
           ticket: result.rows[0].id,
