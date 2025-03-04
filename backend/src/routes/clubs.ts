@@ -198,7 +198,7 @@ router.get("/:id/all", async (req: Request, res: Response) => {
             ml.memberId, 
             ml.memberType, 
             ml.created_at,
-            ml.activated, 
+            ml.status, 
             u.name, 
             u.studentNumber
         FROM 
@@ -263,7 +263,7 @@ router.post(
 
     try {
       const result = await pool.query(
-        "UPDATE memberlist SET activated = true WHERE memberId = $1 AND clubId = $2 RETURNING memberId",
+        "UPDATE memberlist SET status = 'Active' WHERE memberId = $1 AND clubId = $2 RETURNING memberId",
         [memberId, id]
       );
 

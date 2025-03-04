@@ -7,6 +7,7 @@ CREATE TYPE ticket_flag_enum AS ENUM('Student', 'Associate');
 CREATE TYPE ticket_expiry_enum AS ENUM('Academic', 'Yearly');
 CREATE TYPE transaction_status_enum AS ENUM('processing', 'succeeded', 'failed', 'cancelled', 'refunded', 'disputed');
 CREATE TYPE transaction_type_enum AS ENUM('Card', 'Cash');
+CREATE TYPE member_status_enum AS ENUM('Active', 'Pending', 'Expired');
 
 -- Users
 CREATE TABLE Users (
@@ -42,7 +43,7 @@ CREATE TABLE MemberList (
     memberId INT REFERENCES Users(id) ON DELETE CASCADE,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
     memberType member_type_enum DEFAULT 'Member',
-    activated BOOLEAN DEFAULT false,
+    status member_status_enum DEFAULT 'Pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

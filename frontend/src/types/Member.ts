@@ -2,7 +2,7 @@ export type Member = {
   memberid: number;
   membertype: string;
   created_at: Date;
-  activated: boolean;
+  status: string;
   name: string;
   studentnumber: number;
 };

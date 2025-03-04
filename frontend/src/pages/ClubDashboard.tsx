@@ -458,17 +458,17 @@ const ClubDashboard = () => {
                             <td className="px-6 py-4 text-sm">
                               <input
                                 type="checkbox"
-                                checked={member.activated}
-                                disabled
+                                checked={member.status === "Active"}
                                 className={`w-5 h-5 border-2 rounded ${
-                                  member.activated
+                                  member.status
                                     ? "bg-blue-500 border-blue-500"
                                     : "bg-gray-200 border-gray-300"
                                 } cursor-not-allowed`}
                               />
                             </td>
                             <td className="px-6 py-4 text-sm">
-                              {!member.activated && (
+                              {(member.status === "Pending" ||
+                                member.status === "Expired") && (
                                 <button
                                   onClick={() =>
                                     activateMember(member.memberid)

@@ -19,13 +19,13 @@ afterAll(() => {
 const normalizeQuery = (query: string) => query.trim().replace(/\s+/g, " ");
 
 const expectedQuery = normalizeQuery(`
-        SELECT c.id AS clubId, c.name AS clubName, c.shortDescription, c.image, m.activated, CASE WHEN m.memberType = 'Committee' THEN true ELSE false END AS isCommittee, t.id AS ticketId, t.name AS ticketName, t.price AS ticketPrice, t.ticketType, t.ticketFlag FROM MemberList m INNER JOIN Clubs c ON m.clubId = c.id INNER JOIN Users u ON m.memberId = u.id LEFT JOIN Tickets t ON m.clubId = t.clubId AND ( (u.studentNumber IS NOT NULL AND t.ticketFlag = 'Student') OR (u.studentNumber IS NULL AND t.ticketFlag = 'Associate') ) WHERE m.memberId = $1;
+        SELECT c.id AS clubId, c.name AS clubName, c.shortDescription, c.image, m.status, CASE WHEN m.memberType = 'Committee' THEN true ELSE false END AS isCommittee, t.id AS ticketId, t.name AS ticketName, t.price AS ticketPrice, t.ticketType, t.ticketFlag FROM MemberList m INNER JOIN Clubs c ON m.clubId = c.id INNER JOIN Users u ON m.memberId = u.id LEFT JOIN Tickets t ON m.clubId = t.clubId AND ( (u.studentNumber IS NOT NULL AND t.ticketFlag = 'Student') OR (u.studentNumber IS NULL AND t.ticketFlag = 'Associate') ) WHERE m.memberId = $1;
     `);
 
 describe("User Utils", () => {
   const mockClubs = [
     {
-      activated: undefined,
+      status: undefined,
       id: undefined,
       image: "chessclub.png",
       iscommittee: undefined,
