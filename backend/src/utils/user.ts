@@ -48,7 +48,7 @@ export const getAllClubs = async (userId: number | undefined) => {
           c.name AS clubName,
           c.shortDescription,
           c.image,
-          m.activated,
+          m.status,
           CASE
               WHEN m.memberType = 'Committee' THEN true
               ELSE false
@@ -81,9 +81,9 @@ export const getAllClubs = async (userId: number | undefined) => {
       name: row.clubname,
       shortdescription: row.shortdescription,
       image: row.image,
-      activated: row.activated,
+      status: row.status,
       iscommittee: row.iscommittee,
-      membershipticket: row.activated
+      membershipticket: row.status
         ? null
         : {
             ticketId: row.ticketid,

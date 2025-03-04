@@ -93,7 +93,7 @@ export const activateMembership = async (
   clubId: string
 ) => {
   await pool.query(
-    "UPDATE MemberList SET activated = true WHERE userId = $1 AND clubId = $2",
+    "UPDATE MemberList SET status = 'Active' WHERE userId = $1 AND clubId = $2",
     [userId, clubId]
   );
 
@@ -105,7 +105,7 @@ export const deactivateMembership = async (
   clubId: string
 ) => {
   await pool.query(
-    "UPDATE MemberList SET activated = false WHERE userId = $1 and clubId = $2",
+    "UPDATE MemberList SET status = 'Expired' WHERE userId = $1 and clubId = $2",
     [userId, clubId]
   );
 
