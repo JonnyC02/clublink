@@ -83,15 +83,10 @@ export const getAllClubs = async (userId: number | undefined) => {
       image: row.image,
       status: row.status,
       iscommittee: row.iscommittee,
-      membershipticket: row.status
-        ? null
-        : {
-            ticketId: row.ticketid,
-            ticketName: row.ticketname,
-            ticketPrice: row.ticketprice,
-            ticketType: row.tickettype,
-            ticketFlag: row.ticketflag,
-          },
+      membershipticket:
+        row.status !== "Expired" && row.status !== "Pending"
+          ? null
+          : row.ticketid,
     }));
   } catch (error) {
     console.error("Error fetching user memberships:", error); // eslint-disable-line no-console

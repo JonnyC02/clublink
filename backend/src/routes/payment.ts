@@ -8,6 +8,7 @@ import Stripe from "stripe";
 import dotenv from "dotenv";
 import { sendEmail } from "../utils/email";
 import { MailOptions } from "../types/MailOptions";
+import { activateMembership } from "../utils/club";
 dotenv.config();
 
 const router = express.Router();
@@ -21,8 +22,12 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       throw new Error("Amount is not a number");
     }
     const transaction = await pool.query(
-      "INSERT INTO transactions (memberId, ticketId) VALUES ($1, $2) RETURNING id",
-      [req.user?.id, id]
+      "INSERT INTO transactions (memberId, ticketId, amount, type) VALUES ($1, $2, $3, $4) RETURNING id",
+      [req.user?.id, id, amount, "Card"]
+    );
+    const ticket = await pool.query(
+      "SELECT clubId FROM tickets WHERE id = $1",
+      [id]
     );
     const ticketPrice = (integer / 100).toFixed(2);
     const paymentFee = ((final - integer) / 100).toFixed(2);
@@ -38,6 +43,8 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         totalPrice,
         email: req.user?.email || "",
         desc,
+        userId: req.user?.id || 0,
+        clubId: ticket.rows[0].clubid,
       },
     });
     res.json({
@@ -75,6 +82,8 @@ router.post(
         const email = paymentIntent.metadata.email;
         const desc = paymentIntent.metadata.desc;
         const status = statusMap[event.type] || paymentIntent.status;
+        const userId = paymentIntent.metadata.userId;
+        const clubId = paymentIntent.metadata.clubId;
 
         if (status === "succeeded") {
           const mailOptions = {
@@ -158,6 +167,7 @@ router.post(
           };
 
           await sendEmail(email, mailOptions);
+          await activateMembership(+userId, clubId);
         }
 
         if (status === "failed") {

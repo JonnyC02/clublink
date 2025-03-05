@@ -4,4 +4,6 @@ export type UserClubsResp = {
   shortdescription: string;
   image: string;
   iscommittee: boolean;
+  membershipticket: number;
+  status: string;
 };
