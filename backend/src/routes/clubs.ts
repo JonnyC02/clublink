@@ -209,6 +209,7 @@ router.get("/:id/all", async (req: Request, res: Response) => {
             ml.memberId = u.id
         WHERE 
             ml.clubId = $1
+        ORDER BY ml.memberId
         `,
     [id]
   );
@@ -235,9 +236,10 @@ router.get("/:id/all", async (req: Request, res: Response) => {
     [id]
   );
 
-  const tickets = await pool.query(`SELECT * FROM tickets WHERE clubId = $1`, [
-    id,
-  ]);
+  const tickets = await pool.query(
+    `SELECT * FROM tickets WHERE clubId = $1 ORDER BY id`,
+    [id]
+  );
 
   res.json({
     Club: result.rows[0],
