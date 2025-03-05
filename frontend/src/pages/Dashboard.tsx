@@ -96,6 +96,23 @@ const Dashboard: React.FC = () => {
         alt={club.name}
         className="w-full h-32 object-cover rounded-md mb-4"
       />
+      {(club.status === "Expired" || club.status === "Pending") && (
+        <div
+          className="w-full bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 rounded"
+          role="alert"
+        >
+          <p className="font-bold">Membership Inactive</p>
+          <p>
+            Purchase it{" "}
+            <a
+              href={`/payment/${club.membershipticket}`}
+              className="underline hover:text-yellow-800"
+            >
+              HERE
+            </a>
+          </p>
+        </div>
+      )}
       <h3 className="text-xl font-bold text-gray-700 mb-2">{club.name}</h3>
       <p className="text-sm text-gray-600 mb-4">
         {club.shortdescription || "No description available"}

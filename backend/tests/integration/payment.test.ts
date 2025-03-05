@@ -110,8 +110,8 @@ describe("Payment API Integration Tests", () => {
       expect(res.body).toHaveProperty("clientSecret", "pi_test_secret");
 
       expect(mockQuery).toHaveBeenCalledWith(
-        "INSERT INTO transactions (memberId, ticketId) VALUES ($1, $2) RETURNING id",
-        [1, 1]
+        "INSERT INTO transactions (memberId, ticketId, amount, type) VALUES ($1, $2, $3, $4) RETURNING id",
+        [1, 1, "50", "Card"]
       );
 
       expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith({
@@ -119,12 +119,14 @@ describe("Payment API Integration Tests", () => {
         currency: "GBP",
         payment_method_types: ["card"],
         metadata: {
+          clubId: undefined,
           transaction: "tx_123",
           desc: "Test Ticket",
           email: "user@example.com",
           paymentFee: "5.00",
           ticketPrice: "50.00",
           totalPrice: "55.00",
+          userId: 1,
         },
       });
     });

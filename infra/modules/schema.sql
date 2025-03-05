@@ -78,7 +78,7 @@ CREATE TABLE Transactions (
     memberId INT REFERENCES Users(id) NOT NULL,
     ticketId INT REFERENCES Tickets(id) NOT NULL,
     amount DECIMAL (5, 2) NOT NULL,
-    status transaction_type_enum DEFAULT 'completed',
+    status transaction_status_enum DEFAULT 'completed',
     type transaction_type_enum,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP
