@@ -10,6 +10,15 @@ export const generateToken = (payload: object): string => {
   return jwt.sign(payload, SECRET_KEY, { expiresIn: "16h" });
 };
 
+export const generateStudentToken = (studentNumber: number) => {
+  const SECRET_KEY = process.env.JWT_SECRET;
+  if (!SECRET_KEY) {
+    throw new Error("Missing JWT_SEECRET environment variable");
+  }
+
+  return jwt.sign({ studentNumber }, SECRET_KEY!, { expiresIn: "24h" });
+};
+
 export const generateVerificationToken = (userId: number) => {
   const SECRET_KEY = process.env.JWT_SECRET;
   if (!SECRET_KEY) {

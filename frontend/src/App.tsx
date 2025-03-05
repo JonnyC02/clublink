@@ -17,6 +17,7 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import Checkout from "./pages/Checkout";
 import Action from "./pages/Action";
+import StudentVerify from "./pages/StudentVerify";
 
 const stripePromise = process.env.REACT_APP_PUBLISH_KEY
   ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
@@ -61,6 +62,7 @@ function App() {
               <Route path="/club/:id" element={<ClubPage />} />
               <Route path="/accept" element={<Action />} />
               <Route path="/deny" element={<Action />} />
+              <Route path="/studentVerify" element={<StudentVerify />} />
               <Route
                 path="/dashboard"
                 element={

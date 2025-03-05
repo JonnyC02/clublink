@@ -18,6 +18,23 @@ export const sendVerificationEmail = async (email: string, token: string) => {
   await sendEmail(email, mailOptions);
 };
 
+export const sendStudentVerifyEmail = async (email: string, token: string) => {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
+    throw new Error("Missing email configuration");
+  }
+
+  const verificationUrl = `${process.env.FRONTEND_URL}/studentVerify?token=${token}`;
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: email,
+    subject: "Verify Your Student Status",
+    html: `<p>Please verify your student status by clicking the link below:</p>
+               <a href="${verificationUrl}">${verificationUrl}</a>`,
+  };
+
+  await sendEmail(email, mailOptions);
+};
+
 export const sendEmail = async (email: string, mailOptions: MailOptions) => {
   if (!email) {
     throw new Error("Email address is required");
