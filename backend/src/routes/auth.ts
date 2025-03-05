@@ -2,10 +2,18 @@ import express, { Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import pool from "../db/db";
-import { generateResetToken, generateVerificationToken } from "../utils/tokens";
-import { sendEmail, sendVerificationEmail } from "../utils/email";
+import {
+  generateResetToken,
+  generateStudentToken,
+  generateVerificationToken,
+} from "../utils/tokens";
+import {
+  sendEmail,
+  sendStudentVerifyEmail,
+  sendVerificationEmail,
+} from "../utils/email";
 import { authenticateToken } from "../utils/authentication";
-import { resetToken, verifyToken } from "../types/token";
+import { resetToken, studentToken, verifyToken } from "../types/token";
 import { AuthRequest } from "../types/AuthRequest";
 
 const router = express.Router();
@@ -87,6 +95,8 @@ router.post("/signup", async (req: Request, res: Response) => {
         "INSERT INTO users (name, email, password, studentNumber, university) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [name, email, hashedPassword, studentNumber, university]
       );
+      const studentToken = generateStudentToken(studentNumber);
+      await sendStudentVerifyEmail(email, studentToken);
     }
     if (!process.env.REACT_APP_IS_TESTING) {
       const userId = user.rows[0].id;
@@ -117,6 +127,28 @@ router.get("/verify", async (req: Request, res: Response) => {
     res.status(200).send("Email verified successfully!");
   } catch (err) {
     console.error("Error Verifying Email: ", err); // eslint-disable-line no-console
+    res.status(400).send("Invalid or expired token.");
+  }
+});
+
+router.get("/student", async (req: Request, res: Response) => {
+  const { token } = req.query;
+
+  try {
+    const decoded: string | JwtPayload = jwt.verify(
+      token as string,
+      process.env.JWT_SECRET!
+    );
+    const studentnumber = (decoded as studentToken).studentNumber;
+
+    await pool.query(
+      "UPDATE users SET verifiedStudent = true WHERE studentNumber = $1",
+      [studentnumber]
+    );
+
+    res.status(200).send("Student Status Verified Successfully!");
+  } catch (err) {
+    console.error("Error Verifying Student Status: ", err); // eslint-disable-line no-console
     res.status(400).send("Invalid or expired token.");
   }
 });

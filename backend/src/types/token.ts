@@ -9,3 +9,7 @@ export type resetToken = {
 export type requestToken = {
   reqId: string;
 };
+
+export type studentToken = {
+  studentNumber: number;
+};

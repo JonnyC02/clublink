@@ -18,7 +18,7 @@ CREATE TABLE Users (
     isActive BOOLEAN DEFAULT false,
     studentNumber VARCHAR(10),
     university VARCHAR(5) REFERENCES Universities(acronym),
-    isSuperAdmin BOOLEAN DEFAULT false
+    verifiedStudent BOOLEAN DEFAULT false,
 );
 
 -- Clubs
@@ -93,6 +93,7 @@ CREATE TABLE Universities (
     email VARCHAR(255) NOT NULL UNIQUE,
     latitude DECIMAL(9, 6),
     longitude DECIMAL (9, 6),
+    studentVerification VARCHAR(30) NOT NULL,
     image TEXT
 );
 
