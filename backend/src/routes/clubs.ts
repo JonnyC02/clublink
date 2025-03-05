@@ -282,6 +282,40 @@ router.post(
   }
 );
 
+router.post(
+  "/:id/expire",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { memberId } = req.body;
+
+    if (!id || !memberId) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const result = await pool.query(
+        "UPDATE memberlist SET status = 'Expired' WHERE memberId = $1 AND clubId = $2 RETURNING memberId",
+        [memberId, id]
+      );
+
+      if (result.rows.length === 0) {
+        res.status(404).json({ message: "Member not found." });
+        return;
+      }
+
+      await addAudit(+id, memberId, req.user?.id, "Expire Membership");
+      res.status(200).json({ message: "Membership Expired Successfully" });
+    } catch (err) {
+      console.error("Error expiring member: ", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
 router.get("/:id/committee", async (req: Request, res: Response) => {
   const { id } = req.params;
 

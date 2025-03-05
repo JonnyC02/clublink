@@ -185,6 +185,51 @@ const ClubDashboard = () => {
     }
   };
 
+  const expireMember = async (memberId: number) => {
+    if (!window.confirm("Are you sure you want to expire this membership?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must be logged in to do this action");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/expire`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ memberId }),
+        }
+      );
+
+      if (response.ok) {
+        alert("Membership Expired");
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        const error = await response.json();
+        alert(error.message || "Failed to expire membership");
+      }
+    } catch (err) {
+      console.error("Error Expiring Member: ", err); // eslint-disable-line no-console
+    }
+  };
+
   const activateMember = async (memberId: number) => {
     if (!window.confirm("Are you sure you want to activate this member?")) {
       return;
@@ -476,6 +521,14 @@ const ClubDashboard = () => {
                                   className="px-4 py-2 mr-4 bg-green-500 text-white rounded hover:bg-green-600"
                                 >
                                   Activate
+                                </button>
+                              )}
+                              {member.status === "Active" && (
+                                <button
+                                  onClick={() => expireMember(member.memberid)}
+                                  className="px-4 py-2 mr-4 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                >
+                                  Expire
                                 </button>
                               )}
                               <button
