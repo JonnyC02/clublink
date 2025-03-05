@@ -22,7 +22,7 @@ const Dashboard: React.FC = () => {
     <button
       onClick={() => {
         localStorage.removeItem("token");
-        navigate("/login");
+        navigate("/login?redirect=/dashboard");
       }}
       className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
     >
@@ -35,7 +35,7 @@ const Dashboard: React.FC = () => {
       try {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate("/login");
+          navigate("/login?redirect=/dashbaord");
           return;
         }
 
@@ -53,7 +53,7 @@ const Dashboard: React.FC = () => {
           setUserData(userData);
         } else {
           localStorage.removeItem("token");
-          navigate("/login");
+          navigate("/login?redirect=/dashboard");
         }
 
         const clubsResponse = await fetch(
@@ -74,7 +74,7 @@ const Dashboard: React.FC = () => {
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
         localStorage.removeItem("token");
-        navigate("/login");
+        navigate("/login?redirect=/dashboard");
       }
     };
 

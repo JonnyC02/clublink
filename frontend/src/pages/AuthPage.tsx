@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { login } from "../services/authService";
 import { University } from "../types/University";
 import { Errors } from "../types/Error";
@@ -46,6 +46,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
   const [universities, setUniversities] = useState<University[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -104,7 +105,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
       try {
         const token = await login(formData.email, formData.password);
         localStorage.setItem("token", token);
-        navigate("/dashboard");
+        const redirect = searchParams.get("redirect");
+        if (redirect) {
+          navigate(redirect);
+        } else {
+          navigate("/dashboard");
+        }
       } catch (err) {
         const error = err as Errors;
         setError(error.message || "Invalid email or password.");
