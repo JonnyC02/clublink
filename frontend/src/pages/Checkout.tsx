@@ -55,7 +55,7 @@ const Checkout = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate(`/login?redirect=/payment/${id}`);
         return;
       }
 
@@ -99,7 +99,7 @@ const Checkout = () => {
       const { clientSecret, message } = await paymentResp.json();
       if (!paymentResp.ok) {
         if (message === "Token has expired") {
-          navigate("/login");
+          navigate(`/login?redirect=/payment/${id}`);
           return;
         }
       }

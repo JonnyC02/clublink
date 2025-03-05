@@ -120,7 +120,7 @@ const ClubPage = () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        navigate("/login");
+        navigate(`/login?redirect=/club/${id}`);
         return;
       }
 
