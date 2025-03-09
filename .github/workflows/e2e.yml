@@ -51,7 +51,9 @@ jobs:
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-        run: npx wait-on http://localhost:3001 --timeout 120000
+        run: |
+          npm run dev --prefix backend
+          npx wait-on http://localhost:3001 --timeout 120000
 
       - name: Start Frontend
         env:
@@ -71,7 +73,6 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
-          npm install --prefix frontend
           npm run dev --prefix frontend &
           npx wait-on http://localhost:3000 --timeout 120000
 
