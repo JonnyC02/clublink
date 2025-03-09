@@ -1,2 +1,5 @@
-npm test
+npm run test:unit:backend
+npm run test:unit:frontend
+npm run test:integration:backend
+npm run test:integration:frontend
 npm run lint

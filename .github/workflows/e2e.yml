@@ -1,0 +1,56 @@
+name: Cypress Tests
+on: [push]
+jobs:
+  cypress-run:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.2
+        env:
+          POSTGRES_USER: ClubLinkDeveloper
+          POSTGRES_PASSWORD: ClubLinkDeveloperDatabasePassword
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install Deps
+        run: |
+          npm install --prefix frontend
+          npm install --prefix backend
+
+      - name: Seed PostgreSQL Database
+        run: |
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=ClubLinkDeveloperDatabasePassword psql -h localhost -U ClubLinkDeveloper -d mydatabase -f infra/db/seed.sql
+
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run dev
+          wait-on: "http://localhost:3000"
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+          PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
+          RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
+          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          RDS_PORT: ${{ secrets.RDS_PORT }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}

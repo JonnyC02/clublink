@@ -1,7 +1,13 @@
 {
-    "files": [],
-    "references": [
-      { "path": "./backend" },
-      { "path": "./frontend" }
-    ]
-}  
+  "compilerOptions": {
+    "composite": true
+  },
+
+  "files": [],
+
+  "references": [
+    { "path": "./backend" },
+    { "path": "./frontend" },
+    { "path": "./cypress" }
+  ]
+}
