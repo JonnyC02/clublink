@@ -19,15 +19,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+
       - name: Install Docker Compose
         run: |
           sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
-      - name: Install Deps
-        run: npm install
+
+      - name: Install Dependencies
+        run: |
+          npm install
+          npm install --prefix frontend
+          npm install --prefix backend
+
       - name: Start Docker Containers
         run: npm run up
-      - name: Start App
-        run: npm run dev & npx wait-on http://localhost:3000
+
+      - name: Wait for App to Start
+        run: |
+          npm run dev
+          npx wait-on http://localhost:3000 --timeout 120000
+
       - name: Run e2e Tests
         run: npm run e2e
