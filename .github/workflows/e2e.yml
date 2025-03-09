@@ -30,11 +30,15 @@ jobs:
           npm install
           npm install --prefix frontend
           npm install --prefix backend
+          npm install --prefix cypress
 
       - name: Start Docker Containers
         run: npm run up
 
       - name: Wait for App to Start
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
         run: |
           npm run dev
           npx wait-on http://localhost:3000 --timeout 120000
