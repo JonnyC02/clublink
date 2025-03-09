@@ -1,80 +1,22 @@
-name: Run e2e Tests
-
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - "frontend/**"
-      - "backend/**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "frontend/**"
-      - "backend/**"
-
+name: Cypress Tests
+on: [push]
 jobs:
-  runs-e2e-tests:
+  cypress-run:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2]
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Docker Compose
-        run: |
-          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-          sudo chmod +x /usr/local/bin/docker-compose
-
-      - name: Install Dependencies
-        run: |
-          npm install
-          npm install --prefix frontend
-          npm install --prefix backend
-
-      - name: Start Docker Containers
-        run: npm run up
-
-      - name: Wait for Backend to Start
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Cypress run
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm run dev
+          wait-on: "http://localhost:3000"
+          record: true
+          parallel: true
         env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
-          RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-          RDS_PORT: ${{ secrets.RDS_PORT }}
-          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-        run: |
-          npm run dev --prefix backend
-          npx wait-on http://localhost:3001 --timeout 120000
-
-      - name: Start Frontend
-        env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
-          RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-          RDS_PORT: ${{ secrets.RDS_PORT }}
-          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-        run: |
-          npm run dev --prefix frontend &
-          npx wait-on http://localhost:3000 --timeout 120000
-
-      - name: Run e2e Tests
-        run: npm run e2e
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

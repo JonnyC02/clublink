@@ -7,4 +7,5 @@ export default defineConfig({
     video: true,
     defaultBrowser: "chrome",
   },
+  projectId: "9994rq",
 });
