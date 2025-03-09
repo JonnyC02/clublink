@@ -34,7 +34,26 @@ jobs:
       - name: Start Docker Containers
         run: npm run up
 
-      - name: Wait for App to Start
+      - name: Wait for Backend to Start
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_USER: ${{ secrets.EMAIL_USER }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          PORT: ${{ secrets.PORT }}
+          PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
+          RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
+          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
+          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
+          RDS_PORT: ${{ secrets.RDS_PORT }}
+          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: npx wait-on http://localhost:3001 --timeout 120000
+
+      - name: Start Frontend
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
           REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
@@ -52,7 +71,8 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
-          npm run dev
+          npm install --prefix frontend
+          npm run dev --prefix frontend &
           npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run e2e Tests
