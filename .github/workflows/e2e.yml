@@ -1,0 +1,29 @@
+name: Run e2e Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "backend/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "backend/**"
+
+jobs:
+  runs-e2e-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Deps
+        run: npm install
+      - name: Start Docker Containers
+        run: npm run up
+      - name: Start App
+        run: npm run dev & npx wait-on http://localhost:3000
+      - name: Run e2e Tests
+        run: npm run e2e

@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Queen's Fencing Club",
+    "description": "A club for photography lovers.",
+    "members": 150
+  },
+  {
+    "id": 2,
+    "name": "Chess Club",
+    "description": "For those who enjoy playing chess competitively.",
+    "members": 80
+  },
+  {
+    "id": 3,
+    "name": "Tech Innovators",
+    "description": "A group for tech enthusiasts and programmers.",
+    "members": 120
+  }
+]

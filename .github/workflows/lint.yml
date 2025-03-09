@@ -5,14 +5,14 @@ on:
     branches:
       - main
     paths-ignore:
-      - 'infra/**'
-      - '.github/**'
+      - "infra/**"
+      - ".github/**"
   pull_request:
     branches:
       - main
     paths-ignore:
-      - 'infra/**'
-      - '.github/**'
+      - "infra/**"
+      - ".github/**"
 
 jobs:
   lint:
@@ -25,11 +25,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install Dependencies
         run: |
           npm install
-      
+
       - name: Lint
         run: npm run lint

@@ -5,15 +5,15 @@ on:
     branches:
       - main
     paths:
-      - 'frontend/**'
-      - 'backend/**'
+      - "frontend/**"
+      - "backend/**"
   pull_request:
     branches:
       - main
     paths:
-      - 'frontend/**'
-      - 'backend/**'
-  
+      - "frontend/**"
+      - "backend/**"
+
 jobs:
   unit-tests-backend:
     runs-on: ubuntu-latest
@@ -26,8 +26,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Backend Dependencies
         working-directory: ./backend
@@ -36,7 +36,7 @@ jobs:
       - name: Run Backend Unit Tests
         working-directory: ./backend
         run: npm run test:unit
-  
+
   integration-tests-backend:
     runs-on: ubuntu-latest
     name: Backend Integration Tests
@@ -48,8 +48,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Backend Dependencies
         working-directory: ./backend
@@ -70,17 +70,17 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
-          cache: 'npm'
+          node-version: "20"
+          cache: "npm"
 
       - name: Install Deps
         run: npm install
         working-directory: ./frontend
-      
+
       - name: Run Frontend Unit Tests
         run: npm run test:unit
         working-directory: ./frontend
-  
+
   integration-tests-frontend:
     runs-on: ubuntu-latest
     name: Frontend Integration Tests
@@ -88,17 +88,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 20
-          cache: 'npm'
-      
+          cache: "npm"
+
       - name: Install Deps
         run: npm install
         working-directory: ./frontend
-      
+
       - name: Run Frontend Integration Tests
         run: npm run test:integration
         working-directory: ./frontend
