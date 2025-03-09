@@ -3,6 +3,15 @@ on: [push]
 jobs:
   cypress-run:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.2
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ClubLinkDeveloperDatabasePassword
+          POSTGRES_DB: mydatabase
+        ports:
+          - 5432:5432
     strategy:
       fail-fast: false
       matrix:
@@ -19,6 +28,12 @@ jobs:
         run: |
           npm install --prefix frontend
           npm install --prefix backend
+
+      - name: Seed PostgreSQL Database
+        run: |
+          sudo apt-get install -y postgresql-client
+          PGPASSWORD=ClubLinkDeveloperDatabasePassword psql -h localhost -U ClubLinkDeveloper -d mydatabase -f infra/db/seed.sql
+
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
