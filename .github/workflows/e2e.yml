@@ -10,6 +10,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Install Deps
+        run: |
+          npm install --prefix frontend
+          npm install --prefix backend
       - name: Cypress run
         uses: cypress-io/github-action@v6
         with:
