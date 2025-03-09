@@ -30,7 +30,6 @@ jobs:
           npm install
           npm install --prefix frontend
           npm install --prefix backend
-          npm install --prefix cypress
 
       - name: Start Docker Containers
         run: npm run up
