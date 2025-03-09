@@ -7,7 +7,7 @@ jobs:
       postgres:
         image: postgres:17.2
         env:
-          POSTGRES_USER: postgres
+          POSTGRES_USER: ClubLinkDeveloper
           POSTGRES_PASSWORD: ClubLinkDeveloperDatabasePassword
           POSTGRES_DB: mydatabase
         ports:
