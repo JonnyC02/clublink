@@ -615,4 +615,80 @@ router.post(
   }
 );
 
+router.post(
+  "/:id/activate/bulk",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { members } = req.body;
+
+    if (members.length === 0 || !id) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const queryText = `UPDATE memberlist SET status = 'Active' WHERE memberId = ANY($1::int[]) AND clubId = $2 AND status <> 'Active' RETURNING memberid;`;
+
+      const result = await pool.query(queryText, [members, id]);
+      res.status(200).json({ amount: result.rowCount });
+    } catch (err) {
+      console.error("Error activating members: ", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+router.post(
+  "/:id/expire/bulk",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { members } = req.body;
+
+    if (members.length === 0 || !id) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const queryText = `UPDATE memberlist SET status = 'Expired' WHERE memberId = ANY($1::int[]) AND clubId = $2 AND status <> 'Expired' RETURNING memberid;`;
+      const result = await pool.query(queryText, [members, id]);
+      res.status(200).json({ amount: result.rowCount });
+    } catch (err) {
+      console.error("Error expiring members: ", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
+router.post(
+  "/:id/remove/bulk",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id } = req.params;
+    const { members } = req.body;
+
+    if (members.length === 0 || !id) {
+      res.status(400).json({
+        message: "Invalid request. Club ID and Member ID are required.",
+      });
+      return;
+    }
+
+    try {
+      const queryText = `DELETE FROM memberlist WHERE clubId = $1 AND memberId = ANY($2::int[]) RETURNING memberid;`;
+      const result = await pool.query(queryText, [members, id]);
+      res.status(200).json({ amount: result.rowCount });
+    } catch (err) {
+      console.error("Error expiring members: ", err); // eslint-disable-line no-console
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+);
+
 export default router;
