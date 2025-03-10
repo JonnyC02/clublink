@@ -38,6 +38,7 @@ const ClubDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [auditSearch, setAuditSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const navigate = useNavigate();
 
   const studentCount =
@@ -275,6 +276,24 @@ const ClubDashboard = () => {
     }
   };
 
+  const checkAllBoxes = (checked: boolean) => {
+    const filteredMembers = data.MemberList.filter((member: Member) =>
+      member.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    if (checked === false) {
+      setSelectedMemberIds([]);
+    } else {
+      const filteredMemberIds = filteredMembers.map(
+        (member) => member.memberid
+      );
+      filteredMemberIds.forEach((id) => {
+        if (!selectedMemberIds.includes(id)) {
+          setSelectedMemberIds((prev) => [...prev, id]);
+        }
+      });
+    }
+  };
+
   const handleKick = async (userId: number) => {
     if (!window.confirm("Are you sure you want to remove this member?")) {
       return;
@@ -317,6 +336,148 @@ const ClubDashboard = () => {
     } catch (err) {
       console.error("Error removing member:", err); // eslint-disable-line no-console
       alert("An error occurred while trying to remove the member.");
+    }
+  };
+
+  const handleBulkActivate = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to activate: ${selectedMemberIds.length} members`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must be logged in to perform this action");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/activate/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ members: selectedMemberIds }),
+        }
+      );
+
+      if (response.ok) {
+        const { amount } = await response.json();
+        alert(`Successfully activated ${amount} members`);
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        alert("Internal Server Error, please try again.");
+      }
+    } catch (err) {
+      console.error("Error activating members: ", err); // eslint-disable-line no-console
+      alert("An error occured while trying to activate members");
+    }
+  };
+
+  const handleBulkExpire = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to expire: ${selectedMemberIds.length} members`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must be logged in to perform this action");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/expire/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ members: selectedMemberIds }),
+        }
+      );
+
+      if (response.ok) {
+        const { amount } = await response.json();
+        alert(`Successfully expired ${amount} members`);
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        alert("Internal Server Error, please try again");
+      }
+    } catch (err) {
+      console.error("Error expiring members: ", err); // eslint-disable-line no-console
+      alert("An error occured while trying to expire members");
+    }
+  };
+
+  const handleBulkRemove = async () => {
+    if (
+      !window.confirm(
+        `Are you sure you want to remove: ${selectedMemberIds.length} members`
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        alert("You must be logged in to perform this action");
+        return;
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/remove/bulk`
+      );
+
+      if (response.ok) {
+        const { amount } = await response.json();
+        alert(`Successfully removed ${amount} members`);
+        const updatedData = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        ).then((res) => res.json());
+        setData(updatedData);
+      } else {
+        alert("Internal Server error, please try again");
+      }
+    } catch (err) {
+      console.error("Error removing members: ", err); // eslint-disable-line no-console
+      alert("An error occured while trying to remove members");
     }
   };
 
@@ -427,20 +588,63 @@ const ClubDashboard = () => {
                   </div>
                 </div>
 
-                <div className="mb-4">
+                <div className="flex items-center justify-between mb-4">
                   <input
                     type="text"
                     placeholder="Search members by name..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    className="flex-grow mr-4 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                   />
+                  <div className="flex space-x-2">
+                    <button
+                      disabled={!(selectedMemberIds.length > 0)}
+                      onClick={handleBulkActivate}
+                      className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ${
+                        !(selectedMemberIds.length > 0)
+                          ? "cursor-not-allowed"
+                          : "cursor-default"
+                      }`}
+                    >
+                      Activate
+                    </button>
+                    <button
+                      disabled={!(selectedMemberIds.length > 0)}
+                      onClick={handleBulkExpire}
+                      className={`px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
+                        !(selectedMemberIds.length > 0)
+                          ? "cursor-not-allowed"
+                          : "cursor-default"
+                      }`}
+                    >
+                      Expire
+                    </button>
+                    <button
+                      disabled={!(selectedMemberIds.length > 0)}
+                      onClick={handleBulkRemove}
+                      className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
+                        !(selectedMemberIds.length > 0)
+                          ? "cursor-not-allowed"
+                          : "cursor-default"
+                      }`}
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
                 {data.MemberList.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
                       <thead>
                         <tr className="bg-gray-100 border-b border-gray-200">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <input
+                              type="checkbox"
+                              id="master-checkbox"
+                              className={`w-5 h-5 border-2 rounded bg-gray-200 border-gray-300`}
+                              onChange={(e) => checkAllBoxes(e.target.checked)}
+                            />
+                          </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Name
                           </th>
@@ -468,11 +672,35 @@ const ClubDashboard = () => {
                             .includes(searchQuery.toLowerCase())
                         ).map((member: Member, index: number) => (
                           <tr
-                            key={index}
+                            key={member.memberid}
                             className={`${
                               index % 2 === 0 ? "bg-gray-50" : "bg-white"
                             } border-b border-gray-200`}
                           >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              <input
+                                id="user-checkbox"
+                                type="checkbox"
+                                checked={selectedMemberIds.includes(
+                                  member.memberid
+                                )}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedMemberIds((prev) => [
+                                      ...prev,
+                                      member.memberid,
+                                    ]);
+                                  } else {
+                                    setSelectedMemberIds((prev) =>
+                                      prev.filter(
+                                        (id) => id !== member.memberid
+                                      )
+                                    );
+                                  }
+                                }}
+                                className={`w-5 h-5 border-2 rounded bg-gray-200 border-gray-300`}
+                              />
+                            </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
                               {member.name || "N/A"}
                             </td>
