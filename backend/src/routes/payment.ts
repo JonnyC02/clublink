@@ -14,9 +14,9 @@ dotenv.config();
 const router = express.Router();
 
 router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
-  const { amount, desc, id } = req.body;
-  const integer = Math.round(parseFloat(amount) * 100);
-  const final = calculateFee(integer);
+  const { amount, desc, id, promo } = req.body;
+  let integer = Math.round(parseFloat(amount) * 100);
+  let discount;
   try {
     if (isNaN(amount)) {
       throw new Error("Amount is not a number");
@@ -29,9 +29,22 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       "SELECT clubId FROM tickets WHERE id = $1",
       [id]
     );
+
     const ticketPrice = (integer / 100).toFixed(2);
+
+    if (promo) {
+      const codes = await pool.query(
+        "SELECT discount FROM promocodes WHERE code = $1",
+        [promo]
+      );
+      discount = integer - integer * codes.rows[0].discount;
+      integer = integer * codes.rows[0].discount;
+    }
+
+    const final = calculateFee(integer);
     const paymentFee = ((final - integer) / 100).toFixed(2);
     const totalPrice = (final / 100).toFixed(2);
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: final,
       currency: "GBP",
@@ -45,6 +58,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         desc,
         userId: req.user?.id || 0,
         clubId: ticket.rows[0].clubid,
+        discount: discount?.toFixed(2) || "",
       },
     });
     res.json({
@@ -84,6 +98,7 @@ router.post(
         const status = statusMap[event.type] || paymentIntent.status;
         const userId = paymentIntent.metadata.userId;
         const clubId = paymentIntent.metadata.clubId;
+        const discount = paymentIntent.metadata.discount;
 
         if (status === "succeeded") {
           const mailOptions = {
@@ -152,6 +167,16 @@ router.post(
                         <span class="label">Payment Fee:</span>
                         <span class="value">£${paymentFee}</span>
                     </div>
+                    ${
+                      discount
+                        ? `<div class="detail-item">
+                          <span class="label">Discount:</span>
+                          <span class="value">£${(+discount / 100).toFixed(
+                            2
+                          )}</span>
+                        </div>`
+                        : ""
+                    }
                     <div class="detail-item" style="font-size: 18px; font-weight: bold;">
                         <span class="label">Total Amount Paid:</span>
                         <span class="value">£${totalPrice}</span>
