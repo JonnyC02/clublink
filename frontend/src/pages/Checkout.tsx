@@ -12,16 +12,19 @@ const Checkout = () => {
   const elements = useElements();
 
   const [loading, setLoading] = useState(false);
+  const [promo, setPromo] = useState("");
+  const [discount, setDiscount] = useState<number>();
+  const [discountAmt, setDiscountAmt] = useState<number>();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [ticket, setTicket] = useState<Ticket>();
-  const [payInCash, setPayInCash] = useState(false);
-  const navigate = useNavigate();
-
   const ticketPrice = Number(ticket?.price) || 0;
+  const [total, setTotal] = useState<number>();
 
   const paymentFee = Number((ticketPrice * 0.1).toFixed(2));
+  const [payInCash, setPayInCash] = useState(false);
   const totalPrice = Number((ticketPrice + paymentFee).toFixed(2));
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTicketData = async () => {
@@ -44,6 +47,32 @@ const Checkout = () => {
 
   const navDash = () => {
     navigate("/dashboard");
+  };
+
+  const validatePromo = async () => {
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/tickets/code/validate`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ code: promo, ticketId: id }),
+      }
+    );
+
+    if (response.ok) {
+      const { discount } = await response.json();
+      const newAmt = totalPrice * discount;
+      if (discount) {
+        setTotal(newAmt);
+        setDiscountAmt(totalPrice - newAmt);
+        setDiscount(discount);
+      }
+    } else {
+      const { message } = await response.json();
+      setError(message);
+    }
   };
 
   const handlePayment = async (e: React.FormEvent) => {
@@ -93,6 +122,7 @@ const Checkout = () => {
             amount: ticketPrice,
             desc: ticket?.name,
             id: ticket?.id,
+            promo,
           }),
         }
       );
@@ -232,12 +262,22 @@ const Checkout = () => {
                           £{paymentFee.toFixed(2)}
                         </span>
                       </div>
+                      {discount && (
+                        <div className="grid grid-cols-3 gap-4">
+                          <span className="text-gray-600 font-medium">
+                            Promo: ({discount * 100}%):
+                          </span>
+                          <span className="col-span-2 text-gray-800">
+                            -£{discountAmt?.toFixed(2)}
+                          </span>
+                        </div>
+                      )}
                       <div className="grid grid-cols-3 gap-4 font-semibold">
                         <span className="text-gray-600 font-medium">
                           Total:
                         </span>
                         <span className="col-span-2 text-gray-800">
-                          £{totalPrice.toFixed(2)}
+                          £{total ? total?.toFixed(2) : totalPrice.toFixed(2)}
                         </span>
                       </div>
                     </>
@@ -259,6 +299,36 @@ const Checkout = () => {
                 </div>
               )}
 
+              {!payInCash && (
+                <div className="mb-4">
+                  <label
+                    htmlFor="promo-input"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
+                    Promo Code:
+                  </label>
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="promo-input"
+                      type="text"
+                      placeholder="Enter Promo Code..."
+                      onChange={(e) => setPromo(e.target.value)}
+                      defaultValue={promo}
+                      className="w-40 px-2 py-1 border border-gray-300 rounded
+                   focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    />
+                    <button
+                      onClick={validatePromo}
+                      type="submit"
+                      className="bg-blue-500 text-white py-2 px-4 rounded
+                   hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
+                    >
+                      Add Promo
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <form onSubmit={handlePayment} data-testid="payment-form">
                 {!payInCash && (
                   <div className="mb-4">
@@ -266,7 +336,7 @@ const Checkout = () => {
                       htmlFor="card-element"
                       className="block text-sm font-medium text-gray-700 mb-1"
                     >
-                      Card Details
+                      Card Details:
                     </label>
                     <div className="p-2 border border-gray-300 rounded-md">
                       <CardElement

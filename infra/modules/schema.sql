@@ -81,6 +81,7 @@ CREATE TABLE Transactions (
     status transaction_status_enum DEFAULT 'completed',
     type transaction_type_enum,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    promoCode INT REFERENCES PromoCodes(id)
     updated_at TIMESTAMP
 );
 
@@ -116,4 +117,15 @@ CREATE TABLE AuditLog (
     userId INT REFERENCES Users(id),
     actionType VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- PromoCodes
+CREATE TABLE PromoCodes (
+    id SERIAL PRIMARY KEY,
+    clubId INT REFERENCES Clubs(id),
+    ticketId INT REFERENCES Tickets(id),
+    discount DECIMAL(3, 2) CHECK (discount <= 1),
+    maxUse INT DEFAULT 0,
+    expiryDate TIMESTAMP,
+    code VARCHAR(10) NOT NULL
 );

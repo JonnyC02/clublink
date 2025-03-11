@@ -241,11 +241,17 @@ router.get("/:id/all", async (req: Request, res: Response) => {
     [id]
   );
 
+  const promo = await pool.query(
+    `SELECT * FROM promocodes WHERE clubId = $1 ORDER BY id`,
+    [id]
+  );
+
   res.json({
     Club: result.rows[0],
     MemberList: memberList.rows,
     AuditLog: auditlog.rows,
     Tickets: tickets.rows,
+    Promo: promo.rows,
   });
 });
 

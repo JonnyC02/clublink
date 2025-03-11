@@ -7,6 +7,7 @@ import { Member } from "../types/Member";
 import { ClubType } from "../types/ClubType";
 import { AuditLog } from "../types/AuditLog";
 import { Ticket } from "../types/responses/TicketData";
+import { PromoCode } from "../types/responses/PromoCode";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,6 +39,7 @@ const ClubDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [auditSearch, setAuditSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [codes, setCodes] = useState<PromoCode[]>([]);
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const navigate = useNavigate();
 
@@ -83,6 +85,8 @@ const ClubDashboard = () => {
         const data = await response.json();
         setTickets(data.Tickets);
         delete data.Tickets;
+        setCodes(data.Promo);
+        delete data.Promo;
         setData(data);
       } catch (err) {
         console.error("Failed to fetch club data:", err); // eslint-disable-line no-console
@@ -119,6 +123,138 @@ const ClubDashboard = () => {
     const price = +value;
     const total = price + price * 0.1;
     return total.toFixed(2);
+  };
+
+  const handleCodeChange = (
+    codeId: number,
+    field: keyof PromoCode,
+    value: unknown
+  ) => {
+    setCodes((prevCode) =>
+      prevCode.map((code) =>
+        code.id === codeId ? { ...code, [field]: value } : code
+      )
+    );
+  };
+
+  const saveCodeChange = async (id: number) => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    const code = codes.find((code) => code.id === id);
+
+    if (!code) {
+      alert("Something went wrong, please try again!");
+      return;
+    }
+
+    if (code.discount < 0.05) {
+      alert(
+        "The minimum discount allowed is 5%, please fix this and try again!"
+      );
+      return;
+    }
+
+    if (code.expirydate) {
+      const dateChange = new Date(code.expirydate);
+      const today = new Date();
+
+      today.setHours(0, 0, 0, 0);
+      dateChange.setHours(0, 0, 0, 0);
+
+      if (today > dateChange) {
+        alert("You cannot set the code date to be in the past!");
+        return;
+      }
+    }
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/tickets/code/save`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ code }),
+      }
+    );
+
+    if (response.ok) {
+      alert("Promo Code Successfully Updated");
+      navigate(0);
+    }
+    alert(
+      "There was an error updating the promo code, please try again later!"
+    );
+    navigate(0);
+  };
+
+  const deleteCode = async (id: number) => {
+    if (!window.confirm("Are you sure you want to delete this code?")) {
+      return;
+    }
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/tickets/code/delete`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id }),
+      }
+    );
+
+    if (response.ok) {
+      alert("Promo Code Successfully Deleted");
+      navigate(0);
+    } else {
+      alert(
+        "There was an error deleting the promo code, please try again later!"
+      );
+      navigate(0);
+    }
+  };
+
+  const addPromoCode = async () => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      return;
+    }
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/tickets/code/add`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ clubId: id }),
+      }
+    );
+
+    if (response.ok) {
+      alert("Successfully added promo code");
+      navigate(0);
+    } else {
+      alert(
+        "There was an error adding the promo code, please try again later!"
+      );
+      navigate(0);
+    }
   };
 
   const handleTicketChange = (
@@ -559,6 +695,19 @@ const ClubDashboard = () => {
                 }}
               >
                 Membership
+              </button>
+              <button
+                className={`pb-2 px-4 ${
+                  activeTab === "promo"
+                    ? "border-b-2 border-blue-500 text-blue-500"
+                    : "text-gray-600"
+                }`}
+                onClick={() => {
+                  navigate("?tab=promo");
+                  setActiveTab("promo");
+                }}
+              >
+                Promo Codes
               </button>
             </nav>
           </div>
@@ -1035,6 +1184,9 @@ const ClubDashboard = () => {
                     <thead>
                       <tr className="bg-gray-100 border-b border-gray-200">
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Ticket Id
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Name
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1069,6 +1221,9 @@ const ClubDashboard = () => {
                             } border-b border-gray-200`}
                           >
                             <td className="px-6 py-4 text-sm text-gray-700">
+                              {ticket.id}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
                               {ticket.name || "N/A"}
                             </td>
                             <td className="px-6 py-4 text-sm text-gray-700">
@@ -1090,7 +1245,7 @@ const ClubDashboard = () => {
                               />
                               <div>Total = {calculateTotal(ticket.price)}</div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-center">
+                            <td className="px-6 py-4 text-sm">
                               <select
                                 defaultValue={ticket.ticketexpiry}
                                 className="w-40 px-2 py-1 border border-gray-300 rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -1143,6 +1298,148 @@ const ClubDashboard = () => {
                   >
                     Save Changes
                   </button>
+                </div>
+              </div>
+            )}
+            {activeTab === "promo" && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold mb-4">Promo Codes</h2>
+                  <button
+                    onClick={addPromoCode}
+                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                  >
+                    Add Promo Code
+                  </button>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                    <thead>
+                      <tr className="bg-gray-100 border-b border-gray-200">
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Id
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Code
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Discount
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Max Uses
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Expiry
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Related Ticket
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {codes
+                        .filter((code: PromoCode) =>
+                          code.code
+                            .toLowerCase()
+                            .includes(searchQuery.toLowerCase())
+                        )
+                        .map((code: PromoCode, index: number) => (
+                          <tr
+                            key={index}
+                            className={`${
+                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                            } border-b border-gray-200`}
+                          >
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {code.id}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              <input
+                                type="text"
+                                className="w-32 px-2 py-1 border border-gray-300 rounded"
+                                defaultValue={code.code || ""}
+                                placeholder="Enter a code"
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              <input
+                                type="text"
+                                className="w-10 px-2 py-1 border border-gray-300 rounded"
+                                defaultValue={
+                                  (code.discount * 100).toString() || ""
+                                }
+                                onChange={(e) =>
+                                  handleCodeChange(
+                                    code.id,
+                                    "discount",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                              {" %"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              <input
+                                type="text"
+                                className="w-14 px-2 py-1 border border-gray-300 rounded"
+                                defaultValue={code.maxuse.toString() || ""}
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <input
+                                type="date"
+                                value={code.expirydate}
+                                onChange={(e) =>
+                                  handleCodeChange(
+                                    code.id,
+                                    "expirydate",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <select
+                                defaultValue={code.ticketid}
+                                className="w-52 px-2 py-1 border border-gray-300 rounded bg-white text-gray-700 text-left focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                onChange={(e) =>
+                                  handleCodeChange(
+                                    code.id,
+                                    "ticketid",
+                                    e.target.value
+                                  )
+                                }
+                              >
+                                {tickets.map(
+                                  (ticket: Ticket, index: number) => (
+                                    <option key={index} value={+ticket.id}>
+                                      {ticket.name}
+                                    </option>
+                                  )
+                                )}
+                              </select>
+                            </td>
+                            <td className="px-6 py-4 text-sm">
+                              <button
+                                onClick={() => saveCodeChange(code.id)}
+                                className="px-4 mt-4 mr-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={() => deleteCode(code.id)}
+                                className="px-4 mt-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                              >
+                                Delete
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}

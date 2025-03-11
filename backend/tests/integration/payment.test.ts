@@ -121,6 +121,7 @@ describe("Payment API Integration Tests", () => {
         metadata: {
           clubId: undefined,
           transaction: "tx_123",
+          discount: "",
           desc: "Test Ticket",
           email: "user@example.com",
           paymentFee: "5.00",

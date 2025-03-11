@@ -92,7 +92,7 @@ describe("Checkout Component", () => {
         2,
         expect.stringContaining("undefined/payments"),
         expect.objectContaining({
-          body: '{"amount":0}',
+          body: '{"amount":0,"promo":""}',
           headers: {
             Authorization: "Bearer mock-jwt-token",
             "Content-type": "application/json; charset=utf-8",
