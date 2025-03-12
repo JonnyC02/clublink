@@ -1,44 +1,41 @@
-name: Cypress Tests
-on: [push]
+name: Run e2e Tests
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "backend/**"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "backend/**"
+
 jobs:
-  cypress-run:
+  runs-e2e-tests:
     runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:17.2
-        env:
-          POSTGRES_USER: ClubLinkDeveloper
-          POSTGRES_PASSWORD: ClubLinkDeveloperDatabasePassword
-          POSTGRES_DB: mydatabase
-        ports:
-          - 5432:5432
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2]
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Install Deps
+      - uses: actions/checkout@v3
+
+      - name: Install Docker Compose
         run: |
+          sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
+
+      - name: Install Dependencies
+        run: |
+          npm install
           npm install --prefix frontend
           npm install --prefix backend
 
-      - name: Seed PostgreSQL Database
-        run: |
-          sudo apt-get install -y postgresql-client
-          PGPASSWORD=ClubLinkDeveloperDatabasePassword psql -h localhost -U ClubLinkDeveloper -d mydatabase -f infra/db/seed.sql
+      - name: Start Docker Containers
+        run: npm run up
 
-      - name: Cypress run
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm run dev
-          wait-on: "http://localhost:3000"
-          record: true
-          parallel: true
+      - name: Wait for App to Start
         env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
           REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
@@ -54,3 +51,9 @@ jobs:
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          npm run dev
+          npx wait-on http://localhost:3000 --timeout 120000
+
+      - name: Run e2e Tests
+        run: npm run e2e
