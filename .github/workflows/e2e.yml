@@ -20,7 +20,7 @@ jobs:
           npm install --prefix backend
 
       - name: Start Docker Containers
-        run: npm run up
+        run: docker-compose -f docker-compose.test.yml up -d
 
       - name: Wait for App to Start
         env:
