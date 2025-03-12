@@ -19,6 +19,9 @@ jobs:
           npm install --prefix frontend
           npm install --prefix backend
 
+      - name: Debug - Check if seed.sql exists
+        run: ls -l ./infra/db/
+
       - name: Start Docker Containers
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
