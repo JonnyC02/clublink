@@ -35,8 +35,8 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         "SELECT discount, id FROM promocodes WHERE code = $1",
         [promo]
       );
-      discount = integer - integer * codes.rows[0].discount;
-      integer = integer * codes.rows[0].discount;
+      discount = integer * codes.rows[0].discount;
+      integer -= discount;
       promoId = codes.rows[0].id;
     }
 
@@ -167,20 +167,20 @@ router.post(
                         <span class="label">Ticket Price:</span>
                         <span class="value">£${ticketPrice}</span>
                     </div>
+                    ${
+                      discount
+                        ? `<div class="detail-item">
+                        <span class="label">Discount:</span>
+                        <span class="value">-£${(+discount / 100).toFixed(
+                          2
+                        )}</span>
+                        </div>`
+                        : ""
+                    }
                     <div class="detail-item">
                         <span class="label">Payment Fee:</span>
                         <span class="value">£${paymentFee}</span>
                     </div>
-                    ${
-                      discount
-                        ? `<div class="detail-item">
-                          <span class="label">Discount:</span>
-                          <span class="value">£${(+discount / 100).toFixed(
-                            2
-                          )}</span>
-                        </div>`
-                        : ""
-                    }
                     <div class="detail-item" style="font-size: 18px; font-weight: bold;">
                         <span class="label">Total Amount Paid:</span>
                         <span class="value">£${totalPrice}</span>

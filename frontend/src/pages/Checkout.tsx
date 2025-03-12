@@ -18,12 +18,13 @@ const Checkout = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [ticket, setTicket] = useState<Ticket>();
-  const ticketPrice = Number(ticket?.price) || 0;
+  let ticketPrice = Number(ticket?.price) || 0;
   const [total, setTotal] = useState<number>();
+  const [fee, setFee] = useState<number>();
 
   const paymentFee = Number((ticketPrice * 0.1).toFixed(2));
   const [payInCash, setPayInCash] = useState(false);
-  const totalPrice = Number((ticketPrice + paymentFee).toFixed(2));
+  let totalPrice = Number((ticketPrice + paymentFee).toFixed(2));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,10 +64,13 @@ const Checkout = () => {
 
     if (response.ok) {
       const { discount } = await response.json();
-      const newAmt = totalPrice * discount;
+      const promoAmt = ticketPrice * discount;
       if (discount) {
-        setTotal(newAmt);
-        setDiscountAmt(totalPrice - newAmt);
+        ticketPrice -= promoAmt;
+        const discountFee = Number((ticketPrice * 0.1).toFixed(2));
+        setFee(discountFee);
+        setTotal(ticketPrice + discountFee);
+        setDiscountAmt(promoAmt);
         setDiscount(discount);
       }
     } else {
@@ -254,14 +258,6 @@ const Checkout = () => {
                   </div>
                   {!payInCash && (
                     <>
-                      <div className="grid grid-cols-3 gap-4">
-                        <span className="text-gray-600 font-medium">
-                          Payment Fee:
-                        </span>
-                        <span className="col-span-2 text-gray-800">
-                          £{paymentFee.toFixed(2)}
-                        </span>
-                      </div>
                       {discount && (
                         <div className="grid grid-cols-3 gap-4">
                           <span className="text-gray-600 font-medium">
@@ -272,6 +268,14 @@ const Checkout = () => {
                           </span>
                         </div>
                       )}
+                      <div className="grid grid-cols-3 gap-4">
+                        <span className="text-gray-600 font-medium">
+                          Payment Fee:
+                        </span>
+                        <span className="col-span-2 text-gray-800">
+                          £{fee ? fee?.toFixed(2) : paymentFee.toFixed(2)}
+                        </span>
+                      </div>
                       <div className="grid grid-cols-3 gap-4 font-semibold">
                         <span className="text-gray-600 font-medium">
                           Total:
