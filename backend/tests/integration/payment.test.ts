@@ -109,9 +109,10 @@ describe("Payment API Integration Tests", () => {
       expect(res.status).toBe(200);
       expect(res.body).toHaveProperty("clientSecret", "pi_test_secret");
 
-      expect(mockQuery).toHaveBeenCalledWith(
-        "INSERT INTO transactions (memberId, ticketId, amount, type) VALUES ($1, $2, $3, $4) RETURNING id",
-        [1, 1, "50", "Card"]
+      expect(mockQuery).toHaveBeenNthCalledWith(
+        2,
+        "INSERT INTO transactions (memberId, ticketId, amount, type, clubId, promoCode) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+        [1, 1, "55.00", "Card", undefined, undefined]
       );
 
       expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith({

@@ -61,7 +61,7 @@ CREATE TABLE Events (
 -- Tickets
 CREATE TABLE Tickets (
     id SERIAL PRIMARY KEY,
-    eventId INT REFERENCES Events(id) ON DELETE CASCADE,
+    eventId INT REFERENCES Events(id),
     name VARCHAR(100) NOT NULL,
     price DECIMAL(10, 2) NOT NULL,
     clubId INT REFERENCES Clubs(id),
@@ -78,7 +78,8 @@ CREATE TABLE Transactions (
     memberId INT REFERENCES Users(id) NOT NULL,
     ticketId INT REFERENCES Tickets(id) NOT NULL,
     amount DECIMAL (5, 2) NOT NULL,
-    status transaction_status_enum DEFAULT 'completed',
+    clubId INT REFERENCES Clubs(id),
+    status transaction_status_enum DEFAULT 'succeeded',
     type transaction_type_enum,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     promoCode INT REFERENCES PromoCodes(id)

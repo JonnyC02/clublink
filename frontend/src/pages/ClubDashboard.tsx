@@ -8,6 +8,7 @@ import { ClubType } from "../types/ClubType";
 import { AuditLog } from "../types/AuditLog";
 import { Ticket } from "../types/responses/TicketData";
 import { PromoCode } from "../types/responses/PromoCode";
+import { Transaction } from "../types/responses/Transaction";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -38,7 +39,9 @@ const ClubDashboard = () => {
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [auditSearch, setAuditSearch] = useState("");
+  const [transactionSearch, setTransactionSearch] = useState("");
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [codes, setCodes] = useState<PromoCode[]>([]);
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const navigate = useNavigate();
@@ -87,6 +90,8 @@ const ClubDashboard = () => {
         delete data.Tickets;
         setCodes(data.Promo);
         delete data.Promo;
+        setTransactions(data.Transactions);
+        delete data.Transactions;
         setData(data);
       } catch (err) {
         console.error("Failed to fetch club data:", err); // eslint-disable-line no-console
@@ -118,6 +123,52 @@ const ClubDashboard = () => {
           .includes(searchLower))
     );
   });
+
+  const filteredTransactions = transactions.filter(
+    (transaction: Transaction) => {
+      const searchLower = transactionSearch.toLowerCase();
+
+      return (
+        transaction.id.toString().includes(searchLower) ||
+        (transaction.memberid &&
+          transaction.memberid
+            .toString()
+            .toLowerCase()
+            .includes(searchLower)) ||
+        (transaction.amount &&
+          transaction.amount.toString().toLowerCase().includes(searchLower)) ||
+        (transaction.promocode &&
+          transaction.promocode.toString().includes(searchLower)) ||
+        (transaction.status &&
+          transaction.status.toLowerCase().includes(searchLower)) ||
+        (transaction.ticketid &&
+          transaction.ticketid
+            .toString()
+            .toLowerCase()
+            .includes(searchLower)) ||
+        (transaction.type &&
+          transaction.type.toLowerCase().includes(searchLower)) ||
+        (transaction.time &&
+          new Date(transaction.time)
+            .toLocaleDateString("en-GB", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+            .toLowerCase()
+            .includes(searchLower)) ||
+        (transaction.updated_at &&
+          new Date(transaction.updated_at)
+            .toLocaleDateString("en-GB", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+            .toLowerCase()
+            .includes(searchLower))
+      );
+    }
+  );
 
   const calculateTotal = (value: number) => {
     const price = +value;
@@ -708,6 +759,19 @@ const ClubDashboard = () => {
                 }}
               >
                 Promo Codes
+              </button>
+              <button
+                className={`pb-2 px-4 ${
+                  activeTab === "transactions"
+                    ? "border-b-2 border-blue-500 text-blue-500"
+                    : "text-gray-600"
+                }`}
+                onClick={() => {
+                  navigate("?tab=transactions");
+                  setActiveTab("transactions");
+                }}
+              >
+                Transactions
               </button>
             </nav>
           </div>
@@ -1441,6 +1505,94 @@ const ClubDashboard = () => {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+            {activeTab === "transactions" && (
+              <div>
+                <h2 className="text-xl font-bold mb-4">Transactions</h2>
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    placeholder="Search transactions..."
+                    value={transactionSearch}
+                    onChange={(e) => setTransactionSearch(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                  />
+                </div>
+                {filteredTransactions.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                      <thead>
+                        <tr className="bg-gray-100 border-b border-gray-200">
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Id
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Member Id
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Ticket Id
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Amount
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Promo Code
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filteredTransactions.map(
+                          (transaction: Transaction, index: number) => (
+                            <tr
+                              key={index}
+                              className={`${
+                                index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                              } border-b border-gray-200`}
+                            >
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.id || "Member"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.memberid || "Member"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.ticketid || "Committee"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                £{transaction.amount || "0.00"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.status || "Pending"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.promocode || "N/a"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {new Date(transaction.time).toLocaleDateString(
+                                  "en-GB",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </td>
+                            </tr>
+                          )
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">No transactions found.</p>
+                )}
               </div>
             )}
           </div>

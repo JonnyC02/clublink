@@ -21,10 +21,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     if (isNaN(amount)) {
       throw new Error("Amount is not a number");
     }
-    const transaction = await pool.query(
-      "INSERT INTO transactions (memberId, ticketId, amount, type) VALUES ($1, $2, $3, $4) RETURNING id",
-      [req.user?.id, id, amount, "Card"]
-    );
+
     const ticket = await pool.query(
       "SELECT clubId FROM tickets WHERE id = $1",
       [id]
@@ -32,18 +29,25 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
 
     const ticketPrice = (integer / 100).toFixed(2);
 
+    let promoId;
     if (promo) {
       const codes = await pool.query(
-        "SELECT discount FROM promocodes WHERE code = $1",
+        "SELECT discount, id FROM promocodes WHERE code = $1",
         [promo]
       );
       discount = integer - integer * codes.rows[0].discount;
       integer = integer * codes.rows[0].discount;
+      promoId = codes.rows[0].id;
     }
 
     const final = calculateFee(integer);
     const paymentFee = ((final - integer) / 100).toFixed(2);
     const totalPrice = (final / 100).toFixed(2);
+
+    const transaction = await pool.query(
+      "INSERT INTO transactions (memberId, ticketId, amount, type, clubId, promoCode) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
+      [req.user?.id, id, totalPrice, "Card", ticket.rows[0].clubid, promoId]
+    );
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: final,
