@@ -56,7 +56,7 @@ jobs:
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
-          npm run dev
+          npm run start --prefix frontend
           npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run e2e Tests
