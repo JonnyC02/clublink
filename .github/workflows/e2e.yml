@@ -1,18 +1,6 @@
 name: Run e2e Tests
 
-on:
-  push:
-    branches:
-      - main
-    paths:
-      - "frontend/**"
-      - "backend/**"
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "frontend/**"
-      - "backend/**"
+on: [push]
 
 jobs:
   runs-e2e-tests:
