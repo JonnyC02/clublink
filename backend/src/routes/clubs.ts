@@ -246,12 +246,18 @@ router.get("/:id/all", async (req: Request, res: Response) => {
     [id]
   );
 
+  const transactions = await pool.query(
+    "SELECT * FROM transactions WHERE clubId = $1 ORDER by id DESC",
+    [id]
+  );
+
   res.json({
     Club: result.rows[0],
     MemberList: memberList.rows,
     AuditLog: auditlog.rows,
     Tickets: tickets.rows,
     Promo: promo.rows,
+    Transactions: transactions.rows,
   });
 });
 
