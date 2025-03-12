@@ -21,8 +21,6 @@ services:
     build:
       context: ../backend
     container_name: test_backend
-    environment:
-      NODE_ENV: test
     ports:
       - "3001:3001"
     depends_on:
