@@ -53,16 +53,6 @@ jobs:
           echo "Database is ready!"
 
       - name: Start Frontend
-        run: |
-          npm run start --prefix frontend &
-          npm run dev --prefix backend &
-          sleep 5
-
-      - name: Wait for Frontend to Start
-        run: |
-          npx wait-on http://localhost:3000 --timeout 120000
-
-      - name: Run e2e Tests
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
           REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
@@ -79,6 +69,16 @@ jobs:
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+        run: |
+          npm run start --prefix frontend &
+          npm run dev --prefix backend &
+          sleep 5
+
+      - name: Wait for Frontend to Start
+        run: |
+          npx wait-on http://localhost:3000 --timeout 120000
+
+      - name: Run e2e Tests
         run: npm run e2e
 
       - name: Upload Cypress Videos
