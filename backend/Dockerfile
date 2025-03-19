@@ -1,11 +1,15 @@
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json .
-RUN npm ci
-COPY . .
-RUN npm run compile
+FROM node:18-alpine
 
-FROM alpine
-COPY --from=builder /app/build /root/home/build
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm install
+
+COPY . .
+
+RUN npm run build
+
 EXPOSE 3001
-CMD ["./build/server"]
+
+CMD ["node", "dist/index.js"]

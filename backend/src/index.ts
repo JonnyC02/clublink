@@ -16,7 +16,7 @@ const UNIVERSITIES: object[] = [];
 
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
 const app: Express = express();
-const PORT = process.env.PORT || 3001;
+const PORT = +(process.env.PORT || 3001);
 const PRODUCTION: boolean = !!process.env.PRODUCTION;
 const SECRET: string = "" + process.env.SESSION_SECRET;
 
@@ -59,6 +59,15 @@ app.get("/health", (req: Request, res: Response) => {
   }
 });
 
+app.get("/", (req: Request, res: Response) => {
+  try {
+    res.status(200).json({ message: "200 Yipee" });
+  } catch (err) {
+    console.error("Something went wrong!", err); // eslint-disable-line no-console
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+});
+
 app.get("/universities", (req: Request, res: Response) => {
   try {
     res.status(200).json(UNIVERSITIES);
@@ -85,12 +94,17 @@ if (process.env.NODE_ENV !== "test") {
         }
       }
 
-      app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
-      });
+      app
+        .listen(PORT, "0.0.0.0", () => {
+          console.log(`✅ Server running on http://localhost:${PORT}`); // eslint-disable-line no-console
+        })
+        .on("error", (err) => {
+          console.error(`🔥 Server failed to start: ${err.message}`); // eslint-disable-line no-console
+          process.exit(1);
+        });
     } catch (err) {
       console.error("Error during server initialization:", err); // eslint-disable-line no-console
-      console.error("Is the PostgreSQL Docker Running??") // eslint-disable-line no-console
+      console.error("Is the PostgreSQL Docker Running??"); // eslint-disable-line no-console
       process.exit(1);
     }
   };
