@@ -47,6 +47,10 @@ jobs:
           sleep 5
           docker ps -a
 
+      - name: Debug - Check Inside PostgreSQL Container
+        if: always()
+        run: docker exec infra-postgres-1 ls -l /docker-entrypoint-initdb.d/
+
       - name: Debug PostgreSQL Logs
         if: always()
         run: docker logs infra-postgres-1 || echo "PostgreSQL container logs not found"
