@@ -83,16 +83,16 @@ jobs:
           npm run dev --prefix backend > backend.log 2>&1 &
           sleep 5
 
-      - name: Debug Backend Logs
-        if: always()
-        run: cat backend.log || echo "No backend logs found"
-
       - name: Check Running Processes
         run: ps aux | grep node
 
       - name: Wait for Backend to start
         run: |
           npx wait-on http://localhost:3001 --timeout 120000
+
+      - name: Debug Backend Logs
+        if: always()
+        run: cat backend.log || echo "No backend logs found"
 
       - name: Run e2e Tests
         run: npm run e2e
