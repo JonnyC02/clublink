@@ -16,7 +16,7 @@ const UNIVERSITIES: object[] = [];
 
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
 const app: Express = express();
-const PORT = process.env.PORT || 3001;
+const PORT = +(process.env.PORT || 3001);
 const PRODUCTION: boolean = !!process.env.PRODUCTION;
 const SECRET: string = "" + process.env.SESSION_SECRET;
 
@@ -86,7 +86,7 @@ if (process.env.NODE_ENV !== "test") {
       }
 
       app
-        .listen(PORT, () => {
+        .listen(PORT, "0.0.0.0", () => {
           console.log(`✅ Server running on http://localhost:${PORT}`); // eslint-disable-line no-console
         })
         .on("error", (err) => {
