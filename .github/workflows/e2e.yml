@@ -52,7 +52,11 @@ jobs:
           done
           echo "Database is ready!"
 
-      - name: Wait for Backend and Frontend to Start
+      - name: Start Frontend
+        run: |
+          npm run start --prefix frontend
+
+      - name: Wait for Frontend to Start
         run: |
           npx wait-on http://localhost:3000 --timeout 120000
 
