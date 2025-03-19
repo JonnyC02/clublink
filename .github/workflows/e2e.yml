@@ -15,9 +15,10 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          npm install
-          npm install --prefix frontend
-          npm install --prefix backend
+          npm install & \
+          npm install --prefix frontend & \
+          npm install --prefix backend & \
+          wait
 
       - name: Debug - Check if seed.sql exists
         run: ls -l ./infra/db/
@@ -39,31 +40,25 @@ jobs:
           RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
-        run: docker-compose -f ./infra/docker-compose.test.yml up -d
+        run: |
+          docker-compose -f ./infra/docker-compose.test.yml up -d
+          sleep 5  # Give it some time to start
+          docker ps -a  # List all containers to debug if any failed
 
       - name: Debug PostgreSQL Logs
         run: docker logs infra-postgres-1
 
-      - name: Wait for App to Start
-        env:
-          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
-          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-          PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
-          RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
-          RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
-          RDS_PASSWORD: ${{ secrets.RDS_PASSWORD }}
-          RDS_PORT: ${{ secrets.RDS_PORT }}
-          RDS_USERNAME: ${{ secrets.RDS_USERNAME }}
-          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
-          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+      - name: Wait for PostgreSQL to be ready
         run: |
-          npm run start --prefix frontend
-          npx wait-on http://localhost:3000 --timeout 120000
+          until docker exec infra-postgres-1 pg_isready -U ${{ secrets.RDS_USERNAME }} -d ${{ secrets.RDS_DATABASE }}; do
+            echo "Waiting for database..."
+            sleep 5
+          done
+          echo "Database is ready!"
+
+      - name: Wait for Backend and Frontend to Start
+        run: |
+          npx wait-on http://localhost:3000 http://localhost:3001 --timeout 120000
 
       - name: Run e2e Tests
         run: npm run e2e
