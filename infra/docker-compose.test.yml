@@ -11,7 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - type: bind
-        source: ./infra/db/seed.sql
+        source: ./db/seed.sql
         target: /docker-entrypoint-initdb.d/seed.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ClubLinkDeveloper -d mydatabase"]
