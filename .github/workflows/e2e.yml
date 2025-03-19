@@ -54,7 +54,8 @@ jobs:
 
       - name: Start Frontend
         run: |
-          npm run start --prefix frontend
+          npm run start --prefix frontend &
+          sleep 5
 
       - name: Wait for Frontend to Start
         run: |
