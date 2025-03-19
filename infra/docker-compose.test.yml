@@ -18,13 +18,3 @@ services:
       interval: 10s
       retries: 5
       timeout: 5s
-
-  backend:
-    build:
-      context: ../backend
-    container_name: test_backend
-    ports:
-      - "3001:3001"
-    depends_on:
-      postgres:
-        condition: service_healthy
