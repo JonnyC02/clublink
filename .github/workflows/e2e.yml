@@ -53,21 +53,12 @@ jobs:
       - name: Manually Run Seed Script
         run: docker exec infra-postgres-1 psql -U ClubLinkDeveloper -d mydatabase -f /docker-entrypoint-initdb.d/seed.sql
 
-      - name: Debug - Check Inside PostgreSQL Container
-        if: always()
+      - name: Debug - Check Files Inside PostgreSQL Container
         run: docker exec infra-postgres-1 ls -l /docker-entrypoint-initdb.d/
 
       - name: Debug PostgreSQL Logs
         if: always()
         run: docker logs infra-postgres-1 || echo "PostgreSQL container logs not found"
-
-      - name: Debug Backend Logs
-        if: always()
-        run: docker logs test_backend || echo "Backend container logs not found"
-
-      - name: Fail if Docker Startup Failed
-        if: steps.start-docker.outcome == 'failure'
-        run: exit 1
 
       - name: Wait for PostgreSQL to be ready
         run: |
