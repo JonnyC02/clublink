@@ -23,6 +23,9 @@ jobs:
       - name: Debug - Check if seed.sql exists
         run: ls -l ./infra/db/
 
+      - name: Fix seed.sql permissions
+        run: chmod 644 infra/db/seed.sql
+
       - name: Debug - Check seed.sql encoding
         run: file infra/db/seed.sql
 
