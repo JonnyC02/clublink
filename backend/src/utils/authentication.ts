@@ -49,6 +49,7 @@ export const getUserId = (authHeader: string | undefined) => {
   if (!authHeader) return undefined;
 
   const token = authHeader.split(" ")[1] || "";
+  if (token === "null" || token === "") return undefined;
 
   try {
     const payload = jwt.verify(token, SECRET_KEY) as JwtPayload;
