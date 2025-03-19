@@ -97,6 +97,9 @@ jobs:
         if: always()
         run: cat backend.log || echo "No backend logs found"
 
+      - name: Check What Process is Using Port 3001
+        run: sudo lsof -i :3001 || echo "No process using port 3001"
+
       - name: Run e2e Tests
         run: npm run e2e
 
