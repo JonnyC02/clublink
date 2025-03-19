@@ -24,6 +24,8 @@ jobs:
         run: ls -l ./infra/db/
 
       - name: Start Docker Containers
+        id: start-docker
+        continue-on-error: true
         env:
           REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
           REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
@@ -42,11 +44,20 @@ jobs:
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
           docker-compose -f ./infra/docker-compose.test.yml up -d
-          sleep 5  # Give it some time to start
-          docker ps -a  # List all containers to debug if any failed
+          sleep 5
+          docker ps -a
 
       - name: Debug PostgreSQL Logs
-        run: docker logs infra-postgres-1
+        if: always()
+        run: docker logs infra-postgres-1 || echo "PostgreSQL container logs not found"
+
+      - name: Debug Backend Logs
+        if: always()
+        run: docker logs test_backend || echo "Backend container logs not found"
+
+      - name: Fail if Docker Startup Failed
+        if: steps.start-docker.outcome == 'failure'
+        run: exit 1
 
       - name: Wait for PostgreSQL to be ready
         run: |
