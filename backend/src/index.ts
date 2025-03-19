@@ -59,6 +59,15 @@ app.get("/health", (req: Request, res: Response) => {
   }
 });
 
+app.get("/", (req: Request, res: Response) => {
+  try {
+    res.status(200).json({ message: "200 Yipee" });
+  } catch (err) {
+    console.error("Something went wrong!", err); // eslint-disable-line no-console
+    res.status(500).json({ error: "Something went wrong!" });
+  }
+});
+
 app.get("/universities", (req: Request, res: Response) => {
   try {
     res.status(200).json(UNIVERSITIES);
