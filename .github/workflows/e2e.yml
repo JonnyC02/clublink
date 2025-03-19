@@ -53,6 +53,9 @@ jobs:
           echo "Database is ready!"
 
       - name: Start Frontend
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+          REACT_APP_PUBLISH_KEY: ${{ secrets.REACT_APP_PUBLISH_KEY }}
         run: |
           npm run start --prefix frontend &
           npm run dev --prefix backend &
