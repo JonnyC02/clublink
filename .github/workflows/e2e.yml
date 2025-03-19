@@ -50,11 +50,11 @@ jobs:
           sleep 5
           docker ps -a
 
-      - name: Manually Run Seed Script
-        run: docker exec infra-postgres-1 psql -U ClubLinkDeveloper -d mydatabase -f /docker-entrypoint-initdb.d/seed.sql
-
       - name: Debug - Check Files Inside PostgreSQL Container
         run: docker exec infra-postgres-1 ls -l /docker-entrypoint-initdb.d/
+
+      - name: Manually Run Seed Script
+        run: docker exec infra-postgres-1 psql -U ClubLinkDeveloper -d mydatabase -f /docker-entrypoint-initdb.d/seed.sql
 
       - name: Debug PostgreSQL Logs
         if: always()
