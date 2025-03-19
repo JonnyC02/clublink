@@ -85,12 +85,17 @@ if (process.env.NODE_ENV !== "test") {
         }
       }
 
-      app.listen(PORT, () => {
-        console.log(`Server is running on http://localhost:${PORT}`); // eslint-disable-line no-console
-      });
+      app
+        .listen(PORT, () => {
+          console.log(`✅ Server running on http://localhost:${PORT}`); // eslint-disable-line no-console
+        })
+        .on("error", (err) => {
+          console.error(`🔥 Server failed to start: ${err.message}`); // eslint-disable-line no-console
+          process.exit(1);
+        });
     } catch (err) {
       console.error("Error during server initialization:", err); // eslint-disable-line no-console
-      console.error("Is the PostgreSQL Docker Running??") // eslint-disable-line no-console
+      console.error("Is the PostgreSQL Docker Running??"); // eslint-disable-line no-console
       process.exit(1);
     }
   };
