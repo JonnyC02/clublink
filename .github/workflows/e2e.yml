@@ -23,9 +23,6 @@ jobs:
       - name: Debug - Check if seed.sql exists
         run: ls -l ./infra/db/
 
-      - name: Fix seed.sql permissions
-        run: chmod 644 infra/db/seed.sql
-
       - name: Debug - Check seed.sql encoding
         run: file infra/db/seed.sql
 
@@ -52,6 +49,9 @@ jobs:
           docker-compose -f ./infra/docker-compose.test.yml up -d
           sleep 5
           docker ps -a
+
+      - name: Manually Run Seed Script
+        run: docker exec infra-postgres-1 psql -U ClubLinkDeveloper -d mydatabase -f /docker-entrypoint-initdb.d/seed.sql
 
       - name: Debug - Check Inside PostgreSQL Container
         if: always()
