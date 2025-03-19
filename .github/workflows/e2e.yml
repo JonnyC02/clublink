@@ -23,6 +23,9 @@ jobs:
       - name: Debug - Check if seed.sql exists
         run: ls -l ./infra/db/
 
+      - name: Debug - Check seed.sql encoding
+        run: file infra/db/seed.sql
+
       - name: Start Docker Containers
         id: start-docker
         continue-on-error: true
