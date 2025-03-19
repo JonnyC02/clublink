@@ -70,7 +70,6 @@ jobs:
           EMAIL_USER: ${{ secrets.EMAIL_USER }}
           FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
           PUBLISH_KEY: ${{ secrets.PUBLISH_KEY }}
           RDS_DATABASE: ${{ secrets.RDS_DATABASE }}
           RDS_HOSTNAME: ${{ secrets.RDS_HOSTNAME }}
@@ -81,32 +80,11 @@ jobs:
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         run: |
           npm run dev --prefix backend > backend.log 2>&1 &
-          sleep 10
-
-      - name: Check Running Processes
-        run: ps aux | grep node
-
-      - name: Check Backend Listening Ports
-        run: sudo netstat -tulnp
+          sleep 5
 
       - name: Wait for Backend to start
         run: |
           npx wait-on http://localhost:3001 --timeout 120000
 
-      - name: Debug Backend Logs
-        if: always()
-        run: cat backend.log || echo "No backend logs found"
-
-      - name: Check What Process is Using Port 3001
-        if: always()
-        run: sudo lsof -i :3001 || echo "No process using port 3001"
-
       - name: Run e2e Tests
         run: npm run e2e
-
-      - name: Upload Cypress Videos
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
