@@ -87,7 +87,7 @@ jobs:
         run: ps aux | grep node
 
       - name: Check Backend Listening Ports
-        run: sudo netstat -tulnp | grep 2334
+        run: sudo netstat -tulnp
 
       - name: Wait for Backend to start
         run: |
