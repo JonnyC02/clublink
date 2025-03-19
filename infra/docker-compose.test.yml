@@ -10,7 +10,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./infra/db/seed.sql:/docker-entrypoint-initdb.d/seed.sql
+      - type: bind
+        source: ./infra/db/seed.sql
+        target: /docker-entrypoint-initdb.d/seed.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ClubLinkDeveloper -d mydatabase"]
       interval: 10s
