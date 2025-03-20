@@ -18,6 +18,7 @@ import StudentVerify from "./pages/StudentVerify";
 import Dashboard from "./pages/Dashboard";
 import ClubDashboard from "./pages/ClubDashboard";
 import Checkout from "./pages/Checkout";
+import AddTransaction from "./pages/AddTransaction";
 
 const stripePromise = process.env.REACT_APP_PUBLISH_KEY
   ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
@@ -62,6 +63,14 @@ function App() {
             <Route path="/accept" element={<Action />} />
             <Route path="/deny" element={<Action />} />
             <Route path="/studentVerify" element={<StudentVerify />} />
+            <Route
+              path="/transactions/:id/new"
+              element={
+                <CommitteeProtected>
+                  <AddTransaction />
+                </CommitteeProtected>
+              }
+            />
             <Route
               path="/dashboard"
               element={

@@ -9,4 +9,5 @@ export type Transaction = {
   time: Date;
   promocode: string;
   updated_at: Date;
+  transactiontype: boolean;
 };

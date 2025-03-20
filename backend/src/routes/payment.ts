@@ -13,6 +13,26 @@ dotenv.config();
 
 const router = express.Router();
 
+router.post(
+  "/transaction/new",
+  authenticateToken,
+  async (req: AuthRequest, res: Response) => {
+    const { id, amount, transactiontype, method, ticket, promo, member } =
+      req.body;
+
+    try {
+      await pool.query(
+        "INSERT INTO transactions (memberId, ticketId, amount, clubId, type, promoCode, transactionType, status) VALUES ($1, $2, $3, $4, $5, $6, $7, 'succeeded');",
+        [member, ticket, amount, id, method, promo, transactiontype]
+      );
+      res.status(200).json({ message: "Transaction Created Successfully" });
+    } catch (err) {
+      console.error("Error creating transaction: ", err); // eslint-disable-line no-console
+      res.status(500).json({ error: "Error creating transaction" });
+    }
+  }
+);
+
 router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   const { amount, desc, id, promo } = req.body;
   let integer = Math.round(parseFloat(amount) * 100);
