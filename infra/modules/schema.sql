@@ -82,7 +82,8 @@ CREATE TABLE Transactions (
     status transaction_status_enum DEFAULT 'succeeded',
     type transaction_type_enum,
     time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    promoCode INT REFERENCES PromoCodes(id)
+    promoCode INT REFERENCES PromoCodes(id),
+    transactionType BOOLEAN,
     updated_at TIMESTAMP
 );
 

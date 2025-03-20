@@ -54,6 +54,14 @@ const ClubDashboard = () => {
     0;
   const totalMembers = studentCount + associateCount;
 
+  const moneyIn = transactions
+    .filter((transaction: Transaction) => transaction.transactiontype)
+    .reduce((sum, transaction) => sum + +transaction.amount, 0);
+
+  const moneyOut = transactions
+    .filter((transaction: Transaction) => !transaction.transactiontype)
+    .reduce((sum, transaction) => sum + +transaction.amount, 0);
+
   const links = [
     { label: "Home", href: "/" },
     { label: "Browse Clubs", href: "/clubs" },
@@ -127,6 +135,7 @@ const ClubDashboard = () => {
   const filteredTransactions = transactions.filter(
     (transaction: Transaction) => {
       const searchLower = transactionSearch.toLowerCase();
+      const transType = transaction.transactiontype ? "IN" : "OUT";
 
       return (
         transaction.id.toString().includes(searchLower) ||
@@ -137,6 +146,7 @@ const ClubDashboard = () => {
             .includes(searchLower)) ||
         (transaction.amount &&
           transaction.amount.toString().toLowerCase().includes(searchLower)) ||
+        (transType && transType.toLowerCase().includes(searchLower)) ||
         (transaction.promocode &&
           transaction.promocode.toString().includes(searchLower)) ||
         (transaction.status &&
@@ -146,6 +156,8 @@ const ClubDashboard = () => {
             .toString()
             .toLowerCase()
             .includes(searchLower)) ||
+        (transaction.type &&
+          transaction.type.toLowerCase().includes(searchLower)) ||
         (transaction.type &&
           transaction.type.toLowerCase().includes(searchLower)) ||
         (transaction.time &&
@@ -1509,7 +1521,49 @@ const ClubDashboard = () => {
             )}
             {activeTab === "transactions" && (
               <div>
-                <h2 className="text-xl font-bold mb-4">Transactions</h2>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold mb-4">Transactions</h2>
+                  <button
+                    onClick={() => navigate(`/transactions/${id}/new`)}
+                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
+                  >
+                    + Add Transaction
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                  <div className="bg-white shadow-md rounded-lg p-4 border-l-4 border-green-500">
+                    <h3 className="text-lg font-bold text-gray-700">
+                      Money In
+                    </h3>
+                    <p className="text-3xl font-semibold text-green-600">
+                      +£{moneyIn.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white shadow-md rounded-lg p-4 border-l-4 border-red-500">
+                    <h3 className="text-lg font-bold text-gray-700">
+                      Money Out
+                    </h3>
+                    <p className="text-3xl font-semibold text-red-600">
+                      -£{moneyOut.toFixed(2)}
+                    </p>
+                  </div>
+
+                  <div className="bg-white shadow-md rounded-lg p-4 border-l-4 border-blue-500">
+                    <h3 className="text-lg font-bold text-gray-700">
+                      Estimated Balance
+                    </h3>
+                    <p
+                      className={`text-3xl font-semibold ${
+                        moneyIn - moneyOut >= 0
+                          ? "text-blue-600"
+                          : "text-red-600"
+                      }`}
+                    >
+                      £{(moneyIn - moneyOut).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
                 <div className="mb-4">
                   <input
                     type="text"
@@ -1528,6 +1582,9 @@ const ClubDashboard = () => {
                             Id
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Type
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Member Id
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1538,6 +1595,9 @@ const ClubDashboard = () => {
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Method
                           </th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                             Promo Code
@@ -1560,6 +1620,9 @@ const ClubDashboard = () => {
                                 {transaction.id || "Member"}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.transactiontype ? "IN" : "OUT"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
                                 {transaction.memberid || "Member"}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-700">
@@ -1569,7 +1632,10 @@ const ClubDashboard = () => {
                                 £{transaction.amount || "0.00"}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-700">
-                                {transaction.status || "Pending"}
+                                {transaction.status || "pending"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {transaction.type}
                               </td>
                               <td className="px-6 py-4 text-sm text-gray-700">
                                 {transaction.promocode || "N/a"}

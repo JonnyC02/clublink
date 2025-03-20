@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload, TokenExpiredError } from "jsonwebtoken";
 import dotenv from "dotenv";
 import { AuthRequest } from "../types/AuthRequest";
 
@@ -53,11 +53,14 @@ export const getUserId = (authHeader: string | undefined) => {
 
   try {
     const payload = jwt.verify(token, SECRET_KEY) as JwtPayload;
-
     if (typeof payload === "object" && "id" in payload && "email" in payload) {
       return payload.id;
     }
   } catch (err) {
+    if (err instanceof TokenExpiredError) {
+      console.warn("Token has expired:", err.expiredAt); // eslint-disable-line no-console
+      return undefined;
+    }
     console.error("Token Verification Error: ", err); // eslint-disable-line no-console
     return undefined;
   }
