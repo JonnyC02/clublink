@@ -182,10 +182,16 @@ const ClubDashboard = () => {
     }
   );
 
-  const calculateTotal = (value: number) => {
-    const price = +value;
-    const total = price + price * 0.1;
-    return total.toFixed(2);
+  const calculateTotal = (value: number, bookingfee: boolean) => {
+    if (bookingfee) {
+      const price = +value;
+      const total = price + price * 0.1;
+      return total.toFixed(2);
+    } else {
+      const price = +value;
+      const total = price - price * 0.1;
+      return total.toFixed(2);
+    }
   };
 
   const handleCodeChange = (
@@ -1278,6 +1284,9 @@ const ClubDashboard = () => {
                           Allow Cash
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Booking Fee
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Final Date of Purchase
                         </th>
                       </tr>
@@ -1319,7 +1328,19 @@ const ClubDashboard = () => {
                                   )
                                 }
                               />
-                              <div>Total = {calculateTotal(ticket.price)}</div>
+                              <div>
+                                {ticket.bookingfee ? (
+                                  <>
+                                    Total = £
+                                    {calculateTotal(ticket.price, true)}
+                                  </>
+                                ) : (
+                                  <>
+                                    You get = £
+                                    {calculateTotal(ticket.price, false)}
+                                  </>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 text-sm">
                               <select
@@ -1346,6 +1367,20 @@ const ClubDashboard = () => {
                                   handleTicketChange(
                                     ticket.id,
                                     "cashenabled",
+                                    e.target.checked
+                                  )
+                                }
+                              />
+                            </td>
+                            <td className="px-6 py-4 text-sm text-center">
+                              <input
+                                type="checkbox"
+                                className={`w-5 h-5 border-2 rounded bg-blue-500 border-blue-500`}
+                                checked={ticket.bookingfee}
+                                onChange={(e) =>
+                                  handleTicketChange(
+                                    ticket.id,
+                                    "bookingfee",
                                     e.target.checked
                                   )
                                 }

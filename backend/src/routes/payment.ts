@@ -43,7 +43,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
     }
 
     const ticket = await pool.query(
-      "SELECT clubId FROM tickets WHERE id = $1",
+      "SELECT clubId, bookingFee FROM tickets WHERE id = $1",
       [id]
     );
 
@@ -59,9 +59,9 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       integer -= discount;
       promoId = codes.rows[0].id;
     }
-
-    const final = calculateFee(integer);
-    const paymentFee = ((final - integer) / 100).toFixed(2);
+    const bookingFee = ticket.rows[0].bookingfee;
+    const final = bookingFee ? calculateFee(integer) : Math.round(integer);
+    const paymentFee = bookingFee ? ((final - integer) / 100).toFixed(2) : 0;
     const totalPrice = (final / 100).toFixed(2);
 
     const transaction = await pool.query(
@@ -83,6 +83,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
         userId: req.user?.id || 0,
         clubId: ticket.rows[0].clubid,
         discount: discount?.toFixed(2) || "",
+        bookingFee,
       },
     });
     res.json({
@@ -123,6 +124,7 @@ router.post(
         const userId = paymentIntent.metadata.userId;
         const clubId = paymentIntent.metadata.clubId;
         const discount = paymentIntent.metadata.discount;
+        const bookingFee = paymentIntent.metadata.bookingFee;
 
         if (status === "succeeded") {
           const mailOptions = {
@@ -197,10 +199,14 @@ router.post(
                         </div>`
                         : ""
                     }
-                    <div class="detail-item">
+                    ${
+                      bookingFee === "true"
+                        ? `<div class="detail-item">
                         <span class="label">Payment Fee:</span>
                         <span class="value">£${paymentFee}</span>
-                    </div>
+                    </div>`
+                        : ""
+                    }
                     <div class="detail-item" style="font-size: 18px; font-weight: bold;">
                         <span class="label">Total Amount Paid:</span>
                         <span class="value">£${totalPrice}</span>

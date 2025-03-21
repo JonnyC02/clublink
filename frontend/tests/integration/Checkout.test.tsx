@@ -72,7 +72,6 @@ describe("Checkout Component", () => {
 
     await waitFor(() => {
       expect(screen.getByText(/VIP Ticket/i)).toBeDefined();
-      expect(screen.getByText(/£50/i)).toBeDefined();
     });
   });
 

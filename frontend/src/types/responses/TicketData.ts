@@ -11,5 +11,6 @@ export type Ticket = {
   ticketflag: TicketFlag;
   ticketexpiry: ticketExpiry;
   cashenabled: boolean;
+  bookingfee: boolean;
   date: string;
 };
