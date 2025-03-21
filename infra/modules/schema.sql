@@ -69,6 +69,7 @@ CREATE TABLE Tickets (
     ticketFlag ticket_flag_enum DEFAULT 'Associate',
     ticketExpiry ticket_expiry_enum DEFAULT 'Yearly',
     cashEnabled BOOLEAN DEFAULT true,
+    bookingFee BOOLEAN DEFAULT true,
     date VARCHAR(15)
 );
 

@@ -41,12 +41,13 @@ router.post(
       for (const ticket of tickets) {
         const price = +ticket.price;
         result = await pool.query(
-          "UPDATE tickets SET price = $1, ticketExpiry = $2, cashEnabled = $3, date = $4 WHERE id = $5 RETURNING clubId",
+          "UPDATE tickets SET price = $1, ticketExpiry = $2, cashEnabled = $3, date = $4, bookingFee = $5 WHERE id = $6 RETURNING clubId",
           [
             price,
             ticket.ticketexpiry,
             ticket.cashenabled,
             ticket.date,
+            ticket.bookingfee,
             ticket.id,
           ]
         );

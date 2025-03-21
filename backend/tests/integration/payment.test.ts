@@ -112,22 +112,23 @@ describe("Payment API Integration Tests", () => {
       expect(mockQuery).toHaveBeenNthCalledWith(
         2,
         "INSERT INTO transactions (memberId, ticketId, amount, type, clubId, promoCode) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
-        [1, 1, "55.00", "Card", undefined, undefined]
+        [1, 1, "50.00", "Card", undefined, undefined]
       );
 
       expect(mockStripe.paymentIntents.create).toHaveBeenCalledWith({
-        amount: 5500,
+        amount: 5000,
         currency: "GBP",
         payment_method_types: ["card"],
         metadata: {
           clubId: undefined,
           transaction: "tx_123",
           discount: "",
+          bookingFee: undefined,
           desc: "Test Ticket",
           email: "user@example.com",
-          paymentFee: "5.00",
+          paymentFee: 0,
           ticketPrice: "50.00",
-          totalPrice: "55.00",
+          totalPrice: "50.00",
           userId: 1,
         },
       });
