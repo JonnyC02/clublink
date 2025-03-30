@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { login } from "../services/authService";
 import { University } from "../types/University";
 import { Errors } from "../types/Error";
+import { isAuthenticated } from "../utils/auth";
 
 interface AuthPageProps {
   isSignup?: boolean;
@@ -18,14 +19,26 @@ const links = [
 
 const cta = (
   <>
-    <a href="/clubs" className="text-sm text-gray-600 hover:text-gray-900">
-      Explore Clubs
-    </a>
+    {isAuthenticated() ? (
+      <a
+        href="/dashboard"
+        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+      >
+        Dashboard
+      </a>
+    ) : (
+      <a
+        href="/login"
+        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+      >
+        Login
+      </a>
+    )}
     <a
-      href="/login"
-      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+      href="/clubs"
+      className="block px-4 py-2 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700 w-full md:w-auto"
     >
-      Get Started
+      Join a Club
     </a>
   </>
 );

@@ -19,17 +19,23 @@ const cta = (
     {isAuthenticated() ? (
       <a
         href="/dashboard"
-        className="text-sm text-gray-600 hover:text-gray-900"
+        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
       >
         Dashboard
       </a>
     ) : (
-      <a href="/login" className="text-sm text-gray-600 hover:text-gray-900">
+      <a
+        href="/login"
+        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+      >
         Login
       </a>
     )}
-    <a href="/clubs" className="text-sm text-gray-600 hover:text-gray-900">
-      Explore Clubs
+    <a
+      href="/clubs"
+      className="block px-4 py-2 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700 w-full md:w-auto"
+    >
+      Join a Club
     </a>
   </>
 );
