@@ -21,3 +21,5 @@
 
 /cypress/screenshots
 /cypress/videos
+
+/backend/ecosystem.config.js
