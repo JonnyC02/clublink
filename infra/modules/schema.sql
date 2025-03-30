@@ -18,7 +18,7 @@ CREATE TABLE Users (
     isActive BOOLEAN DEFAULT false,
     studentNumber VARCHAR(10),
     university VARCHAR(5) REFERENCES Universities(acronym),
-    verifiedStudent BOOLEAN DEFAULT false,
+    verifiedStudent BOOLEAN DEFAULT false
 );
 
 -- Clubs
