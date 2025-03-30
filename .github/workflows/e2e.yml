@@ -1,6 +1,8 @@
 name: Run e2e Tests
 
-on: [push]
+on:
+  push:
+    branches: [main]
 
 jobs:
   runs-e2e-tests:
