@@ -9,6 +9,7 @@ import { AuditLog } from "../types/AuditLog";
 import { Ticket } from "../types/responses/TicketData";
 import { PromoCode } from "../types/responses/PromoCode";
 import { Transaction } from "../types/responses/Transaction";
+import { isAuthenticated } from "../utils/auth";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -71,14 +72,26 @@ const ClubDashboard = () => {
 
   const cta = (
     <>
+      {isAuthenticated() ? (
+        <a
+          href="/dashboard"
+          className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        >
+          Dashboard
+        </a>
+      ) : (
+        <a
+          href="/login"
+          className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        >
+          Login
+        </a>
+      )}
       <a
-        href="/dashboard"
-        className="text-sm text-gray-600 hover:text-gray-900"
+        href="/clubs"
+        className="block px-4 py-2 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700 w-full md:w-auto"
       >
-        Dashboard
-      </a>
-      <a href="/clubs" className="text-sm text-gray-600 hover:text-gray-900">
-        Explore Clubs
+        Join a Club
       </a>
     </>
   );
