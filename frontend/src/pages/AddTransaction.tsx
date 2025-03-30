@@ -21,9 +21,7 @@ const AddTransaction = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`
-        );
+        const response = await fetch(`/api/clubs/${id}/all`);
 
         if (!response.ok) throw new Error("Failed to fetch data");
 
@@ -58,17 +56,14 @@ const AddTransaction = () => {
       member: selectedMember,
     };
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/payments/transaction/new`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newTransaction),
-      }
-    );
+    const response = await fetch(`/api/payments/transaction/new`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newTransaction),
+    });
 
     if (response.ok) {
       alert("Transaction added successfully!");

@@ -87,9 +87,7 @@ const ClubDashboard = () => {
     setLoading(true);
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`
-        );
+        const response = await fetch(`/api/clubs/${id}/all`);
         if (!response.ok) {
           throw new Error("Failed to fetch club data");
         }
@@ -240,17 +238,14 @@ const ClubDashboard = () => {
       }
     }
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/tickets/code/save`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ code }),
-      }
-    );
+    const response = await fetch(`/api/tickets/code/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ code }),
+    });
 
     if (response.ok) {
       alert("Promo Code Successfully Updated");
@@ -273,17 +268,14 @@ const ClubDashboard = () => {
       return;
     }
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/tickets/code/delete`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id }),
-      }
-    );
+    const response = await fetch(`/api/tickets/code/delete`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ id }),
+    });
 
     if (response.ok) {
       alert("Promo Code Successfully Deleted");
@@ -303,17 +295,14 @@ const ClubDashboard = () => {
       return;
     }
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/tickets/code/add`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ clubId: id }),
-      }
-    );
+    const response = await fetch(`/api/tickets/code/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ clubId: id }),
+    });
 
     if (response.ok) {
       alert("Successfully added promo code");
@@ -368,17 +357,14 @@ const ClubDashboard = () => {
       return;
     }
 
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/tickets/edit`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ tickets }),
-      }
-    );
+    const response = await fetch(`/api/tickets/edit`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ tickets }),
+    });
 
     if (response.ok) {
       alert("Ticket's Updated Successfully!");
@@ -404,28 +390,22 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/expire`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ memberId }),
-        }
-      );
+      const response = await fetch(`/api/clubs/${id}/expire`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memberId }),
+      });
 
       if (response.ok) {
         alert("Membership Expired");
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         const error = await response.json();
@@ -449,28 +429,22 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/activate`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ memberId }),
-        }
-      );
+      const response = await fetch(`/api/clubs/${id}/activate`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ memberId }),
+      });
 
       if (response.ok) {
         alert("Member Activated Successfully");
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         const error = await response.json();
@@ -511,28 +485,22 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/kick`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ userId }),
-        }
-      );
+      const response = await fetch(`/api/clubs/${id}/kick`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ userId }),
+      });
 
       if (response.ok) {
         alert("Member removed successfully!");
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         const error = await response.json();
@@ -561,29 +529,23 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/activate/bulk`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ members: selectedMemberIds }),
-        }
-      );
+      const response = await fetch(`/api/clubs/${id}/activate/bulk`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ members: selectedMemberIds }),
+      });
 
       if (response.ok) {
         const { amount } = await response.json();
         alert(`Successfully activated ${amount} members`);
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         alert("Internal Server Error, please try again.");
@@ -611,29 +573,23 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/expire/bulk`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ members: selectedMemberIds }),
-        }
-      );
+      const response = await fetch(`/api/clubs/${id}/expire/bulk`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ members: selectedMemberIds }),
+      });
 
       if (response.ok) {
         const { amount } = await response.json();
         alert(`Successfully expired ${amount} members`);
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         alert("Internal Server Error, please try again");
@@ -661,21 +617,16 @@ const ClubDashboard = () => {
         return;
       }
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/remove/bulk`
-      );
+      const response = await fetch(`/api/clubs/${id}/remove/bulk`);
 
       if (response.ok) {
         const { amount } = await response.json();
         alert(`Successfully removed ${amount} members`);
-        const updatedData = await fetch(
-          `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        ).then((res) => res.json());
+        const updatedData = await fetch(`/api/clubs/${id}/all`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }).then((res) => res.json());
         setData(updatedData);
       } else {
         alert("Internal Server error, please try again");
@@ -1045,16 +996,13 @@ const ClubDashboard = () => {
                         formData.append("image", imageFileInput.files[0]);
                       }
 
-                      const uploadResponse = await fetch(
-                        `${process.env.REACT_APP_API_URL}/clubs/upload`,
-                        {
-                          method: "POST",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
-                          body: formData,
-                        }
-                      );
+                      const uploadResponse = await fetch(`/api/clubs/upload`, {
+                        method: "POST",
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: formData,
+                      });
 
                       if (uploadResponse.ok) {
                         const result = await uploadResponse.json();
@@ -1064,25 +1012,21 @@ const ClubDashboard = () => {
                         throw new Error("Failed to upload the image.");
                       }
 
-                      const response = await fetch(
-                        `${process.env.REACT_APP_API_URL}/clubs/${id}/edit`,
-                        {
-                          method: "POST",
-                          headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`,
-                          },
-                          body: JSON.stringify({
-                            name: data.Club.name,
-                            description: data.Club.description,
-                            shortdescription: data.Club.shortdescription,
-                            email: data.Club.email,
-                            headerimage:
-                              headerImageUrl || data.Club.headerimage,
-                            image: imageUrl || data.Club.image,
-                          }),
-                        }
-                      );
+                      const response = await fetch(`/api/clubs/${id}/edit`, {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                          Authorization: `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                          name: data.Club.name,
+                          description: data.Club.description,
+                          shortdescription: data.Club.shortdescription,
+                          email: data.Club.email,
+                          headerimage: headerImageUrl || data.Club.headerimage,
+                          image: imageUrl || data.Club.image,
+                        }),
+                      });
 
                       if (response.ok) {
                         alert("Club details updated successfully!");

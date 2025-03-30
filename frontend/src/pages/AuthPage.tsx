@@ -71,22 +71,19 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
       }
 
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/auth/signup`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              name: formData.name,
-              email: formData.email,
-              password: formData.password,
-              studentNumber: formData.isStudent
-                ? formData.studentNumber
-                : undefined,
-              university: formData.isStudent ? formData.university : undefined,
-            }),
-          }
-        );
+        const response = await fetch(`/api/auth/signup`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email,
+            password: formData.password,
+            studentNumber: formData.isStudent
+              ? formData.studentNumber
+              : undefined,
+            university: formData.isStudent ? formData.university : undefined,
+          }),
+        });
 
         if (response.ok) {
           alert("Signup successful! Redirecting to login...");
@@ -121,12 +118,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/universities`,
-          {
-            credentials: "include",
-          }
-        );
+        const response = await fetch(`/api/universities`, {
+          credentials: "include",
+        });
         if (response.status === 200) {
           const data = await response.json();
           setUniversities(data);

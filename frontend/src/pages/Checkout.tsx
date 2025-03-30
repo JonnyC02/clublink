@@ -32,9 +32,7 @@ const Checkout = () => {
   useEffect(() => {
     const fetchTicketData = async () => {
       try {
-        const response = await fetch(
-          `${process.env.REACT_APP_API_URL}/tickets/${id}`
-        );
+        const response = await fetch(`/api/tickets/${id}`);
         if (!response.ok) throw new Error("Failed to fetch ticket data");
 
         const data: Ticket = await response.json();
@@ -53,16 +51,13 @@ const Checkout = () => {
   };
 
   const validatePromo = async () => {
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/tickets/code/validate`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ code: promo, ticketId: id }),
-      }
-    );
+    const response = await fetch(`/api/tickets/code/validate`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ code: promo, ticketId: id }),
+    });
 
     if (response.ok) {
       const { discount } = await response.json();
@@ -121,22 +116,19 @@ const Checkout = () => {
 
       const cardElement = elements.getElement(CardElement);
       if (!cardElement) throw new Error("Card element not found");
-      const paymentResp = await fetch(
-        `${process.env.REACT_APP_API_URL}/payments`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-type": "application/json; charset=utf-8",
-          },
-          body: JSON.stringify({
-            amount: ticketPrice,
-            desc: ticket?.name,
-            id: ticket?.id,
-            promo,
-          }),
-        }
-      );
+      const paymentResp = await fetch(`/api/payments`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify({
+          amount: ticketPrice,
+          desc: ticket?.name,
+          id: ticket?.id,
+          promo,
+        }),
+      });
       const { clientSecret, message } = await paymentResp.json();
       if (!paymentResp.ok) {
         if (message === "Token has expired") {

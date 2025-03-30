@@ -75,14 +75,11 @@ const HomePage: React.FC = () => {
         const { latitude, longitude } = pos.coords;
 
         try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/clubs`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ longitude, latitude, limit: 3 }),
-            }
-          );
+          const response = await fetch(`/api/clubs`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ longitude, latitude, limit: 3 }),
+          });
           if (response.ok) {
             const data = await response.json();
             setLoading(false);
