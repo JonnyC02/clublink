@@ -22,14 +22,17 @@ describe("authService", () => {
 
     expect(token).toBe("mock-token");
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(global.fetch).toHaveBeenCalledWith(`/api/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: "test@example.com",
-        password: "password123",
-      }),
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      `${process.env.REACT_APP_API_URL}/auth/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: "test@example.com",
+          password: "password123",
+        }),
+      }
+    );
   });
 
   it("throws an error when login fails with a server message", async () => {

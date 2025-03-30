@@ -24,7 +24,7 @@ const CommitteeProtected: React.FC<CommitteeProtectedProps> = ({
           return;
         }
 
-        const response = await fetch(`/api/clubs/${id}/is-committee`, {
+        const response = await fetch(`/clubs/${id}/is-committee`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

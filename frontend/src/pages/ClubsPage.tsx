@@ -56,11 +56,14 @@ const ClubsPage: React.FC = () => {
         const { latitude, longitude } = pos.coords;
 
         try {
-          const response = await fetch(`/api/clubs`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ longitude, latitude }),
-          });
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/clubs`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ longitude, latitude }),
+            }
+          );
           if (response.ok) {
             const data = await response.json();
             setClubs(data);
@@ -68,7 +71,9 @@ const ClubsPage: React.FC = () => {
             setError("Failed to fetch clubs");
           }
 
-          const uniResp = await fetch(`/api/universities`);
+          const uniResp = await fetch(
+            `${process.env.REACT_APP_API_URL}/universities`
+          );
           if (uniResp.ok) {
             const data = await uniResp.json();
             setUniversities(data);

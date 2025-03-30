@@ -15,7 +15,9 @@ const VerifyPage = () => {
       }
 
       try {
-        const response = await fetch(`/api/auth/verify?token=${token}`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/auth/verify?token=${token}`
+        );
         if (response.ok) {
           setStatus("Email verified successfully!");
           navigate("/login");

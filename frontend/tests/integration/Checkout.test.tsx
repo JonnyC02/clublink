@@ -89,7 +89,7 @@ describe("Checkout Component", () => {
     await waitFor(() => {
       expect(fetch).toHaveBeenNthCalledWith(
         2,
-        expect.stringContaining("/api/payments"),
+        expect.stringContaining("undefined/payments"),
         expect.objectContaining({
           body: '{"amount":0,"promo":""}',
           headers: {

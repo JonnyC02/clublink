@@ -39,11 +39,14 @@ const Dashboard: React.FC = () => {
           return;
         }
 
-        const userResponse = await fetch(`/api/auth/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const userResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/auth/user`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -53,11 +56,14 @@ const Dashboard: React.FC = () => {
           navigate("/login?redirect=/dashboard");
         }
 
-        const clubsResponse = await fetch(`/api/user/clubs`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const clubsResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/user/clubs`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         if (clubsResponse.ok) {
           const clubsData = await clubsResponse.json();

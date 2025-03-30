@@ -29,7 +29,10 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await fetch(`/api/health`, { credentials: "include" });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/health`,
+          { credentials: "include" }
+        );
         if (response.status !== 200) {
           setBackendOnline(false);
         }

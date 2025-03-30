@@ -15,7 +15,9 @@ const StudentVerify = () => {
       }
 
       try {
-        const response = await fetch(`/api/auth/student?token=${token}`);
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/auth/student?token=${token}`
+        );
         if (response.ok) {
           setStatus("Student status verified successfully!");
           navigate("/dashboard");

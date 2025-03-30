@@ -69,19 +69,25 @@ const ClubPage = () => {
       try {
         const token = localStorage.getItem("token");
         if (token) {
-          const userResponse = await fetch(`/api/auth/user`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const userResponse = await fetch(
+            `${process.env.REACT_APP_API_URL}/auth/user`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           if (userResponse.ok) {
             const userData = await userResponse.json();
             setIsStudent(userData.isStudent);
           }
         }
-        const response = await fetch(`/api/clubs/${id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (response.ok) {
           const data = await response.json();
           setClubData(data);
@@ -89,7 +95,9 @@ const ClubPage = () => {
           setError("Failed to fetch club data");
         }
 
-        const committeeResponse = await fetch(`/api/clubs/${id}/committee`);
+        const committeeResponse = await fetch(
+          `${process.env.REACT_APP_API_URL}/clubs/${id}/committee`
+        );
         if (committeeResponse.ok) {
           const committeeData = await committeeResponse.json();
           setCommitteeMembers(committeeData);
@@ -116,12 +124,15 @@ const ClubPage = () => {
         return;
       }
 
-      const response = await fetch(`/api/clubs/join/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/clubs/join/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       if (response.ok) {
         alert("Successfully joined the club!");
