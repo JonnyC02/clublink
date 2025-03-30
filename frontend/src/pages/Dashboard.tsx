@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { UserClubsResp } from "../types/responses/UserClubsResp";
 import { UserResp } from "../types/responses/UserResp";
+import { isAuthenticated } from "../utils/auth";
 
 const Dashboard: React.FC = () => {
   const [userData, setUserData] = useState<UserResp>();
@@ -19,15 +20,29 @@ const Dashboard: React.FC = () => {
   ];
 
   const cta = (
-    <button
-      onClick={() => {
-        localStorage.removeItem("token");
-        navigate("/login?redirect=/dashboard");
-      }}
-      className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-    >
-      Logout
-    </button>
+    <>
+      {isAuthenticated() ? (
+        <a
+          href="/dashboard"
+          className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        >
+          Dashboard
+        </a>
+      ) : (
+        <a
+          href="/login"
+          className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        >
+          Login
+        </a>
+      )}
+      <a
+        href="/clubs"
+        className="block px-4 py-2 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700 w-full md:w-auto"
+      >
+        Join a Club
+      </a>
+    </>
   );
 
   useEffect(() => {
