@@ -57,46 +57,49 @@ const ClubsPage: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
 
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/clubs`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ longitude, latitude }),
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setClubs(data);
-          } else {
-            setError("Failed to fetch clubs");
-          }
+    const fetchClubs = async (latitude?: number, longitude?: number) => {
+      try {
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            latitude && longitude ? { latitude, longitude } : {}
+          ),
+        });
 
-          const uniResp = await fetch(
-            `${process.env.REACT_APP_API_URL}/universities`
-          );
-          if (uniResp.ok) {
-            const data = await uniResp.json();
-            setUniversities(data);
-          } else {
-            setError("Failed to fetch Universities");
-          }
-        } catch (err) {
-          console.error("Error fetching clubs:", err); // eslint-disable-line no-console
-          setError("An error occurred while fetching data.");
-        } finally {
-          setLoading(false);
+        if (response.ok) {
+          const data = await response.json();
+          setClubs(data);
+        } else {
+          setError("Failed to fetch clubs.");
         }
+
+        const uniResp = await fetch(
+          `${process.env.REACT_APP_API_URL}/universities`
+        );
+        if (uniResp.ok) {
+          const data = await uniResp.json();
+          setUniversities(data);
+        } else {
+          setError("Failed to fetch Universities.");
+        }
+      } catch (err) {
+        console.error("Error fetching clubs:", err); // eslint-disable-line no-console
+        setError("An error occurred while fetching data.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fetchClubs(latitude, longitude);
       },
       (error) => {
-        console.error("Error fetching location:", error); // eslint-disable-line no-console
-        setError("Failed to get user location.");
-        setLoading(false);
+        console.log("Error: ", error); // eslint-disable-line no-console
+        fetchClubs();
       }
     );
   }, []);
