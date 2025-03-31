@@ -7,7 +7,7 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = ({
-  brandName = "Clublink",
+  brandName = "ClubLink",
   links,
   cta,
 }) => {
@@ -18,7 +18,6 @@ const Navbar: React.FC<NavbarProps> = ({
       <div className="container mx-auto flex justify-between items-center px-4">
         <div className="text-xl font-bold text-gray-800">{brandName}</div>
 
-        {/* Desktop Links */}
         <div className="hidden md:flex space-x-6">
           {links.map((link, index) => (
             <a
@@ -31,10 +30,8 @@ const Navbar: React.FC<NavbarProps> = ({
           ))}
         </div>
 
-        {/* Desktop CTA */}
         <div className="hidden md:flex items-center space-x-4">{cta}</div>
 
-        {/* Mobile Hamburger */}
         <div className="md:hidden">
           <button
             onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -59,7 +56,6 @@ const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Menu */}
       {isMobileOpen && (
         <div className="md:hidden px-4 pt-4 pb-6 space-y-4">
           {links.map((link, index) => (

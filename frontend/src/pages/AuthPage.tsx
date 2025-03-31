@@ -55,7 +55,6 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
   });
 
   const navigate = useNavigate();
-
   const [universities, setUniversities] = useState<University[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -165,13 +164,12 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Navbar links={links} cta={cta} />
-      <div className="flex flex-grow justify-center items-center">
-        <div className="bg-white p-8 rounded-lg shadow-lg w-[28rem]">
+      <main className="flex-grow flex items-start justify-center px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-white w-full max-w-md px-4 py-8 sm:px-8 rounded-2xl shadow-xl">
           <h2 className="text-4xl font-bold text-center mb-8 text-gray-800">
             {isSignup ? "Sign Up" : "Log In"}
           </h2>
 
-          {/* Error Message */}
           {error && (
             <div
               className="text-red-700 text-md mb-6 bg-red-100 border border-red-400 p-3 rounded-lg"
@@ -186,10 +184,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             {isSignup && (
               <>
                 <div className="mb-5">
-                  <label
-                    className="block text-gray-600 font-medium mb-2"
-                    htmlFor="name"
-                  >
+                  <label className="block text-gray-600 font-medium mb-2">
                     Name
                   </label>
                   <input
@@ -225,10 +220,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                 {formData.isStudent && (
                   <div className="mb-6">
                     <div className="mb-4">
-                      <label
-                        className="block text-gray-600 font-medium mb-2"
-                        htmlFor="university"
-                      >
+                      <label className="block text-gray-600 font-medium mb-2">
                         University
                       </label>
                       {loading ? (
@@ -259,10 +251,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
                       )}
                     </div>
                     <div className="mb-4">
-                      <label
-                        className="block text-gray-600 font-medium mb-2"
-                        htmlFor="studentNumber"
-                      >
+                      <label className="block text-gray-600 font-medium mb-2">
                         Student Number
                       </label>
                       <input
@@ -281,10 +270,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             )}
 
             <div className="mb-5">
-              <label
-                className="block text-gray-600 font-medium mb-2"
-                htmlFor="email"
-              >
+              <label className="block text-gray-600 font-medium mb-2">
                 Email
               </label>
               <input
@@ -299,10 +285,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             </div>
 
             <div className="mb-5">
-              <label
-                className="block text-gray-600 font-medium mb-2"
-                htmlFor="password"
-              >
+              <label className="block text-gray-600 font-medium mb-2">
                 Password
               </label>
               <input
@@ -318,10 +301,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
 
             {isSignup && (
               <div className="mb-6">
-                <label
-                  className="block text-gray-600 font-medium mb-2"
-                  htmlFor="confirmPassword"
-                >
+                <label className="block text-gray-600 font-medium mb-2">
                   Confirm Password
                 </label>
                 <input
@@ -373,7 +353,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
             )}
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
