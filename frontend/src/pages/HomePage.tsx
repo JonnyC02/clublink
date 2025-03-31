@@ -73,33 +73,42 @@ const HomePage: React.FC = () => {
   const [clubs, setClubs] = useState<[]>([]);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude, longitude } = pos.coords;
+    const fetchClubs = async (latitude?: number, longitude?: number) => {
+      try {
+        const body =
+          latitude && longitude
+            ? { latitude, longitude, limit: 3 }
+            : { limit: 3 };
 
-        try {
-          const response = await fetch(
-            `${process.env.REACT_APP_API_URL}/clubs`,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ longitude, latitude, limit: 3 }),
-            }
-          );
-          if (response.ok) {
-            const data = await response.json();
-            setLoading(false);
-            setClubs(data);
-          }
-        } catch (err) {
-          console.error("Error fetching clubs:", err); // eslint-disable-line no-console
+        const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setClubs(data);
         }
+      } catch (err) {
+        console.error("Error fetching clubs:", err); // eslint-disable-line no-console
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        fetchClubs(latitude, longitude);
       },
       (error) => {
-        console.error("Error fetching location:", error); // eslint-disable-line no-console
+        console.log("permission denied, using default fallback.", error); // eslint-disable-line no-console
+        fetchClubs();
       }
     );
   }, []);
+
   return (
     <div>
       <Navbar brandName="ClubLink" links={links} cta={cta} />
