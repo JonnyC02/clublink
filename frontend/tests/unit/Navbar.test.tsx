@@ -6,7 +6,6 @@ describe("Navbar Correctly", () => {
   const links = [
     { label: "Home", href: "#" },
     { label: "Browse Clubs", href: "#" },
-    { label: "Events", href: "#" },
     { label: "About", href: "#" },
   ];
 
@@ -33,7 +32,6 @@ describe("Navbar Correctly", () => {
     expect(screen.getByText("Home")).toBeDefined();
     expect(screen.getByText("Browse Clubs")).toBeDefined();
     expect(screen.getByText("Browse Clubs")).toBeDefined();
-    expect(screen.getByText("Events")).toBeDefined();
     expect(screen.getByText("About")).toBeDefined();
 
     expect(screen.getByText("Get Started")).toBeDefined();
