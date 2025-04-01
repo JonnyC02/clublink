@@ -21,21 +21,21 @@ const cta = (
     {isAuthenticated() ? (
       <a
         href="/dashboard"
-        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-100"
       >
         Dashboard
       </a>
     ) : (
       <a
         href="/login"
-        className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        className="px-4 py-2 text-gray-700 border border-gray-300 rounded hover:bg-gray-100"
       >
         Login
       </a>
     )}
     <a
       href="/clubs"
-      className="block px-4 py-2 bg-blue-600 text-white rounded-md text-center hover:bg-blue-700 w-full md:w-auto"
+      className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
     >
       Join a Club
     </a>
@@ -43,7 +43,7 @@ const cta = (
 );
 
 const ClubsPage: React.FC = () => {
-  const [clubs, setClubs] = useState([]);
+  const [clubs, setClubs] = useState<Club[]>([]);
   const [filters, setFilters] = useState<Record<string, string | boolean>>({
     university: "",
     clubtype: "",
@@ -55,9 +55,8 @@ const ClubsPage: React.FC = () => {
   const [universities, setUniversities] = useState<University[] | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-
     const fetchClubs = async (latitude?: number, longitude?: number) => {
+      setLoading(true);
       try {
         const response = await fetch(`${process.env.REACT_APP_API_URL}/clubs`, {
           method: "POST",
@@ -67,25 +66,18 @@ const ClubsPage: React.FC = () => {
           ),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setClubs(data);
-        } else {
-          setError("Failed to fetch clubs.");
-        }
+        if (!response.ok) throw new Error("Failed to fetch clubs.");
+        const data = await response.json();
+        setClubs(data);
 
         const uniResp = await fetch(
           `${process.env.REACT_APP_API_URL}/universities`
         );
-        if (uniResp.ok) {
-          const data = await uniResp.json();
-          setUniversities(data);
-        } else {
-          setError("Failed to fetch Universities.");
-        }
+        if (!uniResp.ok) throw new Error("Failed to fetch Universities.");
+        const uniData = await uniResp.json();
+        setUniversities(uniData);
       } catch (err) {
-        console.error("Error fetching clubs:", err); // eslint-disable-line no-console
-        setError("An error occurred while fetching data.");
+        setError((err as Error).message);
       } finally {
         setLoading(false);
       }
@@ -96,36 +88,19 @@ const ClubsPage: React.FC = () => {
         const { latitude, longitude } = pos.coords;
         fetchClubs(latitude, longitude);
       },
-      (error) => {
-        console.log("Error: ", error); // eslint-disable-line no-console
-        fetchClubs();
-      }
+      () => fetchClubs()
     );
   }, []);
 
   const handleFilterChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const target = e.target as HTMLInputElement | HTMLSelectElement;
-
-    if (target instanceof HTMLInputElement) {
-      if (target.type === "checkbox") {
-        setFilters((prev) => ({
-          ...prev,
-          [target.name]: target.checked,
-        }));
-      } else {
-        setFilters((prev) => ({
-          ...prev,
-          [target.name]: target.value,
-        }));
-      }
-    } else if (target instanceof HTMLSelectElement) {
-      setFilters((prev) => ({
-        ...prev,
-        [target.name]: target.value,
-      }));
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { name, value, type, checked } = e.target as any;
+    setFilters((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
   };
 
   const filterOptions: FilterOption[] = [
@@ -139,10 +114,9 @@ const ClubsPage: React.FC = () => {
       id: "university",
       label: "University",
       type: "select",
-      options: universities?.map((uni) => ({
-        value: uni.acronym,
-        label: uni.name,
-      })),
+      options:
+        universities?.map((uni) => ({ value: uni.acronym, label: uni.name })) ||
+        [],
     },
     {
       id: "clubtype",
@@ -165,7 +139,7 @@ const ClubsPage: React.FC = () => {
     },
   ];
 
-  const filteredClubs = clubs.filter((club: Club) => {
+  const filteredClubs = clubs.filter((club) => {
     const searchLower = filters.search.toString().toLowerCase();
     if (
       filters.search &&
@@ -173,26 +147,18 @@ const ClubsPage: React.FC = () => {
         club.name.toLowerCase().includes(searchLower) ||
         club.shortdescription.toLowerCase().includes(searchLower)
       )
-    ) {
+    )
       return false;
-    }
-    if (filters.university && club.university !== filters.university) {
+    if (filters.university && club.university !== filters.university)
       return false;
-    }
-    if (filters.clubtype && club.clubtype !== filters.clubtype) {
-      return false;
-    }
+    if (filters.clubtype && club.clubtype !== filters.clubtype) return false;
     if (filters.popularity) {
       const size = filters.popularity;
-      if (size === "small" && (club.popularity < 1 || club.popularity > 10)) {
+      if (size === "small" && (club.popularity < 1 || club.popularity > 10))
         return false;
-      }
-      if (size === "medium" && (club.popularity < 11 || club.popularity > 30)) {
+      if (size === "medium" && (club.popularity < 11 || club.popularity > 30))
         return false;
-      }
-      if (size === "large" && club.popularity <= 30) {
-        return false;
-      }
+      if (size === "large" && club.popularity <= 30) return false;
     }
     return true;
   });
@@ -201,70 +167,50 @@ const ClubsPage: React.FC = () => {
     <div>
       <Navbar brandName="ClubLink" links={links} cta={cta} />
       <TitleSection title="Browse Clubs" subtitle="Find clubs near you" />
-      <div className="container mx-auto p-6 flex gap-6">
-        <Filters
-          filterOptions={filterOptions}
-          filters={filters}
-          onFilterChange={handleFilterChange}
-        />
-        <div className="flex-grow">
-          <div className="space-y-6">
-            {loading ? (
-              <div className="flex justify-center items-center">
-                <div className="w-12 h-12 border-4 border-blue-500 border-dotted rounded-full animate-spin"></div>
-                <p className="ml-4 text-blue-500">Loading clubs...</p>
-              </div>
-            ) : error ? (
-              <div className="flex justify-center">
-                <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md w-full max-w-lg flex items-start">
-                  <svg
-                    className="w-6 h-6 mr-3 text-red-500"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="2"
-                      d="M12 8v4m0 4h.01M9.172 16H6a2 2 0 01-2-2V6a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-3.172a4.992 4.992 0 00-1.414.586l-2 1.334a1 1 0 01-1.828-.832V16z"
-                    />
-                  </svg>
-                  <div>
-                    <h3 className="font-bold text-lg">Error</h3>
-                    <p className="text-sm">{error}</p>
-                  </div>
-                </div>
-              </div>
-            ) : filteredClubs.length > 0 ? (
-              filteredClubs.map((club: Club) => (
-                <a key={club.id} className="p-6" href={`/club/${club.id}`}>
-                  <div className="bg-white shadow-md rounded-lg p-6 flex items-center hover:shadow-lg transition-shadow duration-300">
-                    <img
-                      src={club.image}
-                      alt={club.name}
-                      className="w-24 h-24 object-cover rounded-md mr-6"
-                    />
-                    <div>
-                      <h3 className="text-xl font-bold mb-1">{club.name}</h3>
-                      <p className="text-sm text-gray-600">
-                        {club.shortdescription}
-                      </p>
-                      <p className="text-md text-gray-600">
-                        {club.popularity}{" "}
-                        <FontAwesomeIcon icon={faUsers as IconProp} />
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              ))
-            ) : (
-              <div className="text-center text-gray-600">No clubs found.</div>
-            )}
+      <main className="container mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          <div className="w-full lg:max-w-xs lg:min-w-[260px]">
+            <Filters
+              filterOptions={filterOptions}
+              filters={filters}
+              onFilterChange={handleFilterChange}
+            />
           </div>
+          <section className="flex-1">
+            {loading ? (
+              <div className="text-center text-blue-500">Loading clubs...</div>
+            ) : error ? (
+              <div className="text-center text-red-500">{error}</div>
+            ) : filteredClubs.length > 0 ? (
+              <div className="space-y-4">
+                {filteredClubs.map((club) => (
+                  <a key={club.id} href={`/club/${club.id}`} className="block">
+                    <div className="bg-white rounded-lg shadow-md p-4 flex items-center gap-4 hover:shadow-lg">
+                      <img
+                        src={club.image}
+                        alt={club.name}
+                        className="w-20 h-20 rounded-md object-cover"
+                      />
+                      <div>
+                        <h3 className="text-lg font-semibold">{club.name}</h3>
+                        <p className="text-sm text-gray-600">
+                          {club.shortdescription}
+                        </p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {club.popularity}{" "}
+                          <FontAwesomeIcon icon={faUsers as IconProp} />
+                        </p>
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-500">No clubs found.</div>
+            )}
+          </section>
         </div>
-      </div>
+      </main>
     </div>
   );
 };

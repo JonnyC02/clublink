@@ -17,7 +17,7 @@ const Filters: React.FC<FiltersProps> = ({
   renderFooter,
 }) => {
   return (
-    <div className="w-1/4 bg-white shadow-md p-4 rounded-lg self-start">
+    <div className="w-full lg:max-w-xs lg:min-w-[260px] bg-white shadow-md p-4 rounded-lg self-start">
       <h2 className="text-lg font-bold mb-4">Filters</h2>
       {filterOptions.map((filter) => {
         const error =
