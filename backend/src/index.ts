@@ -84,7 +84,7 @@ app.post("/subscribe", async (req: Request, res: Response) => {
     email,
   ]);
 
-  if (exists?.rows[0].email) {
+  if (exists?.rows[0]?.email) {
     res.status(500).json({ error: "Already Subscribed" });
     return;
   }
