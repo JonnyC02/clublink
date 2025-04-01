@@ -841,87 +841,32 @@ const ClubDashboard = () => {
           </div>
         </div>
       ) : (
-        <div className="container mx-auto p-6">
-          <div className="border-b mb-6">
-            <nav className="flex space-x-6">
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "memberlist"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=memberlist");
-                  setActiveTab("memberlist");
-                }}
-              >
-                Member List
-              </button>
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "clubdetails"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=clubdetails");
-                  setActiveTab("clubdetails");
-                }}
-              >
-                Club Details
-              </button>
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "auditlog"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=auditlog");
-                  setActiveTab("auditlog");
-                }}
-              >
-                Audit Log
-              </button>
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "membership"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=membership");
-                  setActiveTab("membership");
-                }}
-              >
-                Membership
-              </button>
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "promo"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=promo");
-                  setActiveTab("promo");
-                }}
-              >
-                Promo Codes
-              </button>
-              <button
-                className={`pb-2 px-4 ${
-                  activeTab === "transactions"
-                    ? "border-b-2 border-blue-500 text-blue-500"
-                    : "text-gray-600"
-                }`}
-                onClick={() => {
-                  navigate("?tab=transactions");
-                  setActiveTab("transactions");
-                }}
-              >
-                Transactions
-              </button>
+        <div className="container mx-auto px-4 sm:px-6 py-6">
+          <div className="overflow-x-auto border-b mb-6">
+            <nav className="flex space-x-6 whitespace-nowrap px-4 sm:px-0">
+              {[
+                { key: "memberlist", label: "Member List" },
+                { key: "clubdetails", label: "Club Details" },
+                { key: "auditlog", label: "Audit Log" },
+                { key: "membership", label: "Membership" },
+                { key: "promo", label: "Promo Codes" },
+                { key: "transactions", label: "Transactions" },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`pb-2 text-sm sm:text-base border-b-2 ${
+                    activeTab === tab.key
+                      ? "border-blue-500 text-blue-600 font-medium"
+                      : "border-transparent text-gray-600 hover:text-blue-500"
+                  }`}
+                  onClick={() => {
+                    navigate(`?tab=${tab.key}`);
+                    setActiveTab(tab.key);
+                  }}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </nav>
           </div>
 
@@ -929,268 +874,275 @@ const ClubDashboard = () => {
             {activeTab === "memberlist" && (
               <div>
                 <h2 className="text-xl font-bold mb-4">Member List</h2>
-                <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-md mb-6">
-                  <div
-                    className="absolute h-full bg-green-500 flex items-center justify-center text-white text-sm font-medium"
-                    style={{
-                      width: `${(studentCount / totalMembers) * 100}%`,
-                    }}
-                  >
-                    {Math.round((studentCount / totalMembers) * 100)}%
+                <div className="overflow-x-auto">
+                  <div className="relative w-full h-6 bg-gray-200 rounded-full overflow-hidden shadow-md mb-6 min-w-[300px]">
+                    <div
+                      className="absolute h-full bg-green-500 flex items-center justify-center text-white text-sm font-medium"
+                      style={{
+                        width: `${(studentCount / totalMembers) * 100}%`,
+                      }}
+                    >
+                      {Math.round((studentCount / totalMembers) * 100)}%
+                    </div>
+
+                    <div
+                      className="absolute h-full bg-yellow-500 flex items-center justify-center text-white text-sm font-medium"
+                      style={{
+                        left: `${(studentCount / totalMembers) * 100}%`,
+                        width: `${(associateCount / totalMembers) * 100}%`,
+                      }}
+                    >
+                      {Math.round((associateCount / totalMembers) * 100)}%
+                    </div>
                   </div>
 
-                  <div
-                    className="absolute h-full bg-yellow-500 flex items-center justify-center text-white text-sm font-medium"
-                    style={{
-                      left: `${(studentCount / totalMembers) * 100}%`,
-                      width: `${(associateCount / totalMembers) * 100}%`,
-                    }}
-                  >
-                    {Math.round((associateCount / totalMembers) * 100)}%
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+                    <input
+                      type="text"
+                      placeholder="Search members by name..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    />
+                    <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                      <button
+                        disabled={!(selectedMemberIds.length > 0)}
+                        onClick={() =>
+                          setConfirmDialog({
+                            open: true,
+                            message: `Are you sure you want to activate ${selectedMemberIds.length} members`,
+                            onConfirm: () => handleBulkActivate,
+                          })
+                        }
+                        className={`w-full sm:w-auto px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ${
+                          !(selectedMemberIds.length > 0)
+                            ? "cursor-not-allowed opacity-50"
+                            : ""
+                        }`}
+                      >
+                        Activate
+                      </button>
+                      <button
+                        disabled={!(selectedMemberIds.length > 0)}
+                        onClick={() =>
+                          setConfirmDialog({
+                            open: true,
+                            message: `Are you sure you want to expire ${selectedMemberIds.length} members`,
+                            onConfirm: () => handleBulkExpire,
+                          })
+                        }
+                        className={`w-full sm:w-auto px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
+                          !(selectedMemberIds.length > 0)
+                            ? "cursor-not-allowed opacity-50"
+                            : ""
+                        }`}
+                      >
+                        Expire
+                      </button>
+                      <button
+                        disabled={!(selectedMemberIds.length > 0)}
+                        onClick={() =>
+                          setConfirmDialog({
+                            open: true,
+                            message: `Are you sure you want to remove ${selectedMemberIds.length} members`,
+                            onConfirm: () => handleBulkRemove,
+                          })
+                        }
+                        className={`w-full sm:w-auto px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
+                          !(selectedMemberIds.length > 0)
+                            ? "cursor-not-allowed opacity-50"
+                            : ""
+                        }`}
+                      >
+                        Remove
+                      </button>
+                    </div>
                   </div>
-                </div>
-
-                <div className="flex items-center justify-between mb-4">
-                  <input
-                    type="text"
-                    placeholder="Search members by name..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="flex-grow mr-4 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  />
-                  <div className="flex space-x-2">
-                    <button
-                      disabled={!(selectedMemberIds.length > 0)}
-                      onClick={() =>
-                        setConfirmDialog({
-                          open: true,
-                          message: `Are you sure you want to activate ${selectedMemberIds.length} members`,
-                          onConfirm: () => handleBulkActivate,
-                        })
-                      }
-                      className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ${
-                        !(selectedMemberIds.length > 0)
-                          ? "cursor-not-allowed"
-                          : "cursor-default"
-                      }`}
-                    >
-                      Activate
-                    </button>
-                    <button
-                      disabled={!(selectedMemberIds.length > 0)}
-                      onClick={() =>
-                        setConfirmDialog({
-                          open: true,
-                          message: `Are you sure you want to expire ${selectedMemberIds.length} members`,
-                          onConfirm: () => handleBulkExpire,
-                        })
-                      }
-                      className={`px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
-                        !(selectedMemberIds.length > 0)
-                          ? "cursor-not-allowed"
-                          : "cursor-default"
-                      }`}
-                    >
-                      Expire
-                    </button>
-                    <button
-                      disabled={!(selectedMemberIds.length > 0)}
-                      onClick={() =>
-                        setConfirmDialog({
-                          open: true,
-                          message: `Are you sure you want to remove ${selectedMemberIds.length} members`,
-                          onConfirm: () => handleBulkRemove,
-                        })
-                      }
-                      className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
-                        !(selectedMemberIds.length > 0)
-                          ? "cursor-not-allowed"
-                          : "cursor-default"
-                      }`}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                </div>
-                {data.MemberList.length > 0 ? (
-                  <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
-                      <thead>
-                        <tr className="bg-gray-100 border-b border-gray-200">
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            <input
-                              type="checkbox"
-                              id="master-checkbox"
-                              className={`w-5 h-5 border-2 rounded bg-gray-200 border-gray-300`}
-                              onChange={(e) => checkAllBoxes(e.target.checked)}
-                            />
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Name
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Member Type
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Joined At
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Active
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {data.MemberList.filter((member: Member) =>
-                          member.name
-                            .toLowerCase()
-                            .includes(searchQuery.toLowerCase())
-                        ).map((member: Member, index: number) => (
-                          <tr
-                            key={member.memberid}
-                            className={`${
-                              index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                            } border-b border-gray-200`}
-                          >
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                  {data.MemberList.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="min-w-full text-sm bg-white border border-gray-200 shadow-md rounded-lg">
+                        <thead>
+                          <tr className="bg-gray-100 border-b border-gray-200">
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                               <input
-                                id="user-checkbox"
                                 type="checkbox"
-                                checked={selectedMemberIds.includes(
-                                  member.memberid
-                                )}
-                                onChange={(e) => {
-                                  if (e.target.checked) {
-                                    setSelectedMemberIds((prev) => [
-                                      ...prev,
-                                      member.memberid,
-                                    ]);
-                                  } else {
-                                    setSelectedMemberIds((prev) =>
-                                      prev.filter(
-                                        (id) => id !== member.memberid
-                                      )
-                                    );
-                                  }
-                                }}
+                                id="master-checkbox"
                                 className={`w-5 h-5 border-2 rounded bg-gray-200 border-gray-300`}
-                              />
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {member.name || "N/A"}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {member.membertype || "Member"}
-                            </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {new Date(member.created_at).toLocaleDateString(
-                                "en-GB",
-                                {
-                                  year: "numeric",
-                                  month: "short",
-                                  day: "numeric",
+                                onChange={(e) =>
+                                  checkAllBoxes(e.target.checked)
                                 }
-                              )}
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              <span
-                                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                                  member.studentnumber
-                                    ? "bg-green-100 text-green-800"
-                                    : "bg-yellow-100 text-yellow-800"
-                                }`}
-                              >
-                                {member.studentnumber ? "Student" : "Associate"}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              <input
-                                type="checkbox"
-                                checked={member.status === "Active"}
-                                className={`w-5 h-5 border-2 rounded ${
-                                  member.status
-                                    ? "bg-blue-500 border-blue-500"
-                                    : "bg-gray-200 border-gray-300"
-                                } cursor-not-allowed`}
                               />
-                            </td>
-                            <td className="px-6 py-4 text-sm">
-                              {(member.status === "Pending" ||
-                                member.status === "Expired") && (
-                                <button
-                                  onClick={() =>
-                                    setConfirmDialog({
-                                      open: true,
-                                      message:
-                                        "Are you sure you want to activate this member?",
-                                      onConfirm: () =>
-                                        activateMember(member.memberid),
-                                    })
-                                  }
-                                  className="px-4 py-2 mr-4 bg-green-500 text-white rounded hover:bg-green-600"
-                                >
-                                  Activate
-                                </button>
-                              )}
-                              {member.status === "Active" && (
-                                <button
-                                  onClick={() =>
-                                    setConfirmDialog({
-                                      open: true,
-                                      message:
-                                        "Are you sure you want expire this member?",
-                                      onConfirm: () =>
-                                        expireMember(member.memberid),
-                                    })
-                                  }
-                                  className="px-4 py-2 mr-4 bg-yellow-500 text-white rounded hover:bg-yellow-600"
-                                >
-                                  Expire
-                                </button>
-                              )}
-                              <button
-                                onClick={() =>
-                                  setConfirmDialog({
-                                    open: true,
-                                    message:
-                                      "Are you sure you want to remove this member?",
-                                    onConfirm: () =>
-                                      handleKick(member.memberid),
-                                  })
-                                }
-                                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                              >
-                                Remove
-                              </button>
-                            </td>
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Name
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Member Type
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Joined At
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Status
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Active
+                            </th>
+                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              Actions
+                            </th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className="text-gray-500">No members found.</p>
-                )}
+                        </thead>
+                        <tbody>
+                          {data.MemberList.filter((member: Member) =>
+                            member.name
+                              .toLowerCase()
+                              .includes(searchQuery.toLowerCase())
+                          ).map((member: Member, index: number) => (
+                            <tr
+                              key={member.memberid}
+                              className={`${
+                                index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                              } border-b border-gray-200`}
+                            >
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                <input
+                                  id="user-checkbox"
+                                  type="checkbox"
+                                  checked={selectedMemberIds.includes(
+                                    member.memberid
+                                  )}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedMemberIds((prev) => [
+                                        ...prev,
+                                        member.memberid,
+                                      ]);
+                                    } else {
+                                      setSelectedMemberIds((prev) =>
+                                        prev.filter(
+                                          (id) => id !== member.memberid
+                                        )
+                                      );
+                                    }
+                                  }}
+                                  className={`w-5 h-5 border-2 rounded bg-gray-200 border-gray-300`}
+                                />
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {member.name || "N/A"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {member.membertype || "Member"}
+                              </td>
+                              <td className="px-6 py-4 text-sm text-gray-700">
+                                {new Date(member.created_at).toLocaleDateString(
+                                  "en-GB",
+                                  {
+                                    year: "numeric",
+                                    month: "short",
+                                    day: "numeric",
+                                  }
+                                )}
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                    member.studentnumber
+                                      ? "bg-green-100 text-green-800"
+                                      : "bg-yellow-100 text-yellow-800"
+                                  }`}
+                                >
+                                  {member.studentnumber
+                                    ? "Student"
+                                    : "Associate"}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                <input
+                                  type="checkbox"
+                                  checked={member.status === "Active"}
+                                  className={`w-5 h-5 border-2 rounded ${
+                                    member.status
+                                      ? "bg-blue-500 border-blue-500"
+                                      : "bg-gray-200 border-gray-300"
+                                  } cursor-not-allowed`}
+                                />
+                              </td>
+                              <td className="px-6 py-4 text-sm">
+                                {(member.status === "Pending" ||
+                                  member.status === "Expired") && (
+                                  <button
+                                    onClick={() =>
+                                      setConfirmDialog({
+                                        open: true,
+                                        message:
+                                          "Are you sure you want to activate this member?",
+                                        onConfirm: () =>
+                                          activateMember(member.memberid),
+                                      })
+                                    }
+                                    className="px-4 py-2 mr-4 bg-green-500 text-white rounded hover:bg-green-600"
+                                  >
+                                    Activate
+                                  </button>
+                                )}
+                                {member.status === "Active" && (
+                                  <button
+                                    onClick={() =>
+                                      setConfirmDialog({
+                                        open: true,
+                                        message:
+                                          "Are you sure you want expire this member?",
+                                        onConfirm: () =>
+                                          expireMember(member.memberid),
+                                      })
+                                    }
+                                    className="px-4 py-2 mr-4 bg-yellow-500 text-white rounded hover:bg-yellow-600"
+                                  >
+                                    Expire
+                                  </button>
+                                )}
+                                <button
+                                  onClick={() =>
+                                    setConfirmDialog({
+                                      open: true,
+                                      message:
+                                        "Are you sure you want to remove this member?",
+                                      onConfirm: () =>
+                                        handleKick(member.memberid),
+                                    })
+                                  }
+                                  className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+                                >
+                                  Remove
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="text-gray-500">No members found.</p>
+                  )}
+                </div>
               </div>
             )}
             {activeTab === "clubdetails" && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Edit Club Details</h2>
+              <div className="max-w-3xl mx-auto px-4 sm:px-6">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                  Edit Club Details
+                </h2>
                 <form
                   onSubmit={async (e) => {
                     e.preventDefault();
                     try {
                       const token = localStorage.getItem("token");
-                      if (!token) {
+                      if (!token)
                         throw new Error(
                           "You must be logged in to update club details."
                         );
-                      }
 
                       let imageUrl = data.Club.image;
                       let headerImageUrl = data.Club.headerimage;
@@ -1198,7 +1150,6 @@ const ClubDashboard = () => {
                       const headerFileInput = document.getElementById(
                         "headerImageFile"
                       ) as HTMLInputElement;
-
                       const imageFileInput = document.getElementById(
                         "imageFile"
                       ) as HTMLInputElement;
@@ -1220,9 +1171,7 @@ const ClubDashboard = () => {
                         `${process.env.REACT_APP_API_URL}/clubs/upload`,
                         {
                           method: "POST",
-                          headers: {
-                            Authorization: `Bearer ${token}`,
-                          },
+                          headers: { Authorization: `Bearer ${token}` },
                           body: formData,
                         }
                       );
@@ -1275,147 +1224,149 @@ const ClubDashboard = () => {
                     }
                   }}
                 >
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Description
-                    </label>
-                    <textarea
-                      value={data.Club.description || ""}
-                      onChange={(e) =>
-                        setData({
-                          ...data,
-                          Club: {
-                            ...data.Club,
-                            description: e.target.value,
-                          },
-                        })
-                      }
-                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    ></textarea>
-                  </div>
+                  <div className="space-y-6">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Description
+                      </label>
+                      <textarea
+                        value={data.Club.description || ""}
+                        onChange={(e) =>
+                          setData({
+                            ...data,
+                            Club: { ...data.Club, description: e.target.value },
+                          })
+                        }
+                        rows={4}
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                      ></textarea>
+                    </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Tagline
-                    </label>
-                    <input
-                      type="text"
-                      value={data.Club.shortdescription || ""}
-                      onChange={(e) =>
-                        setData({
-                          ...data,
-                          Club: {
-                            ...data.Club,
-                            shortdescription: e.target.value,
-                          },
-                        })
-                      }
-                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    />
-                  </div>
-
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Header Image
-                    </label>
-                    <input
-                      type="file"
-                      id="headerImageFile"
-                      accept="image/*"
-                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    />
-                    {data.Club.headerimage && (
-                      <img
-                        src={data.Club.headerimage}
-                        alt="Header Preview"
-                        className="mt-4 w-full max-h-40 object-cover rounded-md"
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Tagline
+                      </label>
+                      <input
+                        type="text"
+                        value={data.Club.shortdescription || ""}
+                        onChange={(e) =>
+                          setData({
+                            ...data,
+                            Club: {
+                              ...data.Club,
+                              shortdescription: e.target.value,
+                            },
+                          })
+                        }
+                        className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:outline-none"
                       />
-                    )}
-                  </div>
+                    </div>
 
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Image
-                    </label>
-                    <input
-                      type="file"
-                      id="imageFile"
-                      accept="image/*"
-                      className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                    />
-                    {data.Club.image && (
-                      <img
-                        src={data.Club.image}
-                        alt="Header Preview"
-                        className="mt-4 w-full max-h-40 object-cover rounded-md"
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Header Image
+                      </label>
+                      <input
+                        type="file"
+                        id="headerImageFile"
+                        accept="image/*"
+                        className="w-full p-2 border border-gray-300 rounded-md"
                       />
-                    )}
-                  </div>
+                      {data.Club.headerimage && (
+                        <img
+                          src={data.Club.headerimage}
+                          alt="Header Preview"
+                          className="mt-4 w-full h-40 object-cover rounded-md shadow-sm"
+                        />
+                      )}
+                    </div>
 
-                  <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                  >
-                    Save Changes
-                  </button>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Image
+                      </label>
+                      <input
+                        type="file"
+                        id="imageFile"
+                        accept="image/*"
+                        className="w-full p-2 border border-gray-300 rounded-md"
+                      />
+                      {data.Club.image && (
+                        <img
+                          src={data.Club.image}
+                          alt="Club Preview"
+                          className="mt-4 w-full h-40 object-cover rounded-md shadow-sm"
+                        />
+                      )}
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <button
+                        type="submit"
+                        className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                      >
+                        Save Changes
+                      </button>
+                      <button
+                        onClick={() => navigate(`/club/${id}`)}
+                        type="button"
+                        className="w-full sm:w-auto px-6 py-3 bg-gray-100 text-blue-600 border border-blue-500 rounded-md hover:bg-blue-50 transition"
+                      >
+                        View Club Page &raquo;
+                      </button>
+                    </div>
+                  </div>
                 </form>
-                <button
-                  onClick={() => navigate(`/club/${id}`)}
-                  className="px-4 mt-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                >
-                  View Club Page &gt;&gt;
-                </button>
               </div>
             )}
             {activeTab === "auditlog" && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Audit Log</h2>
-                <div className="mb-4">
-                  <input
-                    type="text"
-                    placeholder="Search audit log..."
-                    value={auditSearch}
-                    onChange={(e) => setAuditSearch(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                  />
-                </div>
+              <div className="space-y-4">
+                <h2 className="text-xl font-bold">Audit Log</h2>
+                <input
+                  type="text"
+                  placeholder="Search audit log..."
+                  value={auditSearch}
+                  onChange={(e) => setAuditSearch(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                />
+
                 {filteredLogs.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                    <table className="min-w-[600px] w-full bg-white border border-gray-200 shadow-md rounded-lg">
                       <thead>
                         <tr className="bg-gray-100 border-b border-gray-200">
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                             Target
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                             Committee
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                             Action
                           </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">
                             Date
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {filteredLogs.map((log: AuditLog, index: number) => (
+                        {filteredLogs.map((log, index) => (
                           <tr
                             key={index}
-                            className={`${
+                            className={`$${
                               index % 2 === 0 ? "bg-gray-50" : "bg-white"
                             } border-b border-gray-200`}
                           >
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {log.member || "Member"}
+                            <td className="px-4 py-3 text-sm text-gray-800">
+                              {log.member || "N/A"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {log.user || "Committee"}
+                            <td className="px-4 py-3 text-sm text-gray-800">
+                              {log.user || "N/A"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              {log.actiontype || "Action"}
+                            <td className="px-4 py-3 text-sm text-gray-800">
+                              {log.actiontype || "N/A"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-sm text-gray-800">
                               {new Date(log.created_at).toLocaleDateString(
                                 "en-GB",
                                 {
@@ -1431,39 +1382,28 @@ const ClubDashboard = () => {
                     </table>
                   </div>
                 ) : (
-                  <p className="text-gray-500">No logs found.</p>
+                  <p className="text-gray-500 text-sm">No logs found.</p>
                 )}
               </div>
             )}
+
             {activeTab === "membership" && (
-              <div>
-                <h2 className="text-xl font-bold mb-4">Membership</h2>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800">
+                  Membership
+                </h2>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg text-sm">
                     <thead>
-                      <tr className="bg-gray-100 border-b border-gray-200">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Ticket Id
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Name
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Ticket Flag
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Price
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Expiry
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Allow Cash
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Booking Fee
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      <tr className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal">
+                        <th className="px-4 py-3 text-left">Ticket ID</th>
+                        <th className="px-4 py-3 text-left">Name</th>
+                        <th className="px-4 py-3 text-left">Ticket Flag</th>
+                        <th className="px-4 py-3 text-left">Price</th>
+                        <th className="px-4 py-3 text-left">Expiry</th>
+                        <th className="px-4 py-3 text-center">Allow Cash</th>
+                        <th className="px-4 py-3 text-center">Booking Fee</th>
+                        <th className="px-4 py-3 text-center">
                           Final Date of Purchase
                         </th>
                       </tr>
@@ -1480,23 +1420,22 @@ const ClubDashboard = () => {
                             key={index}
                             className={`${
                               index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                            } border-b border-gray-200`}
+                            } border-b`}
                           >
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-gray-800">
                               {ticket.id}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-gray-800">
                               {ticket.name || "N/A"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-gray-800">
                               {ticket.ticketflag || "N/A"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-gray-800">
                               <input
                                 type="text"
-                                className="w-20 px-2 py-1 border border-gray-300 rounded"
+                                className="w-24 px-2 py-1 border border-gray-300 rounded-md mb-1"
                                 defaultValue={ticket.price?.toString() || ""}
-                                placeholder="Enter price"
                                 onChange={(e) =>
                                   handleTicketChange(
                                     ticket.id,
@@ -1505,24 +1444,22 @@ const ClubDashboard = () => {
                                   )
                                 }
                               />
-                              <div>
-                                {ticket.bookingfee ? (
-                                  <>
-                                    Total = £
-                                    {calculateTotal(ticket.price, true)}
-                                  </>
-                                ) : (
-                                  <>
-                                    You get = £
-                                    {calculateTotal(ticket.price, false)}
-                                  </>
-                                )}
+                              <div className="text-xs text-gray-500">
+                                {ticket.bookingfee
+                                  ? `Total = £${calculateTotal(
+                                      ticket.price,
+                                      true
+                                    )}`
+                                  : `You get = £${calculateTotal(
+                                      ticket.price,
+                                      false
+                                    )}`}
                               </div>
                             </td>
-                            <td className="px-6 py-4 text-sm">
+                            <td className="px-4 py-3">
                               <select
                                 defaultValue={ticket.ticketexpiry}
-                                className="w-40 px-2 py-1 border border-gray-300 rounded bg-white text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-full px-2 py-1 border border-gray-300 rounded-md"
                                 onChange={(e) =>
                                   handleTicketChange(
                                     ticket.id,
@@ -1535,10 +1472,10 @@ const ClubDashboard = () => {
                                 <option value="Yearly">Yearly</option>
                               </select>
                             </td>
-                            <td className="px-6 py-4 text-sm text-center">
+                            <td className="px-4 py-3 text-center">
                               <input
                                 type="checkbox"
-                                className={`w-5 h-5 border-2 rounded bg-blue-500 border-blue-500`}
+                                className="w-5 h-5"
                                 checked={ticket.cashenabled}
                                 onChange={(e) =>
                                   handleTicketChange(
@@ -1549,10 +1486,10 @@ const ClubDashboard = () => {
                                 }
                               />
                             </td>
-                            <td className="px-6 py-4 text-sm text-center">
+                            <td className="px-4 py-3 text-center">
                               <input
                                 type="checkbox"
-                                className={`w-5 h-5 border-2 rounded bg-blue-500 border-blue-500`}
+                                className="w-5 h-5"
                                 checked={ticket.bookingfee}
                                 onChange={(e) =>
                                   handleTicketChange(
@@ -1563,9 +1500,10 @@ const ClubDashboard = () => {
                                 }
                               />
                             </td>
-                            <td className="px-6 py-4 text-sm text-center">
+                            <td className="px-4 py-3 text-center">
                               <input
                                 type="date"
+                                className="px-2 py-1 border border-gray-300 rounded-md"
                                 value={ticket.date}
                                 onChange={(e) =>
                                   handleTicketChange(
@@ -1580,9 +1518,11 @@ const ClubDashboard = () => {
                         ))}
                     </tbody>
                   </table>
+                </div>
+                <div className="mt-6 flex justify-start">
                   <button
                     onClick={saveTicketChanges}
-                    className="px-4 mt-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                   >
                     Save Changes
                   </button>
@@ -1590,41 +1530,29 @@ const ClubDashboard = () => {
               </div>
             )}
             {activeTab === "promo" && (
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-xl font-bold mb-4">Promo Codes</h2>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Promo Codes
+                  </h2>
                   <button
                     onClick={addPromoCode}
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                    className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                   >
                     Add Promo Code
                   </button>
                 </div>
                 <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                  <table className="min-w-[950px] w-full bg-white border border-gray-200 shadow-md rounded-lg text-sm">
                     <thead>
-                      <tr className="bg-gray-100 border-b border-gray-200">
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Id
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Code
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Discount
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Max Uses
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Expiry
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Related Ticket
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
+                      <tr className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal">
+                        <th className="px-4 py-3 text-left">ID</th>
+                        <th className="px-4 py-3 text-left">Code</th>
+                        <th className="px-4 py-3 text-left">Discount</th>
+                        <th className="px-4 py-3 text-left">Max Uses</th>
+                        <th className="px-4 py-3 text-left">Expiry</th>
+                        <th className="px-4 py-3 text-left">Related Ticket</th>
+                        <th className="px-4 py-3 text-left">Actions</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -1639,46 +1567,49 @@ const ClubDashboard = () => {
                             key={index}
                             className={`${
                               index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                            } border-b border-gray-200`}
+                            } border-b`}
                           >
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
                               {code.id}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 whitespace-nowrap">
                               <input
                                 type="text"
-                                className="w-32 px-2 py-1 border border-gray-300 rounded"
+                                className="w-32 px-2 py-1 border border-gray-300 rounded-md"
                                 defaultValue={code.code || ""}
-                                placeholder="Enter a code"
+                                placeholder="Enter code"
                               />
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
-                              <input
-                                type="text"
-                                className="w-10 px-2 py-1 border border-gray-300 rounded"
-                                defaultValue={
-                                  (code.discount * 100).toString() || ""
-                                }
-                                onChange={(e) =>
-                                  handleCodeChange(
-                                    code.id,
-                                    "discount",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                              {" %"}
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="flex items-center gap-1">
+                                <input
+                                  type="number"
+                                  className="w-16 px-2 py-1 border border-gray-300 rounded-md"
+                                  defaultValue={
+                                    (code.discount * 100).toString() || ""
+                                  }
+                                  onChange={(e) =>
+                                    handleCodeChange(
+                                      code.id,
+                                      "discount",
+                                      e.target.value
+                                    )
+                                  }
+                                />
+                                <span className="text-gray-600">%</span>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-4 py-3 whitespace-nowrap">
                               <input
-                                type="text"
-                                className="w-14 px-2 py-1 border border-gray-300 rounded"
+                                type="number"
+                                className="w-20 px-2 py-1 border border-gray-300 rounded-md"
                                 defaultValue={code.maxuse.toString() || ""}
                               />
                             </td>
-                            <td className="px-6 py-4 text-sm">
+                            <td className="px-4 py-3 whitespace-nowrap">
                               <input
                                 type="date"
+                                className="w-40 px-2 py-1 border border-gray-300 rounded-md"
                                 value={code.expirydate}
                                 onChange={(e) =>
                                   handleCodeChange(
@@ -1689,10 +1620,10 @@ const ClubDashboard = () => {
                                 }
                               />
                             </td>
-                            <td className="px-6 py-4 text-sm">
+                            <td className="px-4 py-3 whitespace-nowrap">
                               <select
                                 defaultValue={code.ticketid}
-                                className="w-52 px-2 py-1 border border-gray-300 rounded bg-white text-gray-700 text-left focus:outline-none focus:ring-2 focus:ring-blue-400"
+                                className="w-48 px-2 py-1 border border-gray-300 rounded-md bg-white text-gray-700"
                                 onChange={(e) =>
                                   handleCodeChange(
                                     code.id,
@@ -1710,26 +1641,28 @@ const ClubDashboard = () => {
                                 )}
                               </select>
                             </td>
-                            <td className="px-6 py-4 text-sm">
-                              <button
-                                onClick={() => saveCodeChange(code.id)}
-                                className="px-4 mt-4 mr-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={() =>
-                                  setConfirmDialog({
-                                    open: true,
-                                    message:
-                                      "Are you sure you want to delete this code?",
-                                    onConfirm: () => deleteCode(code.id),
-                                  })
-                                }
-                                className="px-4 mt-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
-                              >
-                                Delete
-                              </button>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <div className="flex flex-col sm:flex-row gap-2">
+                                <button
+                                  onClick={() => saveCodeChange(code.id)}
+                                  className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={() =>
+                                    setConfirmDialog({
+                                      open: true,
+                                      message:
+                                        "Are you sure you want to delete this code?",
+                                      onConfirm: () => deleteCode(code.id),
+                                    })
+                                  }
+                                  className="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600"
+                                >
+                                  Delete
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -1739,19 +1672,21 @@ const ClubDashboard = () => {
               </div>
             )}
             {activeTab === "transactions" && (
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-bold mb-4">Transactions</h2>
-                  <div>
+              <div className="max-w-6xl mx-auto px-4 sm:px-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">
+                    Transactions
+                  </h2>
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => exportCSV()}
-                      className="px-4 py-2 mr-4 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-md"
+                      className="w-full sm:w-auto px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
                     >
                       Export to CSV
                     </button>
                     <button
                       onClick={() => navigate(`/transactions/${id}/new`)}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
+                      className="w-full sm:w-auto px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
                     >
                       + Add Transaction
                     </button>
@@ -1791,47 +1726,29 @@ const ClubDashboard = () => {
                     </p>
                   </div>
                 </div>
-                <div className="mb-4">
+                <div className="mb-6">
                   <input
                     type="text"
                     placeholder="Search transactions..."
                     value={transactionSearch}
                     onChange={(e) => setTransactionSearch(e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                   />
                 </div>
                 {filteredTransactions.length > 0 ? (
                   <div className="overflow-x-auto">
-                    <table className="min-w-full bg-white border border-gray-200 shadow-md rounded-lg">
+                    <table className="min-w-[900px] w-full bg-white border border-gray-200 shadow-md rounded-lg text-sm">
                       <thead>
-                        <tr className="bg-gray-100 border-b border-gray-200">
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Id
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Type
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Member Id
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ticket Id
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Amount
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Method
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Promo Code
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Date
-                          </th>
+                        <tr className="bg-gray-100 text-gray-600 uppercase text-xs leading-normal">
+                          <th className="px-4 py-3 text-left">ID</th>
+                          <th className="px-4 py-3 text-left">Type</th>
+                          <th className="px-4 py-3 text-left">Member ID</th>
+                          <th className="px-4 py-3 text-left">Ticket ID</th>
+                          <th className="px-4 py-3 text-left">Amount</th>
+                          <th className="px-4 py-3 text-left">Status</th>
+                          <th className="px-4 py-3 text-left">Method</th>
+                          <th className="px-4 py-3 text-left">Promo Code</th>
+                          <th className="px-4 py-3 text-left">Date</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1841,33 +1758,33 @@ const ClubDashboard = () => {
                               key={index}
                               className={`${
                                 index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                              } border-b border-gray-200`}
+                              } border-b`}
                             >
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 text-gray-800 whitespace-nowrap">
                                 {transaction.id || "Member"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.transactiontype ? "IN" : "OUT"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.memberid || "Member"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.ticketid || "Committee"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 £{transaction.amount || "0.00"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.status || "pending"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.type}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.promocode || "N/a"}
                               </td>
-                              <td className="px-6 py-4 text-sm text-gray-700">
+                              <td className="px-4 py-3 whitespace-nowrap">
                                 {new Date(transaction.time).toLocaleDateString(
                                   "en-GB",
                                   {
