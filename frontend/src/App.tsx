@@ -20,6 +20,7 @@ import ClubDashboard from "./pages/ClubDashboard";
 import Checkout from "./pages/Checkout";
 import AddTransaction from "./pages/AddTransaction";
 import Success from "./pages/Success";
+import Logout from "./pages/Logout";
 
 const stripePromise = process.env.REACT_APP_PUBLISH_KEY
   ? loadStripe(process.env.REACT_APP_PUBLISH_KEY)
@@ -78,6 +79,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/logout"
+              element={
+                <ProtectedRoute>
+                  <Logout />
                 </ProtectedRoute>
               }
             />
