@@ -101,6 +101,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         );
 
         if (response.ok) {
+          localStorage.setItem("pendingVerificationEmail", formData.email);
           navigate("/signup/success");
         } else {
           const errorData = await response.json();
