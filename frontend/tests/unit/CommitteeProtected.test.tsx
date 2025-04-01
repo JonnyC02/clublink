@@ -123,7 +123,7 @@ describe("CommitteeProtected", () => {
 
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalledWith(
-        "/clubs/1/is-committee",
+        "http://mock-api/clubs/1/is-committee",
         expect.objectContaining({
           headers: expect.objectContaining({
             Authorization: "Bearer mock-token",
