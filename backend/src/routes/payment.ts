@@ -9,6 +9,8 @@ import dotenv from "dotenv";
 import { sendEmail } from "../utils/email";
 import { MailOptions } from "../types/MailOptions";
 import { activateMembership } from "../utils/club";
+import { format } from "@fast-csv/format";
+
 dotenv.config();
 
 const router = express.Router();
@@ -32,6 +34,74 @@ router.post(
     }
   }
 );
+
+router.get("/:id/transactions/export", async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    res.status(403).json({ message: "Forbidden" });
+    return;
+  }
+
+  try {
+    const result = await pool.query(
+      `SELECT 
+         t.id, 
+         t.memberid, 
+         u.name AS member_name,
+         t.ticketid, 
+         tk.name AS ticket_name,
+         t.amount, 
+         t.transactiontype, 
+         t.status, 
+         t.type, 
+         pc.code AS promocode,
+         t.time,
+         t.updated_at
+       FROM transactions t
+       LEFT JOIN users u ON u.id = t.memberid
+       LEFT JOIN tickets tk ON tk.id = t.ticketid
+       LEFT JOIN promocodes pc ON pc.id = t.promocode
+       WHERE t.clubid = $1
+       ORDER BY t.time DESC`,
+      [id]
+    );
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=club-${id}-transactions.csv`
+    );
+
+    const csvStream = format({ headers: true });
+    csvStream.pipe(res);
+
+    result.rows.forEach((row) => {
+      csvStream.write({
+        ID: row.id,
+        MemberID: row.memberid,
+        MemberName: row.member_name || "",
+        TicketID: row.ticketid,
+        TicketName: row.ticket_name || "",
+        Amount: row.amount,
+        Type: row.transactiontype ? "IN" : "OUT",
+        Status: row.status,
+        Method: row.type,
+        PromoCode: row.promocode || "N/A",
+        CreatedAt: new Date(row.time).toLocaleString(),
+        updated_at: row.updated_at
+          ? new Date(row.updated_at).toISOString()
+          : "N/A",
+      });
+    });
+
+    csvStream.end();
+  } catch (err) {
+    console.error("CSV Export Error:", err); // eslint-disable-line no-console
+    res.status(500).json({ message: "Failed to export transactions" });
+  }
+});
 
 router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
   const { amount, desc, id, promo } = req.body;

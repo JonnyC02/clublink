@@ -10,6 +10,8 @@ import { Ticket } from "../types/responses/TicketData";
 import { PromoCode } from "../types/responses/PromoCode";
 import { Transaction } from "../types/responses/Transaction";
 import { isAuthenticated } from "../utils/auth";
+import NotificationBanner from "../components/NotificationBanner";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const ClubDashboard = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,6 +49,17 @@ const ClubDashboard = () => {
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const navigate = useNavigate();
 
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
+
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    message: string;
+    onConfirm: () => void;
+  } | null>(null);
+
   const studentCount =
     data.MemberList.filter((member: Member) => member.studentnumber).length ||
     0;
@@ -66,7 +79,6 @@ const ClubDashboard = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "Browse Clubs", href: "/clubs" },
-    { label: "Events", href: "#" },
     { label: "About", href: "/about" },
   ];
 
@@ -124,6 +136,39 @@ const ClubDashboard = () => {
 
     fetchData();
   }, [id]);
+
+  const exportCSV = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("You must be logged in to download the CSV.");
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/payments/${id}/transactions/export`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to download CSV");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `club_${id}_transactions.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err); // eslint-disable-line no-console
+      setNotification({ type: "error", message: "Failed to export CSV" });
+    }
+  };
 
   const filteredLogs = data.AuditLog.filter((log: AuditLog) => {
     const searchLower = auditSearch.toLowerCase();
@@ -229,14 +274,19 @@ const ClubDashboard = () => {
     const code = codes.find((code) => code.id === id);
 
     if (!code) {
-      alert("Something went wrong, please try again!");
+      setNotification({
+        type: "error",
+        message: "Something went wrong, please try again!",
+      });
       return;
     }
 
     if (code.discount < 0.05) {
-      alert(
-        "The minimum discount allowed is 5%, please fix this and try again!"
-      );
+      setNotification({
+        type: "error",
+        message:
+          "The minimum discount allowed is 5%, please fix this and try again!",
+      });
       return;
     }
 
@@ -248,7 +298,10 @@ const ClubDashboard = () => {
       dateChange.setHours(0, 0, 0, 0);
 
       if (today > dateChange) {
-        alert("You cannot set the code date to be in the past!");
+        setNotification({
+          type: "error",
+          message: "You cannot set the code date to be in the past!",
+        });
         return;
       }
     }
@@ -266,20 +319,21 @@ const ClubDashboard = () => {
     );
 
     if (response.ok) {
-      alert("Promo Code Successfully Updated");
+      setNotification({
+        type: "success",
+        message: "Promo Code Successfully Updated",
+      });
       navigate(0);
     }
-    alert(
-      "There was an error updating the promo code, please try again later!"
-    );
+    setNotification({
+      type: "error",
+      message:
+        "There was an error updating teh promo code, please try again later!",
+    });
     navigate(0);
   };
 
   const deleteCode = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this code?")) {
-      return;
-    }
-
     const token = localStorage.getItem("token");
 
     if (!token) {
@@ -299,12 +353,17 @@ const ClubDashboard = () => {
     );
 
     if (response.ok) {
-      alert("Promo Code Successfully Deleted");
+      setNotification({
+        type: "success",
+        message: "Promo Code Successfully Deleted",
+      });
       navigate(0);
     } else {
-      alert(
-        "There was an error deleting the promo code, please try again later!"
-      );
+      setNotification({
+        type: "error",
+        message:
+          "There was an error deleting the promo code, please try again later",
+      });
       navigate(0);
     }
   };
@@ -329,12 +388,17 @@ const ClubDashboard = () => {
     );
 
     if (response.ok) {
-      alert("Successfully added promo code");
+      setNotification({
+        type: "success",
+        message: "Successfully added promo code",
+      });
       navigate(0);
     } else {
-      alert(
-        "There was an error adding the promo code, please try again later!"
-      );
+      setNotification({
+        type: "error",
+        message:
+          "There was an error adding the promo code, please try again later!",
+      });
       navigate(0);
     }
   };
@@ -360,7 +424,11 @@ const ClubDashboard = () => {
     let badElement = false;
     for (const ticket of tickets) {
       if (ticket.price < 2) {
-        alert("The minimum ticket price is £2, please fix this and try again!");
+        setNotification({
+          type: "error",
+          message:
+            "The minimum ticket pric eis £2, please fix this and try again!",
+        });
         badElement = true;
         break;
       }
@@ -371,7 +439,10 @@ const ClubDashboard = () => {
       dateChange.setHours(0, 0, 0, 0);
 
       if (today >= dateChange) {
-        alert("You cannot set the ticket date to be in the past or today!");
+        setNotification({
+          type: "error",
+          message: "You cannot set the ticket date to be in the past or today!",
+        });
         badElement = true;
         break;
       }
@@ -394,26 +465,30 @@ const ClubDashboard = () => {
     );
 
     if (response.ok) {
-      alert("Ticket's Updated Successfully!");
+      setNotification({
+        type: "success",
+        message: "Ticket's updated successfully!",
+      });
       navigate("?tab=membership");
     } else {
-      alert(
-        "There was an error updating the memberships, please try again later!"
-      );
+      setNotification({
+        type: "error",
+        message:
+          "There was an error updating the memberships, please try again later!",
+      });
       navigate("?tab=membership");
     }
   };
 
   const expireMember = async (memberId: number) => {
-    if (!window.confirm("Are you sure you want to expire this membership?")) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("You must be logged in to do this action");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -430,7 +505,7 @@ const ClubDashboard = () => {
       );
 
       if (response.ok) {
-        alert("Membership Expired");
+        setNotification({ type: "error", message: "Membership Expired" });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -441,8 +516,10 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        const error = await response.json();
-        alert(error.message || "Failed to expire membership");
+        setNotification({
+          type: "error",
+          message: "Failed to expire membership",
+        });
       }
     } catch (err) {
       console.error("Error Expiring Member: ", err); // eslint-disable-line no-console
@@ -450,15 +527,14 @@ const ClubDashboard = () => {
   };
 
   const activateMember = async (memberId: number) => {
-    if (!window.confirm("Are you sure you want to activate this member?")) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("You must be logged in to perform this action");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -475,7 +551,10 @@ const ClubDashboard = () => {
       );
 
       if (response.ok) {
-        alert("Member Activated Successfully");
+        setNotification({
+          type: "success",
+          message: "Member activated successfully!",
+        });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -486,8 +565,10 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        const error = await response.json();
-        alert(error.message || "Failed to activate the member.");
+        setNotification({
+          type: "error",
+          message: "Failed to activate member",
+        });
       }
     } catch (err) {
       console.error("Error activating member: ", err); // eslint-disable-line no-console
@@ -513,14 +594,13 @@ const ClubDashboard = () => {
   };
 
   const handleKick = async (userId: number) => {
-    if (!window.confirm("Are you sure you want to remove this member?")) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        alert("You must be logged in to perform this action.");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -537,7 +617,10 @@ const ClubDashboard = () => {
       );
 
       if (response.ok) {
-        alert("Member removed successfully!");
+        setNotification({
+          type: "error",
+          message: "Member removed successfully",
+        });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -548,29 +631,29 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        const error = await response.json();
-        alert(error.message || "Failed to remove the member.");
+        setNotification({
+          type: "error",
+          message: "Failed to remove the member",
+        });
       }
     } catch (err) {
       console.error("Error removing member:", err); // eslint-disable-line no-console
-      alert("An error occurred while trying to remove the member.");
+      setNotification({
+        type: "error",
+        message: "An error occured while trying to remove the member",
+      });
     }
   };
 
   const handleBulkActivate = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to activate: ${selectedMemberIds.length} members`
-      )
-    ) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("You must be logged in to perform this action");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -588,7 +671,10 @@ const ClubDashboard = () => {
 
       if (response.ok) {
         const { amount } = await response.json();
-        alert(`Successfully activated ${amount} members`);
+        setNotification({
+          type: "success",
+          message: `Successfully activated ${amount} members`,
+        });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -599,28 +685,29 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        alert("Internal Server Error, please try again.");
+        setNotification({
+          type: "error",
+          message: "Internal Server Error, please try again!",
+        });
       }
     } catch (err) {
       console.error("Error activating members: ", err); // eslint-disable-line no-console
-      alert("An error occured while trying to activate members");
+      setNotification({
+        type: "error",
+        message: "An error occured whilst trying to activate members",
+      });
     }
   };
 
   const handleBulkExpire = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to expire: ${selectedMemberIds.length} members`
-      )
-    ) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("You must be logged in to perform this action");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -638,7 +725,10 @@ const ClubDashboard = () => {
 
       if (response.ok) {
         const { amount } = await response.json();
-        alert(`Successfully expired ${amount} members`);
+        setNotification({
+          type: "success",
+          message: `Successfully expired ${amount} members`,
+        });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -649,28 +739,29 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        alert("Internal Server Error, please try again");
+        setNotification({
+          type: "error",
+          message: "Internal Server Error, please try again",
+        });
       }
     } catch (err) {
       console.error("Error expiring members: ", err); // eslint-disable-line no-console
-      alert("An error occured while trying to expire members");
+      setNotification({
+        type: "error",
+        message: "An error occured whilst trying to expire members",
+      });
     }
   };
 
   const handleBulkRemove = async () => {
-    if (
-      !window.confirm(
-        `Are you sure you want to remove: ${selectedMemberIds.length} members`
-      )
-    ) {
-      return;
-    }
-
     try {
       const token = localStorage.getItem("token");
 
       if (!token) {
-        alert("You must be logged in to perform this action");
+        setNotification({
+          type: "error",
+          message: "You must be logged in to do this action",
+        });
         return;
       }
 
@@ -680,7 +771,10 @@ const ClubDashboard = () => {
 
       if (response.ok) {
         const { amount } = await response.json();
-        alert(`Successfully removed ${amount} members`);
+        setNotification({
+          type: "success",
+          message: `Successfully removed ${amount} members`,
+        });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
@@ -691,17 +785,41 @@ const ClubDashboard = () => {
         ).then((res) => res.json());
         setData(updatedData);
       } else {
-        alert("Internal Server error, please try again");
+        setNotification({
+          type: "error",
+          message: "Internal Server Error, please try again",
+        });
       }
     } catch (err) {
       console.error("Error removing members: ", err); // eslint-disable-line no-console
-      alert("An error occured while trying to remove members");
+      setNotification({
+        type: "error",
+        message: "An error occured whilst trying to remove members",
+      });
     }
   };
 
   return (
     <div>
       <Navbar cta={cta} links={links} />
+      {notification && (
+        <NotificationBanner
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+      {confirmDialog?.open && (
+        <ConfirmDialog
+          open={confirmDialog.open}
+          message={confirmDialog.message}
+          onConfirm={() => {
+            confirmDialog.onConfirm();
+            setConfirmDialog(null);
+          }}
+          onCancel={() => setConfirmDialog(null)}
+        />
+      )}
       <div className="bg-blue-50 w-full">
         <TitleSection
           title={data?.Club.name || "Club Details"}
@@ -843,7 +961,13 @@ const ClubDashboard = () => {
                   <div className="flex space-x-2">
                     <button
                       disabled={!(selectedMemberIds.length > 0)}
-                      onClick={handleBulkActivate}
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          message: `Are you sure you want to activate ${selectedMemberIds.length} members`,
+                          onConfirm: () => handleBulkActivate,
+                        })
+                      }
                       className={`px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 ${
                         !(selectedMemberIds.length > 0)
                           ? "cursor-not-allowed"
@@ -854,7 +978,13 @@ const ClubDashboard = () => {
                     </button>
                     <button
                       disabled={!(selectedMemberIds.length > 0)}
-                      onClick={handleBulkExpire}
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          message: `Are you sure you want to expire ${selectedMemberIds.length} members`,
+                          onConfirm: () => handleBulkExpire,
+                        })
+                      }
                       className={`px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 ${
                         !(selectedMemberIds.length > 0)
                           ? "cursor-not-allowed"
@@ -865,7 +995,13 @@ const ClubDashboard = () => {
                     </button>
                     <button
                       disabled={!(selectedMemberIds.length > 0)}
-                      onClick={handleBulkRemove}
+                      onClick={() =>
+                        setConfirmDialog({
+                          open: true,
+                          message: `Are you sure you want to remove ${selectedMemberIds.length} members`,
+                          onConfirm: () => handleBulkRemove,
+                        })
+                      }
                       className={`px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 ${
                         !(selectedMemberIds.length > 0)
                           ? "cursor-not-allowed"
@@ -988,7 +1124,13 @@ const ClubDashboard = () => {
                                 member.status === "Expired") && (
                                 <button
                                   onClick={() =>
-                                    activateMember(member.memberid)
+                                    setConfirmDialog({
+                                      open: true,
+                                      message:
+                                        "Are you sure you want to activate this member?",
+                                      onConfirm: () =>
+                                        activateMember(member.memberid),
+                                    })
                                   }
                                   className="px-4 py-2 mr-4 bg-green-500 text-white rounded hover:bg-green-600"
                                 >
@@ -997,14 +1139,30 @@ const ClubDashboard = () => {
                               )}
                               {member.status === "Active" && (
                                 <button
-                                  onClick={() => expireMember(member.memberid)}
+                                  onClick={() =>
+                                    setConfirmDialog({
+                                      open: true,
+                                      message:
+                                        "Are you sure you want expire this member?",
+                                      onConfirm: () =>
+                                        expireMember(member.memberid),
+                                    })
+                                  }
                                   className="px-4 py-2 mr-4 bg-yellow-500 text-white rounded hover:bg-yellow-600"
                                 >
                                   Expire
                                 </button>
                               )}
                               <button
-                                onClick={() => handleKick(member.memberid)}
+                                onClick={() =>
+                                  setConfirmDialog({
+                                    open: true,
+                                    message:
+                                      "Are you sure you want to remove this member?",
+                                    onConfirm: () =>
+                                      handleKick(member.memberid),
+                                  })
+                                }
                                 className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                               >
                                 Remove
@@ -1098,7 +1256,10 @@ const ClubDashboard = () => {
                       );
 
                       if (response.ok) {
-                        alert("Club details updated successfully!");
+                        setNotification({
+                          type: "success",
+                          message: "Club details updated successfully",
+                        });
                       } else {
                         const result = await response.json();
                         throw new Error(
@@ -1107,7 +1268,10 @@ const ClubDashboard = () => {
                       }
                     } catch (error: unknown) {
                       console.error("Error updating club details:", error); // eslint-disable-line no-console
-                      alert(error);
+                      setNotification({
+                        type: "error",
+                        message: "Error updating club details",
+                      });
                     }
                   }}
                 >
@@ -1554,7 +1718,14 @@ const ClubDashboard = () => {
                                 Save
                               </button>
                               <button
-                                onClick={() => deleteCode(code.id)}
+                                onClick={() =>
+                                  setConfirmDialog({
+                                    open: true,
+                                    message:
+                                      "Are you sure you want to delete this code?",
+                                    onConfirm: () => deleteCode(code.id),
+                                  })
+                                }
                                 className="px-4 mt-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
                               >
                                 Delete
@@ -1571,12 +1742,20 @@ const ClubDashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold mb-4">Transactions</h2>
-                  <button
-                    onClick={() => navigate(`/transactions/${id}/new`)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
-                  >
-                    + Add Transaction
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => exportCSV()}
+                      className="px-4 py-2 mr-4 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-md"
+                    >
+                      Export to CSV
+                    </button>
+                    <button
+                      onClick={() => navigate(`/transactions/${id}/new`)}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
+                    >
+                      + Add Transaction
+                    </button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="bg-white shadow-md rounded-lg p-4 border-l-4 border-green-500">

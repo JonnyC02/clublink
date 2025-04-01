@@ -132,3 +132,9 @@ CREATE TABLE PromoCodes (
     expiryDate TIMESTAMP,
     code VARCHAR(10) NOT NULL
 );
+
+-- Newsletter
+CREATE TABLE Newsletter (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(50) NOT NULL UNIQUE
+);

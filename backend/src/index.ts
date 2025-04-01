@@ -77,6 +77,30 @@ app.get("/universities", (req: Request, res: Response) => {
   }
 });
 
+app.post("/subscribe", async (req: Request, res: Response) => {
+  const { email } = req.body;
+
+  const exists = await pool.query("SELECT * FROM newsletter WHERE email = $1", [
+    email,
+  ]);
+
+  if (exists.rows[0].email) {
+    res.status(500).json({ error: "Already Subscribed" });
+    return;
+  }
+
+  const result = await pool.query(
+    "INSERT INTO newsletter (email) VALUES ($1) RETURNING id",
+    [email]
+  );
+
+  if (result.rows.length) {
+    res.status(200).json({ message: "Success" });
+  } else {
+    res.status(500).json({ error: "Failed" });
+  }
+});
+
 if (process.env.NODE_ENV !== "test") {
   const startServer = async () => {
     try {

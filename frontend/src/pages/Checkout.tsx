@@ -202,7 +202,6 @@ const Checkout = () => {
         links={[
           { label: "Home", href: "/" },
           { label: "Browse Clubs", href: "/clubs" },
-          { label: "Browse Events", href: "/events" },
           { label: "About", href: "/about" },
         ]}
         cta={cta}

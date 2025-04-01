@@ -15,13 +15,19 @@ const Dashboard: React.FC = () => {
   const links = [
     { label: "Home", href: "/" },
     { label: "Browse Clubs", href: "/clubs" },
-    { label: "Events", href: "#" },
     { label: "About", href: "/about" },
   ];
 
   const cta = (
     <>
-      {isAuthenticated() ? (
+      {window.location.pathname === "/dashboard" ? (
+        <a
+          href="/logout"
+          className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
+        >
+          Logout
+        </a>
+      ) : isAuthenticated() ? (
         <a
           href="/dashboard"
           className="block px-4 py-2 text-gray-700 border border-gray-300 rounded-md text-center hover:bg-gray-100 w-full md:w-auto"
