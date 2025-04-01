@@ -137,6 +137,39 @@ const ClubDashboard = () => {
     fetchData();
   }, [id]);
 
+  const exportCSV = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        throw new Error("You must be logged in to download the CSV.");
+      }
+
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/payments/${id}/transactions/export`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!response.ok) throw new Error("Failed to download CSV");
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `club_${id}_transactions.csv`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Download error:", err); // eslint-disable-line no-console
+      setNotification({ type: "error", message: "Failed to export CSV" });
+    }
+  };
+
   const filteredLogs = data.AuditLog.filter((log: AuditLog) => {
     const searchLower = auditSearch.toLowerCase();
 
@@ -1709,12 +1742,20 @@ const ClubDashboard = () => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h2 className="text-xl font-bold mb-4">Transactions</h2>
-                  <button
-                    onClick={() => navigate(`/transactions/${id}/new`)}
-                    className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
-                  >
-                    + Add Transaction
-                  </button>
+                  <div>
+                    <button
+                      onClick={() => exportCSV()}
+                      className="px-4 py-2 mr-4 bg-green-500 text-white rounded-lg hover:bg-green-600 shadow-md"
+                    >
+                      Export to CSV
+                    </button>
+                    <button
+                      onClick={() => navigate(`/transactions/${id}/new`)}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 shadow-md"
+                    >
+                      + Add Transaction
+                    </button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
                   <div className="bg-white shadow-md rounded-lg p-4 border-l-4 border-green-500">
