@@ -1216,7 +1216,7 @@ const ClubDashboard = () => {
                         );
                       }
                     } catch (error: unknown) {
-                      console.error("Error updating club details:", error);
+                      console.error("Error updating club details:", error); // eslint-disable-line no-console
                       setNotification({
                         type: "error",
                         message: "Error updating club details",
