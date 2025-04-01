@@ -101,8 +101,7 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         );
 
         if (response.ok) {
-          alert("Signup successful! Redirecting to login...");
-          navigate("/login");
+          navigate("/signup/success");
         } else {
           const errorData = await response.json();
           setError(errorData.message || "Signup failed. Please try again.");
