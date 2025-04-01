@@ -25,6 +25,7 @@ const Success = () => {
     );
 
     if (response.ok) {
+      localStorage.removeItem("pendingVerificationEmail");
       setResendSuccess(true);
     } else {
       setResendError(true);
