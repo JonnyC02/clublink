@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ClubData } from "../types/responses/ClubData";
 import { ClubType } from "../types/ClubType";
 import { CommitteeResp } from "../types/responses/CommitteeResp";
+import NotificationBanner from "../components/NotificationBanner";
 
 const links = [
   { label: "Home", href: "/" },
@@ -68,6 +69,10 @@ const ClubPage = () => {
   const [committeeError, setCommitteeError] = useState("");
   const [isStudent, setIsStudent] = useState(false);
   const navigate = useNavigate();
+  const [notification, setNotification] = useState<{
+    type: "success" | "error";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,7 +146,10 @@ const ClubPage = () => {
       );
 
       if (response.ok) {
-        alert("Successfully joined the club!");
+        setNotification({
+          type: "success",
+          message: "Successfully joined the club!",
+        });
         const { ticket } = await response.json();
         if (ticket) {
           navigate(`/payment/${ticket}`);
@@ -159,6 +167,14 @@ const ClubPage = () => {
   return (
     <div>
       <Navbar cta={cta} links={links} />
+      {notification && (
+        <NotificationBanner
+          type={notification.type}
+          message={notification.message}
+          onClose={() => setNotification(null)}
+        />
+      )}
+
       <div className="bg-blue-50">
         <TitleSection
           title={clubData.Club.name || "Club Details"}

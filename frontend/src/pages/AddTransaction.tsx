@@ -8,6 +8,7 @@ import Select from "react-select";
 const AddTransaction = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
   const [amount, setAmount] = useState("");
   const [type, setType] = useState("IN");
   const [method, setMethod] = useState("Cash");
@@ -17,6 +18,9 @@ const AddTransaction = () => {
   const [selectedPromo, setSelectedPromo] = useState<string>();
   const [members, setMembers] = useState<Member[]>();
   const [selectedMember, setSelectedMember] = useState<string>();
+
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -33,7 +37,7 @@ const AddTransaction = () => {
         setPromo(Promo);
       } catch (err) {
         console.error("Error fetching data: ", err); // eslint-disable-line no-console
-        alert("Failed to load transaction data");
+        setErrorMessage("Failed to load transaction data.");
       }
     };
 
@@ -42,11 +46,11 @@ const AddTransaction = () => {
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
+    setErrorMessage("");
+    setSuccessMessage("");
 
-    if (!token) {
-      return;
-    }
+    const token = localStorage.getItem("token");
+    if (!token) return;
 
     const newTransaction = {
       id,
@@ -71,10 +75,13 @@ const AddTransaction = () => {
     );
 
     if (response.ok) {
-      alert("Transaction added successfully!");
-      navigate(`/club/${id}/committee?tab=transactions`);
+      setSuccessMessage("Transaction added successfully!");
+      setTimeout(
+        () => navigate(`/club/${id}/committee?tab=transactions`),
+        1200
+      );
     } else {
-      alert("Error adding transaction");
+      setErrorMessage("Error adding transaction. Please try again.");
     }
   };
 
@@ -96,6 +103,19 @@ const AddTransaction = () => {
   return (
     <div className="max-w-lg mx-auto mt-10 p-6 bg-white shadow-md rounded-lg">
       <h2 className="text-xl font-bold mb-4">Add New Transaction</h2>
+
+      {errorMessage && (
+        <div className="mb-4 p-3 text-sm text-red-700 bg-red-100 border border-red-300 rounded">
+          {errorMessage}
+        </div>
+      )}
+
+      {successMessage && (
+        <div className="mb-4 p-3 text-sm text-green-700 bg-green-100 border border-green-300 rounded">
+          {successMessage}
+        </div>
+      )}
+
       <form onSubmit={handleSubmit}>
         <label className="block mb-2">Amount:</label>
         <input
@@ -159,9 +179,10 @@ const AddTransaction = () => {
           placeholder="-- Select a Member --"
           isSearchable
         />
+
         <button
           type="submit"
-          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600"
+          className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition"
         >
           Submit Transaction
         </button>
