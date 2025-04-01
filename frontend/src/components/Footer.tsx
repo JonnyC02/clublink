@@ -9,26 +9,7 @@ const Footer: React.FC = () => (
           Discover and manage your clubs in one place
         </p>
       </div>
-      <div>
-        <h4 className="font-medium">Quick Links</h4>
-        <ul className="mt-4 space-y-2">
-          <li>
-            <a href="/" className="hover:underline">
-              About
-            </a>
-          </li>
-          <li>
-            <a href="/" className="hover:underline">
-              Contact
-            </a>
-          </li>
-          <li>
-            <a href="/" className="hover:underline">
-              Privacy Policy
-            </a>
-          </li>
-        </ul>
-      </div>
+      <div></div>
       <div>
         <h4 className="font-medium">Stay Updated</h4>
         <form className="mt-4">
