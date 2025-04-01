@@ -254,4 +254,24 @@ router.post("/reset-password", async (req: Request, res: Response) => {
   }
 });
 
+router.post("/resend-verification", async (req: Request, res: Response) => {
+  const { email } = req.body;
+  if (!email) {
+    res.status(400).json({ message: "Email is required" });
+    return;
+  }
+  const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+    email,
+  ]);
+  if (!user.rows.length || user.rows[0].isverified) {
+    res.status(400).json({ message: "Invalid Request" });
+    return;
+  }
+
+  const verificationToken = generateVerificationToken(user.rows[0].id);
+  await sendVerificationEmail(email, verificationToken);
+
+  res.status(200).json({ message: "Email Sent" });
+});
+
 export default router;
