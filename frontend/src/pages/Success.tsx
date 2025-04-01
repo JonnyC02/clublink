@@ -1,8 +1,36 @@
+import { useState } from "react";
 import Navbar from "../components/Navbar";
 import TitleSection from "../components/TitleSection";
 import { isAuthenticated } from "../utils/auth";
 
 const Success = () => {
+  const email = localStorage.getItem("pendingVerificationEmail");
+  const [resendSuccess, setResendSuccess] = useState(false);
+  const [resendError, setResendError] = useState(false);
+  const handleResend = async () => {
+    setResendError(false);
+    setResendSuccess(false);
+    if (!email) {
+      setResendError(true);
+      return;
+    }
+
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/auth/resend-verification`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    if (response.ok) {
+      localStorage.removeItem("pendingVerificationEmail");
+      setResendSuccess(true);
+    } else {
+      setResendError(true);
+    }
+  };
   const cta = (
     <>
       {isAuthenticated() ? (
@@ -79,6 +107,29 @@ const Success = () => {
           >
             {isAuthenticated() ? "Go to Dashboard" : "Login"}
           </a>
+          {resendSuccess === false && (
+            <p className="text-sm text-gray-500 mt-6">
+              Didn’t receive the email?{" "}
+              <button
+                onClick={handleResend}
+                className="text-blue-600 hover:underline font-medium"
+              >
+                Resend verification email
+              </button>
+            </p>
+          )}
+          {resendSuccess && (
+            <div className="mt-4 p-3 bg-green-50 border border-green-400 text-green-700 rounded-md text-sm">
+              ✅ A new verification email has been sent! Please check your
+              inbox.
+            </div>
+          )}
+
+          {resendError && (
+            <div className="mt-4 p-3 bg-red-50 border border-red-400 text-red-700 rounded-md text-sm">
+              ⚠️ Failed to resend email. Please try again later.
+            </div>
+          )}
         </div>
       </div>
     </div>
