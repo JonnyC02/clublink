@@ -13,6 +13,7 @@ import { FilterOption } from "../types/FilterOption";
 const links = [
   { label: "Home", href: "/" },
   { label: "Browse Clubs", href: "/clubs" },
+  { label: "FAQ", href: "/faq" },
   { label: "About", href: "/about" },
 ];
 
