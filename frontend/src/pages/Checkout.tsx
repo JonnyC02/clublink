@@ -48,10 +48,6 @@ const Checkout = () => {
     fetchTicketData();
   }, [id]);
 
-  const navDash = () => {
-    navigate("/dashboard");
-  };
-
   const validatePromo = async () => {
     const response = await fetch(
       `${process.env.REACT_APP_API_URL}/tickets/code/validate`,
@@ -215,20 +211,41 @@ const Checkout = () => {
       <div className="container mx-auto p-6">
         <div className="max-w-lg mx-auto bg-white shadow-md rounded-lg p-6">
           {success ? (
-            <div className="text-center text-green-600">
-              <h2 className="text-2xl font-bold mb-2">Payment Successful!</h2>
-              <p>
-                {payInCash
-                  ? "Your ticket has been reserved for cash payment."
-                  : "Thank you for your payment. You will receive a confirmation email shortly."}
-              </p>
-              <button
-                onClick={navDash}
-                type="submit"
-                className="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 disabled:opacity-50 transition-colors duration-200"
-              >
-                Continue to Dashboard &gt;&gt;
-              </button>
+            <div className="flex-grow flex justify-center items-center px-4 py-12">
+              <div className="bg-white border border-green-200 shadow-xl p-8 rounded-xl max-w-xl w-full text-center animate-fade-in">
+                <div className="flex justify-center mb-6">
+                  <svg
+                    className="w-14 h-14 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                <p className="text-green-700 text-lg leading-relaxed font-medium">
+                  Payment Successful! 🎉 <br />
+                  Please check your email for a receipt!
+                </p>
+
+                <p className="text-sm text-gray-500 mt-4">
+                  ⚠️ Don’t see the email? Check your spam folder or promotions
+                  tab before reaching out.
+                </p>
+
+                <a
+                  href={isAuthenticated() ? "/dashboard" : "/login"}
+                  className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
+                >
+                  {isAuthenticated() ? "Go to Dashboard" : "Login"}
+                </a>
+              </div>
             </div>
           ) : (
             <>
