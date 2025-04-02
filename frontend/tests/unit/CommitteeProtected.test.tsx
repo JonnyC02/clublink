@@ -74,7 +74,7 @@ describe("CommitteeProtected", () => {
     );
   });
 
-  it("redirects to /login when user is not a committee member", async () => {
+  it("redirects to /dashboard when user is not a committee member", async () => {
     mockFetch.mockResolvedValueOnce({
       ok: true,
       json: async () => ({ isCommittee: false }),
@@ -91,12 +91,12 @@ describe("CommitteeProtected", () => {
               </CommitteeProtected>
             }
           />
-          <Route path="/login" element={<div>Login Page</div>} />
+          <Route path="/dashboard" element={<div>Dashboard</div>} />
         </Routes>
       </MemoryRouter>
     );
 
-    await waitFor(() => expect(screen.getByText(/Login Page/i)).toBeDefined());
+    await waitFor(() => expect(screen.getByText(/Dashboard/i)).toBeDefined());
   });
 
   it("fetches the correct API endpoint", async () => {
