@@ -54,11 +54,7 @@ const CommitteeProtected: React.FC<CommitteeProtectedProps> = ({
     return <div>Loading...</div>;
   }
 
-  return isCommitteeMember ? (
-    children
-  ) : (
-    <Navigate to={`/login?redirect=${window.location.pathname}`} />
-  );
+  return isCommitteeMember ? children : <Navigate to={`/dashboard`} />;
 };
 
 export default CommitteeProtected;
