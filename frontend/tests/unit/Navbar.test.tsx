@@ -6,6 +6,7 @@ describe("Navbar Correctly", () => {
   const links = [
     { label: "Home", href: "#" },
     { label: "Browse Clubs", href: "#" },
+    { label: "FAQ", href: "/faq" },
     { label: "About", href: "#" },
   ];
 
