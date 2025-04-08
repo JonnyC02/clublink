@@ -403,7 +403,7 @@ router.get(
 
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      const ticketDate = new Date(result.rows[0].date);
+      const ticketDate = new Date(result.rows[0]?.date);
       ticketDate.setHours(0, 0, 0, 0);
 
       if (result.rows.length < 1) {
