@@ -409,21 +409,23 @@ router.get(
       if (result.rows.length < 1) {
         await joinClub(id, userId);
         await activateMembership(userId, id);
-        res.json({ message: "Successfully Joined Club" });
+        res.status(200).json({ message: "Successfully Joined Club" });
       } else if (ticketDate <= today) {
         res
           .status(403)
           .json({ message: "Club Membership has ended for the year!" });
       } else {
         await joinClub(id, userId);
-        res.json({
+        res.status(200).json({
           message: "Successfully Joined Club",
           ticket: result.rows[0].id,
         });
       }
     } else {
       await requestJoinClub(id, userId);
-      res.json({ message: "Sent Request to Join", type: "request" });
+      res
+        .status(200)
+        .json({ message: "Sent Request to Join", type: "request" });
     }
   }
 );
