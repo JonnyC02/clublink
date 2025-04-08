@@ -37,7 +37,9 @@ const AddTransaction = () => {
         setPromo(Promo);
       } catch (err) {
         console.error("Error fetching data: ", err); // eslint-disable-line no-console
-        setErrorMessage("Failed to load transaction data.");
+        setErrorMessage(
+          "Failed to load the transaction data, if this issue persists, please contact support."
+        );
       }
     };
 
@@ -81,7 +83,9 @@ const AddTransaction = () => {
         1200
       );
     } else {
-      setErrorMessage("Error adding transaction. Please try again.");
+      setErrorMessage(
+        "There was an error adding this transaction. Please try again."
+      );
     }
   };
 

@@ -149,7 +149,9 @@ const AuthPage: React.FC<AuthPageProps> = ({ isSignup }) => {
         }
       } catch (err) {
         console.error(err); // eslint-disable-line no-console
-        setError("An error occurred while fetching universities.");
+        setError(
+          "An error occurred whilst attempting to fetch university data."
+        );
         setLoading(false);
       }
     };
