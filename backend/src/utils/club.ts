@@ -21,7 +21,12 @@ export const joinClub = async (clubId: string, userId: number | undefined) => {
       associate++;
     }
   }
-  const ratio = +(associate / student).toFixed(2);
+  let ratio: number;
+  if (student === 0) {
+    ratio = 0;
+  } else {
+    ratio = +(associate / student).toFixed(2);
+  }
   await pool.query("UPDATE clubs SET ratio = $1 WHERE id = $2", [
     ratio,
     clubId,
