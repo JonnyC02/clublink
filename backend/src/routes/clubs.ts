@@ -395,10 +395,11 @@ router.get(
       [id]
     );
     const student = await isStudent(userId);
+    const ticketFlag = student ? "Student" : "Associate";
     if (student || clubRatio.rows[0].ratio < 0.2) {
       const result = await pool.query(
-        "SELECT id, date FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = 'Student'",
-        [id]
+        "SELECT id, date FROM tickets WHERE clubId = $1 AND ticketType = 'Membership' AND ticketFlag = $2",
+        [id, ticketFlag]
       );
 
       const today = new Date();
