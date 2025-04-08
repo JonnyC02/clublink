@@ -506,7 +506,7 @@ const ClubDashboard = () => {
       );
 
       if (response.ok) {
-        setNotification({ type: "error", message: "Membership Expired" });
+        setNotification({ type: "success", message: "Membership Expired" });
         const updatedData = await fetch(
           `${process.env.REACT_APP_API_URL}/clubs/${id}/all`,
           {
