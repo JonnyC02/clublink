@@ -113,7 +113,7 @@ const ClubPage = () => {
           const committeeData = await committeeResponse.json();
           setCommitteeMembers(committeeData);
         } else {
-          setCommitteeError("Failed to fetch committee members");
+          setCommitteeError("There are no committee members in this club!");
         }
       } catch (err) {
         console.error("Error fetching club data:", err); // eslint-disable-line no-console

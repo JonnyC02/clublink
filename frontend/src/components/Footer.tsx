@@ -16,7 +16,11 @@ const Footer: React.FC = () => {
       setStatus("success");
       setEmail("");
     } else {
-      setStatus("error");
+      if (response.status === 403) {
+        setStatus("exists");
+      } else {
+        setStatus("error");
+      }
     }
   };
 
@@ -59,7 +63,12 @@ const Footer: React.FC = () => {
           )}
           {status === "error" && (
             <p className="text-center text-red-400 mt-2">
-              ⚠️ Something went wrong. Try again.
+              ⚠️ Something went wrong on our end. Try again.
+            </p>
+          )}
+          {status === "exists" && (
+            <p className="text-center text-green-400 mt-2">
+              🎉 You&apos;ve already subscribed!
             </p>
           )}
         </div>
