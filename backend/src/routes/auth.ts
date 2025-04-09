@@ -95,8 +95,21 @@ router.post("/signup", async (req: Request, res: Response) => {
         "INSERT INTO users (name, email, password, studentNumber, university) VALUES ($1, $2, $3, $4, $5) RETURNING *",
         [name, email, hashedPassword, studentNumber, university]
       );
+      const uniInfo = await pool.query(
+        "SELECT studentverification FROM universities WHERE acronym = $1",
+        [university]
+      );
+      if (uniInfo.rows.length < 1) {
+        res
+          .status(500)
+          .json({ message: "Your University has not been setup for ClubLink" });
+        return;
+      }
+
+      const studentEmail = `${studentNumber}${uniInfo.rows[0].studentverification}`;
+
       const studentToken = generateStudentToken(studentNumber);
-      await sendStudentVerifyEmail(email, studentToken);
+      await sendStudentVerifyEmail(studentEmail, studentToken);
     }
     if (!process.env.REACT_APP_IS_TESTING) {
       const userId = user.rows[0].id;
