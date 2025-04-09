@@ -124,6 +124,7 @@ describe("Payment API Integration Tests", () => {
           transaction: "tx_123",
           discount: "",
           bookingFee: undefined,
+          ticketId: 1,
           desc: "Test Ticket",
           email: "user@example.com",
           paymentFee: 0,
