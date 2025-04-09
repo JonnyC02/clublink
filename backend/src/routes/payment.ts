@@ -145,6 +145,7 @@ router.post("/", authenticateToken, async (req: AuthRequest, res: Response) => {
       payment_method_types: ["card"],
       metadata: {
         transaction: transaction.rows[0].id,
+        ticketId: id,
         ticketPrice,
         paymentFee,
         totalPrice,
@@ -195,6 +196,7 @@ router.post(
         const clubId = paymentIntent.metadata.clubId;
         const discount = paymentIntent.metadata.discount;
         const bookingFee = paymentIntent.metadata.bookingFee;
+        const tikcetId = paymentIntent.metadata.ticketId;
 
         if (status === "succeeded") {
           const mailOptions = {
@@ -311,7 +313,7 @@ router.post(
             Unfortunately, your recent payment attempt was unsuccessful. Please check your payment details and try again. If the issue persists, feel free to contact our support team for assistance.
           </p>
           <div style="margin: 20px 0; text-align: center;">
-            <a href="${process.env.FRONTEND_URL}/payments/1"
+            <a href="${process.env.FRONTEND_URL}/payments/${tikcetId}"
                style="display: inline-block; padding: 12px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; font-weight: bold;">
                Retry Payment
             </a>
