@@ -12,8 +12,6 @@ import pool from "./db/db";
 import queue from "./utils/queue";
 dotenv.config();
 
-const UNIVERSITIES: object[] = [];
-
 // file deepcode ignore UseCsurfForExpress: handled by express-session same site parameter
 const app: Express = express();
 const PORT = +(process.env.PORT || 3001);
@@ -68,9 +66,18 @@ app.get("/", (req: Request, res: Response) => {
   }
 });
 
-app.get("/universities", (req: Request, res: Response) => {
+app.get("/universities", async (req: Request, res: Response) => {
   try {
-    res.status(200).json(UNIVERSITIES);
+    const unis = [];
+    const result = await pool.query("SELECT acronym, name FROM universities");
+    if (result.rowCount === 0) {
+      console.log("No Universities Retrieved!"); // eslint-disable-line no-console
+    } else {
+      for (const uni of result.rows) {
+        unis.push({ name: uni.name, acronym: uni.acronym });
+      }
+    }
+    res.status(200).json(unis);
   } catch (err) {
     console.error(`Error Fetching Universities: ${err}`); //eslint-disable-line no-console
     res.status(500).json({ error: "Cannot Fetch Universities" });
@@ -105,19 +112,6 @@ if (process.env.NODE_ENV !== "test") {
   const startServer = async () => {
     try {
       queue.start();
-      if (!process.env.REACT_APP_IS_TESTING) {
-        const result = await pool.query(
-          "SELECT acronym, name FROM universities"
-        );
-        if (result.rowCount === 0) {
-          console.log("No Universities Retrieved!"); // eslint-disable-line no-console
-        } else {
-          for (const uni of result.rows) {
-            UNIVERSITIES.push({ name: uni.name, acronym: uni.acronym });
-          }
-        }
-      }
-
       app
         .listen(PORT, "0.0.0.0", () => {
           console.log(`✅ Server running on http://localhost:${PORT}`); // eslint-disable-line no-console
