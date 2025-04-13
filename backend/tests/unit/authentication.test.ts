@@ -35,6 +35,25 @@ describe("Authentication Utils", () => {
       jest.restoreAllMocks();
     });
 
+    it("should handle unexpected token verification errors", async () => {
+      req.headers = { authorization: "Bearer weirdtoken" };
+
+      const unknownError = new Error("Some random JWT error");
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw unknownError;
+      });
+
+      await authenticateToken(req as Request, res as Response, next);
+
+      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.json).toHaveBeenCalledWith({ message: "Invalid Token" });
+      // eslint-disable-next-line no-console
+      expect(console.error).toHaveBeenCalledWith(
+        "Token verification error:",
+        unknownError
+      );
+    });
+
     it("should return 401 if no token is provided", async () => {
       await authenticateToken(req as Request, res as Response, next);
 
@@ -155,6 +174,49 @@ describe("Authentication Utils", () => {
   });
 
   describe("getUserId", () => {
+    it("should handle unexpected errors in getUserId", () => {
+      const unknownError = new Error("Unexpected");
+
+      jest.spyOn(console, "error").mockImplementation(() => {}); // <-- ADD THIS
+
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw unknownError;
+      });
+
+      const result = getUserId("Bearer validtoken");
+
+      expect(result).toBeUndefined();
+      // eslint-disable-next-line no-console
+      expect(console.error).toHaveBeenCalledWith(
+        "Token Verification Error: ",
+        unknownError
+      );
+    });
+
+    it("should return undefined and log warning if token is expired", () => {
+      const expiredAt = new Date("2025-01-01T00:00:00Z");
+
+      jest.spyOn(console, "warn").mockImplementation(() => {});
+
+      const expiredTokenError = new jwt.TokenExpiredError(
+        "Token expired",
+        expiredAt
+      );
+
+      (jwt.verify as jest.Mock).mockImplementation(() => {
+        throw expiredTokenError;
+      });
+
+      const result = getUserId("Bearer expiredtoken");
+
+      expect(result).toBeUndefined();
+      // eslint-disable-next-line no-console
+      expect(console.warn).toHaveBeenCalledWith(
+        "Token has expired:",
+        undefined
+      );
+    });
+
     it("should return undefined if no token is provided", () => {
       const result = getUserId(undefined);
 

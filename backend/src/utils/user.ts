@@ -90,6 +90,6 @@ export const getAllClubs = async (userId: number | undefined) => {
     }));
   } catch (error) {
     console.error("Error fetching user memberships:", error); // eslint-disable-line no-console
-    throw new Error("Failed to fetch user memberships");
+    throw new Error("" + error);
   }
 };

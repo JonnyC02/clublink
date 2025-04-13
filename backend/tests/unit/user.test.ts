@@ -178,7 +178,7 @@ describe("User Utils", () => {
       mockedPoolQuery.mockRejectedValue(new Error("Database error"));
 
       await expect(getAllClubs(mockUserId)).rejects.toThrow(
-        "Failed to fetch user memberships"
+        "Error: Database error"
       );
       expect(normalizeQuery(mockedPoolQuery.mock.calls[0][0])).toEqual(
         expectedQuery
@@ -186,6 +186,9 @@ describe("User Utils", () => {
       expect(mockedPoolQuery).toHaveBeenCalledWith(expect.any(String), [
         mockUserId,
       ]);
+    });
+    it("should throw an error if there is no userId", async () => {
+      await expect(getAllClubs(undefined)).rejects.toThrow("No User Id");
     });
   });
 });
