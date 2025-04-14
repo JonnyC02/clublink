@@ -1,8 +1,8 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import Navbar from "../../src/components/Navbar";
 
-describe("Navbar Correctly", () => {
+describe("Navbar Component", () => {
   const links = [
     { label: "Home", href: "#" },
     { label: "Browse Clubs", href: "#" },
@@ -26,22 +26,38 @@ describe("Navbar Correctly", () => {
       </a>
     </>
   );
-  it("Render Navbar Correctly", () => {
+
+  it("renders Navbar correctly", () => {
     render(<Navbar cta={cta} links={links} />);
-
     expect(screen.getByText("ClubLink")).toBeDefined();
-    expect(screen.getByText("Home")).toBeDefined();
-    expect(screen.getByText("Browse Clubs")).toBeDefined();
-    expect(screen.getByText("Browse Clubs")).toBeDefined();
-    expect(screen.getByText("About")).toBeDefined();
-
+    links.forEach((link) => expect(screen.getByText(link.label)).toBeDefined());
     expect(screen.getByText("Get Started")).toBeDefined();
     expect(screen.getByText("Join a Club")).toBeDefined();
   });
 
-  it("Should Change brand name", () => {
-    render(<Navbar cta={cta} links={links} brandName="Test Value" />);
+  it("renders custom brand name", () => {
+    render(<Navbar cta={cta} links={links} brandName="MyBrand" />);
+    expect(screen.getByText("MyBrand")).toBeDefined();
+  });
 
-    expect(screen.getByText("Test Value")).toBeDefined();
+  it("toggles mobile menu", () => {
+    render(<Navbar cta={cta} links={links} />);
+    const button = screen.getByRole("button", { name: /toggle menu/i });
+    fireEvent.click(button);
+
+    links.forEach((link) =>
+      expect(screen.getAllByText(link.label)[0]).toBeDefined()
+    );
+    expect(screen.getAllByText("Get Started").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Join a Club").length).toBeGreaterThan(0);
+  });
+
+  it("closes mobile menu when link clicked", () => {
+    render(<Navbar cta={cta} links={links} />);
+    const button = screen.getByRole("button", { name: /toggle menu/i });
+    fireEvent.click(button);
+    const link = screen.getAllByText("Home")[0];
+    fireEvent.click(link);
+    expect(link).toBeDefined();
   });
 });

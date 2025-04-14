@@ -177,7 +177,7 @@ describe("Authentication Utils", () => {
     it("should handle unexpected errors in getUserId", () => {
       const unknownError = new Error("Unexpected");
 
-      jest.spyOn(console, "error").mockImplementation(() => {}); // <-- ADD THIS
+      jest.spyOn(console, "error").mockImplementation(() => {});
 
       (jwt.verify as jest.Mock).mockImplementation(() => {
         throw unknownError;

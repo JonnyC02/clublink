@@ -95,7 +95,7 @@ describe("queue", () => {
         rows: [
           {
             student_count: "10",
-            associate_count: "1", // 1/11 = 0.09
+            associate_count: "1",
           },
         ],
       });

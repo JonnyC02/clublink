@@ -114,7 +114,7 @@ describe("Clubs API Integration Tests", () => {
         .get("/clubs/")
         .set("Authorization", "Bearer valid_token");
 
-      expect(res.status).toBe(404); // Express throws 404 for bad routes
+      expect(res.status).toBe(404);
     });
     it("should fetch a specific club by ID", async () => {
       mockQuery

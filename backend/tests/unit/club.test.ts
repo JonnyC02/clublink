@@ -36,15 +36,15 @@ describe("Club Utils", () => {
 
   describe("joinClub", () => {
     it("should insert membership and calculate ratio", async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] }); // INSERT member
+      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
       (pool.query as jest.Mock).mockResolvedValueOnce({
         rows: [
           { studentnumber: "123456" },
           { studentnumber: null },
           { studentnumber: null },
         ],
-      }); // SELECT members
-      (pool.query as jest.Mock).mockResolvedValueOnce({}); // UPDATE club ratio
+      });
+      (pool.query as jest.Mock).mockResolvedValueOnce({});
 
       await joinClub(mockClubId, mockUserId);
 
@@ -56,11 +56,11 @@ describe("Club Utils", () => {
     });
 
     it("should set ratio to 0 when there are no students", async () => {
-      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] }); // INSERT
+      (pool.query as jest.Mock).mockResolvedValueOnce({ rows: [] });
       (pool.query as jest.Mock).mockResolvedValueOnce({
         rows: [{ studentnumber: null }],
-      }); // SELECT
-      (pool.query as jest.Mock).mockResolvedValueOnce({}); // UPDATE
+      });
+      (pool.query as jest.Mock).mockResolvedValueOnce({});
 
       await joinClub(mockClubId, mockUserId);
 
@@ -99,10 +99,10 @@ describe("Club Utils", () => {
       };
 
       (pool.query as jest.Mock)
-        .mockResolvedValueOnce(mockResult) // approve update
-        .mockResolvedValueOnce({ rows: [] }) // join insert
-        .mockResolvedValueOnce({ rows: [{ studentnumber: "123" }] }) // memberlist
-        .mockResolvedValueOnce({}); // ratio update
+        .mockResolvedValueOnce(mockResult)
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [{ studentnumber: "123" }] })
+        .mockResolvedValueOnce({});
 
       await approveRequest(mockRequestId, mockUserId);
 
