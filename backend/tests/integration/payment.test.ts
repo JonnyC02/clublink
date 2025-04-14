@@ -237,4 +237,86 @@ describe("Payment API Integration Tests", () => {
       expect(res.status).toBe(400);
     });
   });
+  describe("POST /payments/transaction/new", () => {
+    it("should create a new transaction successfully", async () => {
+      mockQuery.mockResolvedValueOnce({});
+
+      const res = await request(app).post("/payments/transaction/new").send({
+        id: 1,
+        amount: "10.00",
+        transactiontype: "IN",
+        method: "Cash",
+        ticket: 2,
+        promo: null,
+        member: 1,
+      });
+
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe("Transaction Created Successfully");
+      expect(mockQuery).toHaveBeenCalledWith(
+        expect.stringContaining("INSERT INTO transactions"),
+        [1, 2, "10.00", 1, "Cash", null, "IN"]
+      );
+    });
+
+    it("should return 500 if transaction insert fails", async () => {
+      mockQuery.mockRejectedValueOnce(new Error("DB error"));
+
+      const res = await request(app).post("/payments/transaction/new").send({
+        id: 1,
+        amount: "10.00",
+        transactiontype: "IN",
+        method: "Cash",
+        ticket: 2,
+        promo: null,
+        member: 1,
+      });
+
+      expect(res.status).toBe(500);
+    });
+  });
+
+  describe("GET /:id/transactions/export", () => {
+    it("should export transactions as CSV", async () => {
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            id: 1,
+            memberid: 1,
+            member_name: "Alice",
+            ticketid: 2,
+            ticket_name: "Annual Pass",
+            amount: "10.00",
+            transactiontype: true,
+            status: "succeeded",
+            type: "Card",
+            promocode: "SAVE10",
+            time: new Date(),
+            updated_at: new Date(),
+          },
+        ],
+      });
+
+      const res = await request(app)
+        .get("/payments/1/transactions/export")
+        .set("Authorization", "Bearer test_token");
+
+      expect(res.status).toBe(200);
+      expect(res.header["content-type"]).toBe("text/csv");
+      expect(res.header["content-disposition"]).toContain("attachment;");
+    });
+    it("should return 403 if token is missing for export", async () => {
+      const res = await request(app).get("/payments/1/transactions/export");
+      expect(res.status).toBe(403);
+    });
+    it("should return 500 on query failure during export", async () => {
+      mockQuery.mockRejectedValueOnce(new Error("Export error"));
+
+      const res = await request(app)
+        .get("/payments/1/transactions/export")
+        .set("Authorization", "Bearer test_token");
+
+      expect(res.status).toBe(500);
+    });
+  });
 });

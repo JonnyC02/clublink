@@ -532,10 +532,10 @@ router.post(
       const decoded = jwt.decode(request) as requestToken | null;
 
       if (!decoded || !decoded.reqId) {
-        res.status(400).json({
-          message: "Invalid request token.",
-        });
-        await expireRequest(decoded?.reqId);
+        if (decoded?.reqId) {
+          await expireRequest(decoded.reqId);
+        }
+        res.status(400).json({ message: "Invalid request token." });
         return;
       }
 
