@@ -1,3 +1,12 @@
+jest.mock("../../src/utils/stripe", () => ({
+  paymentIntents: {
+    create: jest.fn(),
+  },
+  webhooks: {
+    constructEvent: jest.fn(),
+  },
+}));
+
 import request from "supertest";
 import app from "../../src/index";
 import * as db from "../../src/db/db";
