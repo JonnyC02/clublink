@@ -36,7 +36,7 @@ jest.mock("bcryptjs", () => ({
 }));
 
 jest.mock("jsonwebtoken", () => ({
-  sign: jest.fn(),
+  sign: jest.fn(() => "mocked.jwt.token"),
   verify: jest.fn(),
 }));
 
