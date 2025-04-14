@@ -8,6 +8,8 @@ import * as db from "../../src/db/db";
 import { approveRequest } from "../../src/utils/club";
 import * as fileUtils from "../../src/utils/file";
 
+process.env.JWT_SECRET = "testingsecret";
+
 jest.mock("../../src/utils/club", () => ({
   ...jest.requireActual("../../src/utils/club"),
   approveRequest: jest.fn(),
@@ -28,9 +30,14 @@ jest.mock("../../src/utils/stripe", () => ({
   },
 }));
 
-jest.mock("../../src/db/db", () => ({
-  query: jest.fn(),
-}));
+jest.mock("../../src/db/db", () => {
+  const mockQuery = jest.fn();
+  return {
+    __esModule: true,
+    default: { query: mockQuery },
+    pool: { query: mockQuery },
+  };
+});
 
 jest.mock("../../src/utils/authentication", () => ({
   ...jest.requireActual("../../src/utils/authentication"),
