@@ -19,6 +19,8 @@ import {
 } from "../../src/utils/tokens";
 import { stopQueue } from "../../src/utils/queue";
 
+process.env.JWT_SECRET = "testingsecret";
+
 jest.mock("../../src/db/db", () => {
   const mockQuery = jest.fn();
   return {
