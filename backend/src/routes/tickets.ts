@@ -205,7 +205,10 @@ router.post("/code/validate", async (req: Request, res: Response) => {
     }
   }
 
-  if (uses >= result.rows[0].maxuses && result.rows[0].maxuses !== 0) {
+  if (
+    uses.rows.length >= result.rows[0].maxuses &&
+    result.rows[0].maxuses !== 0
+  ) {
     res.status(403).json({ message: "Max Uses Reached" });
     return;
   }

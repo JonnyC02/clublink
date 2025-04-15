@@ -23,3 +23,9 @@
 /cypress/videos
 
 /backend/ecosystem.config.js
+
+/backend/coverage/
+
+**/.DS_STORE
+
+**/.idea/

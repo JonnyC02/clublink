@@ -1,5 +1,9 @@
 import nodemailer from "nodemailer";
-import { sendVerificationEmail, sendEmail } from "../../src/utils/email";
+import {
+  sendVerificationEmail,
+  sendEmail,
+  sendStudentVerifyEmail,
+} from "../../src/utils/email";
 
 jest.mock("nodemailer");
 
@@ -31,6 +35,45 @@ describe("Email Utils", () => {
   const normalizeHtml = (html: string): string => {
     return html.replace(/\s+/g, " ").trim();
   };
+
+  describe("sendStudentVerifyEmail", () => {
+    it("should send a student verification email successfully", async () => {
+      await sendStudentVerifyEmail(mockEmail, mockToken);
+
+      const expectedHtml = `<p>Please verify your student status by clicking the link below:</p>
+                          <a href="http://localhost:3000/studentVerify?token=mockToken123">http://localhost:3000/studentVerify?token=mockToken123</a>`;
+
+      const actualHtml = mockTransporter.sendMail.mock.calls[0][0].html;
+      expect(normalizeHtml(actualHtml)).toBe(normalizeHtml(expectedHtml));
+
+      expect(mockTransporter.sendMail).toHaveBeenCalledWith({
+        from: process.env.EMAIL_USER,
+        to: mockEmail,
+        subject: "Verify Your Student Status",
+        html: actualHtml,
+      });
+    });
+
+    it("should throw error if email config is missing", async () => {
+      process.env.EMAIL_USER = undefined;
+      process.env.EMAIL_PASSWORD = undefined;
+
+      await expect(
+        sendStudentVerifyEmail(mockEmail, mockToken)
+      ).rejects.toThrow("Missing email configuration");
+    });
+
+    it("should generate the correct student verification URL", async () => {
+      const expectedUrl = `${process.env.FRONTEND_URL}/studentVerify?token=${mockToken}`;
+      await sendStudentVerifyEmail(mockEmail, mockToken);
+
+      expect(mockTransporter.sendMail).toHaveBeenCalledWith(
+        expect.objectContaining({
+          html: expect.stringContaining(expectedUrl),
+        })
+      );
+    });
+  });
 
   describe("sendVerificationEmail", () => {
     it("should send a verification email successfully", async () => {

@@ -1,12 +1,3 @@
-import request from "supertest";
-import app from "../../src/index";
-import pool from "../../src/db/db";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { sendVerificationEmail } from "../../src/utils/email";
-import { generateVerificationToken } from "../../src/utils/tokens";
-import { stopQueue } from "../../src/utils/queue";
-
 jest.mock("../../src/utils/stripe", () => ({
   paymentIntents: {
     create: jest.fn(),
@@ -16,9 +7,28 @@ jest.mock("../../src/utils/stripe", () => ({
   },
 }));
 
-jest.mock("../../src/db/db", () => ({
-  query: jest.fn(),
-}));
+import request from "supertest";
+import app from "../../src/index";
+import * as db from "../../src/db/db";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import { sendVerificationEmail, sendEmail } from "../../src/utils/email";
+import {
+  generateVerificationToken,
+  generateResetToken,
+} from "../../src/utils/tokens";
+import { stopQueue } from "../../src/utils/queue";
+
+process.env.JWT_SECRET = "testingsecret";
+
+jest.mock("../../src/db/db", () => {
+  const mockQuery = jest.fn();
+  return {
+    __esModule: true,
+    default: { query: mockQuery },
+    pool: { query: mockQuery },
+  };
+});
 
 jest.mock("bcryptjs", () => ({
   hash: jest.fn(),
@@ -26,16 +36,20 @@ jest.mock("bcryptjs", () => ({
 }));
 
 jest.mock("jsonwebtoken", () => ({
-  sign: jest.fn(),
+  sign: jest.fn(() => "mocked.jwt.token"),
   verify: jest.fn(),
 }));
 
 jest.mock("../../src/utils/email", () => ({
   sendVerificationEmail: jest.fn(),
+  sendStudentVerifyEmail: jest.fn(),
+  sendEmail: jest.fn(),
 }));
 
 jest.mock("../../src/utils/tokens", () => ({
   generateVerificationToken: jest.fn(),
+  generateStudentToken: jest.fn(),
+  generateResetToken: jest.fn(),
 }));
 
 jest.mock("../../src/utils/authentication", () => ({
@@ -46,13 +60,15 @@ jest.mock("../../src/utils/authentication", () => ({
   }),
 }));
 
-const mockQuery = pool.query as jest.Mock;
+const mockQuery = db.default.query as jest.Mock;
 const mockHash = bcrypt.hash as jest.Mock;
 const mockCompare = bcrypt.compare as jest.Mock;
 const mockSign = jwt.sign as jest.Mock;
 const mockVerify = jwt.verify as jest.Mock;
 const mockSendVerificationEmail = sendVerificationEmail as jest.Mock;
+const mockSendEmail = sendEmail as jest.Mock;
 const mockGenerateVerificationToken = generateVerificationToken as jest.Mock;
+const mockGenerateResetToken = generateResetToken as jest.Mock;
 
 describe("Authentication API Integration Tests", () => {
   beforeEach(() => {
@@ -143,11 +159,33 @@ describe("Authentication API Integration Tests", () => {
       expect(res.body).toHaveProperty("message", "Invalid email or password");
       expect(mockQuery).toHaveBeenCalledTimes(1);
     });
+
+    it("should return 401 if user is not found", async () => {
+      mockQuery.mockResolvedValueOnce({ rowCount: 0 });
+
+      const res = await request(app)
+        .post("/auth/login")
+        .send({ email: "missing@user.com", password: "wrong" });
+
+      expect(res.status).toBe(401);
+      expect(res.body.message).toBe("Invalid email or password");
+    });
+
+    it("should return 500 on unexpected server error", async () => {
+      mockQuery.mockRejectedValueOnce(new Error("DB failure"));
+
+      const res = await request(app)
+        .post("/auth/login")
+        .send({ email: "user@test.com", password: "123456" });
+
+      expect(res.status).toBe(500);
+      expect(res.body.message).toBe("Internal Server Error");
+    });
   });
 
   describe("POST /auth/signup", () => {
     it("should sign up a new user and send a verification email", async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [] }); // No existing user
+      mockQuery.mockResolvedValueOnce({ rows: [] });
       mockHash.mockResolvedValueOnce("hashed_password");
       mockQuery.mockResolvedValueOnce({
         rows: [{ id: 1, name: "Test User", email: "test@example.com" }],
@@ -171,6 +209,36 @@ describe("Authentication API Integration Tests", () => {
         "test@example.com",
         "mock_verification_token"
       );
+    });
+
+    it("should handle failure to send verification email", async () => {
+      mockSendVerificationEmail.mockRejectedValueOnce(new Error("Mail error"));
+
+      const res = await request(app).post("/auth/signup").send({
+        email: "test@example.com",
+        name: "Test User",
+        password: "12345",
+      });
+
+      expect(res.status).toBe(500);
+      expect(res.body.message).toBe("Internal Server Error");
+    });
+
+    it("should return 400 if email is missing", async () => {
+      const res = await request(app).post("/auth/resend-verification").send({});
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("Email is required");
+    });
+
+    it("should return 400 if user not found or inactive", async () => {
+      mockQuery.mockResolvedValueOnce({ rows: [] });
+
+      const res = await request(app)
+        .post("/auth/resend-verification")
+        .send({ email: "noone@here.com" });
+
+      expect(res.status).toBe(400);
+      expect(res.body.message).toBe("Invalid Request");
     });
 
     it("should return 400 if email is already in use", async () => {
@@ -252,6 +320,109 @@ describe("Authentication API Integration Tests", () => {
         university: "Test University",
       });
       expect(mockQuery).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe("POST /auth/signup (student flow)", () => {
+    it("should return 400 if student number already exists", async () => {
+      mockQuery.mockReset();
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] });
+
+      const res = await request(app).post("/auth/signup").send({
+        name: "Student",
+        email: "student@example.com",
+        password: "password123",
+        studentNumber: "S12345",
+        university: "UNI",
+      });
+
+      expect(res.status).toBe(400);
+      expect(res.body).toHaveProperty(
+        "message",
+        "Student Number Already in use!"
+      );
+    });
+
+    it("should return 500 if university is not found", async () => {
+      mockQuery.mockReset();
+      mockQuery
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [] })
+        .mockResolvedValueOnce({ rows: [{ id: 1 }] })
+        .mockResolvedValueOnce({ rows: [] });
+
+      const res = await request(app).post("/auth/signup").send({
+        name: "Student",
+        email: "student@example.com",
+        password: "password123",
+        studentNumber: "S12345",
+        university: "UNKNOWN",
+      });
+
+      expect(res.status).toBe(500);
+      expect(res.body).toHaveProperty(
+        "message",
+        "Your University has not been setup for ClubLink"
+      );
+    });
+  });
+
+  describe("GET /auth/student", () => {
+    it("should verify student status with valid token", async () => {
+      mockVerify.mockReturnValueOnce({ studentNumber: "S12345" });
+      mockQuery.mockResolvedValueOnce({});
+
+      const token = jwt.sign({ studentNumber: "S12345" }, "testingsecret");
+      const res = await request(app).get("/auth/student").query({ token });
+
+      expect(res.status).toBe(200);
+      expect(res.text).toBe("Student Status Verified Successfully!");
+    });
+  });
+
+  describe("POST /auth/forgot-password", () => {
+    it("should send reset email if user exists", async () => {
+      mockQuery.mockReset();
+      mockQuery.mockResolvedValueOnce({ rows: [{ id: 1 }] });
+      mockGenerateResetToken.mockReturnValue("reset-token");
+
+      const res = await request(app)
+        .post("/auth/forgot-password")
+        .send({ email: "reset@example.com" });
+
+      expect(mockSendEmail).toHaveBeenCalledWith(
+        "reset@example.com",
+        expect.objectContaining({
+          subject: expect.stringContaining("Password Reset"),
+        })
+      );
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty("message", "Password reset email sent!");
+    });
+  });
+
+  describe("POST /auth/reset-password", () => {
+    it("should reset password with valid token", async () => {
+      mockVerify.mockReturnValueOnce({ email: "reset@example.com" });
+      mockHash.mockResolvedValueOnce("hashed_pw");
+      mockQuery.mockResolvedValueOnce({});
+
+      const res = await request(app).post("/auth/reset-password").send({
+        token: "valid_token",
+        newPassword: "new_pass",
+      });
+
+      expect(mockQuery).toHaveBeenCalledWith(
+        "UPDATE users SET password = $1 WHERE email = $2",
+        ["hashed_pw", "reset@example.com"]
+      );
+      expect(res.status).toBe(200);
+      expect(res.body).toHaveProperty(
+        "message",
+        "Password Successfully Updated"
+      );
     });
   });
 });

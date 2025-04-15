@@ -58,7 +58,7 @@ const queue = cron.schedule(
       const mailOptions: MailOptions = {
         from: process.env.EMAIL_USER,
         to: email,
-        subject: `Space in ${name}`,
+        subject: `Space in ${clubName}`,
         html: `
     <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #f4f4f4; text-align: center;">
       <div style="max-width: 600px; margin: 0 auto; background: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0px 0px 10px rgba(0,0,0,0.1);">
