@@ -2,7 +2,11 @@ name: Run e2e Tests
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+    paths:
+      - "frontend/**"
+      - "backend/**"
 
 jobs:
   runs-e2e-tests:
