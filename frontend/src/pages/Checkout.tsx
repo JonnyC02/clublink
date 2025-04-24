@@ -21,6 +21,7 @@ const Checkout = () => {
   let ticketPrice = Number(ticket?.price) || 0;
   const [total, setTotal] = useState<number>();
   const [fee, setFee] = useState<number>();
+  const [reserve, setReserve] = useState(false);
 
   const paymentFee = Number((ticketPrice * 0.1).toFixed(2));
   const [payInCash, setPayInCash] = useState(false);
@@ -97,7 +98,7 @@ const Checkout = () => {
 
       if (payInCash) {
         try {
-          setSuccess(true);
+          setReserve(true);
         } catch (err) {
           setError(
             err instanceof Error
@@ -238,6 +239,39 @@ const Checkout = () => {
                 <p className="text-sm text-gray-500 mt-4">
                   ⚠️ Don’t see the email? Check your spam folder or promotions
                   tab before reaching out.
+                </p>
+
+                <a
+                  href={isAuthenticated() ? "/dashboard" : "/login"}
+                  className="inline-block mt-6 px-6 py-3 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
+                >
+                  {isAuthenticated() ? "Go to Dashboard" : "Login"}
+                </a>
+              </div>
+            </div>
+          ) : reserve ? (
+            <div className="flex-grow flex justify-center items-center px-4 py-12">
+              <div className="bg-white border border-green-200 shadow-xl p-8 rounded-xl max-w-xl w-full text-center animate-fade-in">
+                <div className="flex justify-center mb-6">
+                  <svg
+                    className="w-14 h-14 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+
+                <p className="text-green-700 text-lg leading-relaxed font-medium">
+                  Ticket Reserved! 🎉 <br />
+                  Please remember to give a committee member cash at your
+                  earliest convienience!
                 </p>
 
                 <a
