@@ -4,6 +4,5 @@ export const getToken = () => {
 
 export const isAuthenticated = () => {
   const token = getToken();
-  console.log(token);
   return !!token;
 };
