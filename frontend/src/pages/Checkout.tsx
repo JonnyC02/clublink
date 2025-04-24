@@ -76,6 +76,7 @@ const Checkout = () => {
         }
         setDiscountAmt(promoAmt);
         setDiscount(discount);
+        setError("");
       }
     } else {
       const { message } = await response.json();
@@ -426,7 +427,7 @@ const Checkout = () => {
                   </div>
                 )}
 
-                {error && (
+                {error && !payInCash && (
                   <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-3 rounded mb-4">
                     {error}
                   </div>
