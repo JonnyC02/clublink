@@ -605,6 +605,17 @@ const ClubDashboard = () => {
         return;
       }
 
+      if (
+        data.MemberList.find((k) => k.memberid === userId)?.membertype ===
+        "Committee"
+      ) {
+        setNotification({
+          type: "error",
+          message: "Cannot remove another Committee Member!",
+        });
+        return;
+      }
+
       const response = await fetch(
         `${process.env.REACT_APP_API_URL}/clubs/${id}/kick`,
         {
@@ -619,7 +630,7 @@ const ClubDashboard = () => {
 
       if (response.ok) {
         setNotification({
-          type: "error",
+          type: "success",
           message: "Member removed successfully",
         });
         const updatedData = await fetch(
@@ -754,6 +765,17 @@ const ClubDashboard = () => {
     }
   };
 
+  const filterSelectedMembers = () => {
+    return selectedMemberIds.filter((id) => {
+      const selected = data.MemberList.find((k) => k.memberid === id);
+      if (selected?.membertype === "Committee") {
+        return;
+      } else {
+        return id;
+      }
+    });
+  };
+
   const handleBulkRemove = async () => {
     try {
       const token = localStorage.getItem("token");
@@ -766,8 +788,18 @@ const ClubDashboard = () => {
         return;
       }
 
+      const members = filterSelectedMembers();
+
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/clubs/${id}/remove/bulk`
+        `${process.env.REACT_APP_API_URL}/clubs/${id}/remove/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ members }),
+        }
       );
 
       if (response.ok) {
