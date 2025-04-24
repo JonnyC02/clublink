@@ -84,14 +84,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/logout"
-              element={
-                <ProtectedRoute>
-                  <Logout />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/logout" element={<Logout />} />
             <Route
               path="/club/:id/committee"
               element={
