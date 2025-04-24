@@ -39,6 +39,15 @@ jest.mock("../../src/db/db", () => {
   };
 });
 
+jest.mock("../../src/utils/email", () => ({
+  sendRemovalEmail: jest.fn(),
+  sendActivateEmail: jest.fn(),
+  sendExpiryEmail: jest.fn(),
+  sendVerificationEmail: jest.fn(),
+  sendStudentVerifyEmail: jest.fn(),
+  sendEmail: jest.fn(),
+}));
+
 jest.mock("../../src/utils/authentication", () => ({
   ...jest.requireActual("../../src/utils/authentication"),
   authenticateToken: jest.fn((req, res, next) => {
