@@ -59,7 +59,7 @@ A fully responsive design, including:
 ## 🧪 Testing
 
 - **Unit Testing**: Jest
-- **Integration Testing**: React Testing Library
+- **Integration Testing**: Jest + Supertest + React Testing Library
 - **End-to-End (E2E)**: Cypress
 - **Security Audits**: Snyk CLI
 

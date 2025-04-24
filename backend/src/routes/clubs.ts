@@ -17,6 +17,11 @@ import { convertToWebp, uploadFile } from "../utils/file";
 import { addAudit } from "../utils/audit";
 import jwt from "jsonwebtoken";
 import { requestToken } from "../types/token";
+import {
+  sendActivateEmail,
+  sendExpiryEmail,
+  sendRemovalEmail,
+} from "../utils/email";
 dotenv.config();
 
 const router = express.Router();
@@ -281,13 +286,31 @@ router.post(
         [memberId, id]
       );
 
-      if (result.rows.length === 0) {
+      const clubResult = await pool.query(
+        "SELECT name FROM clubs WHERE id = $1",
+        [id]
+      );
+
+      const userResult = await pool.query(
+        "SELECT email FROM users WHERE id = $1",
+        [memberId]
+      );
+
+      if (
+        result.rows.length === 0 ||
+        clubResult.rows.length === 0 ||
+        userResult.rows.length === 0
+      ) {
         res.status(404).json({ message: "Member not found." });
         return;
       }
 
       await addAudit(+id, memberId, req.user?.id, "Activate Membership");
-
+      await sendActivateEmail(
+        userResult.rows[0].email,
+        clubResult.rows[0].name,
+        +id
+      );
       res.status(200).json({ message: "Member activated successfully" });
     } catch (err) {
       console.error("Error activating member:", err); // eslint-disable-line no-console
@@ -316,12 +339,27 @@ router.post(
         [memberId, id]
       );
 
-      if (result.rows.length === 0) {
+      const clubResult = await pool.query(
+        "SELECT name FROM clubs WHERE id = $1",
+        [id]
+      );
+
+      const userResult = await pool.query(
+        "SELECT email FROM users WHERE id = $1",
+        [memberId]
+      );
+
+      if (
+        result.rows.length === 0 ||
+        clubResult.rows.length === 0 ||
+        userResult.rows.length === 0
+      ) {
         res.status(404).json({ message: "Member not found." });
         return;
       }
 
       await addAudit(+id, memberId, req.user?.id, "Expire Membership");
+      await sendExpiryEmail(userResult.rows[0].email, clubResult.rows[0].name);
       res.status(200).json({ message: "Membership Expired Successfully" });
     } catch (err) {
       console.error("Error expiring member: ", err); // eslint-disable-line no-console
@@ -616,12 +654,27 @@ router.post(
         [id, userId]
       );
 
-      if (result.rows.length === 0) {
+      const clubResult = await pool.query(
+        "SELECT name FROM clubs WHERE id = $1",
+        [id]
+      );
+
+      const userResult = await pool.query(
+        "SELECT email FROM users WHERE id = $1",
+        [userId]
+      );
+
+      if (
+        result.rows.length === 0 ||
+        clubResult.rows.length === 0 ||
+        userResult.rows.length === 0
+      ) {
         res.status(404).json({ message: "Member not found." });
         return;
       }
 
       await addAudit(+id, req.user?.id, userId, "Kick");
+      await sendRemovalEmail(userResult.rows[0].email, clubResult.rows[0].name);
       res.status(200).json({ message: "Member removed successfully" });
     } catch (err) {
       console.error("Error removing member:", err); // eslint-disable-line no-console
@@ -645,9 +698,20 @@ router.post(
     }
 
     try {
+      const club = await pool.query("SELECT name FROM clubs WHERE id = $1", [
+        id,
+      ]);
+
       const queryText = `UPDATE memberlist SET status = 'Active' WHERE memberId = ANY($1::int[]) AND clubId = $2 AND status <> 'Active' RETURNING memberid;`;
 
       const result = await pool.query(queryText, [members, id]);
+      for (const row of result.rows) {
+        const userRow = await pool.query(
+          "SELECT email FROM users WHERE id = $1",
+          [row.memberid]
+        );
+        await sendActivateEmail(userRow.rows[0].email, club.rows[0].name, +id);
+      }
       res.status(200).json({ amount: result.rowCount });
     } catch (err) {
       console.error("Error activating members: ", err); // eslint-disable-line no-console
@@ -671,8 +735,19 @@ router.post(
     }
 
     try {
+      const club = await pool.query("SELECT name FROM clubs WHERE id = $1", [
+        id,
+      ]);
+
       const queryText = `UPDATE memberlist SET status = 'Expired' WHERE memberId = ANY($1::int[]) AND clubId = $2 AND status <> 'Expired' RETURNING memberid;`;
       const result = await pool.query(queryText, [members, id]);
+      for (const row of result.rows) {
+        const userRow = await pool.query(
+          "SELECT email FROM users WHERE id = $1",
+          [row.memberid]
+        );
+        await sendExpiryEmail(userRow.rows[0].email, club.rows[0].name);
+      }
       res.status(200).json({ amount: result.rowCount });
     } catch (err) {
       console.error("Error expiring members: ", err); // eslint-disable-line no-console
@@ -696,9 +771,20 @@ router.post(
     }
 
     try {
+      const club = await pool.query("SELECT name FROM clubs WHERE id = $1", [
+        id,
+      ]);
+
       const queryText = `DELETE FROM memberlist WHERE clubId = $1 AND memberId = ANY($2::int[]) RETURNING memberid;`;
       const result = await pool.query(queryText, [members, id]);
-      res.status(200).json({ amount: result.rowCount });
+      for (const row of result.rows) {
+        const userRow = await pool.query(
+          "SELECT email FROM users WHERE id = $1",
+          [row.memberid]
+        );
+        await sendRemovalEmail(userRow.rows[0].email, club.rows[0].name);
+      }
+      res.status(200).json({ amount: result.rows.length });
     } catch (err) {
       console.error("Error expiring members: ", err); // eslint-disable-line no-console
       res.status(500).json({ message: "Internal Server Error" });

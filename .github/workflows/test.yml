@@ -58,6 +58,9 @@ jobs:
       - name: Run Backend Integration Tests
         env:
           STRIPE_SECRET_KEY: "sk_test_dummyvalue"
+          JWT_SECRET: "testingsecret"
+          EMAIL_USER: "test@example.com"
+          EMAIL_PASSWORD: "dummyPassword123"
         run: npm run test:integration
         working-directory: ./backend
 
