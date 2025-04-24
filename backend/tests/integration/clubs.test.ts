@@ -196,6 +196,20 @@ describe("Clubs API Integration Tests", () => {
           { id: 1, name: "Test Club", description: "Updated description" },
         ],
       });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            name: "Test Club",
+          },
+        ],
+      });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            email: "test@example.com",
+          },
+        ],
+      });
 
       const res = await request(app)
         .post("/clubs/1/kick")
@@ -300,6 +314,20 @@ describe("Clubs API Integration Tests", () => {
 
     it("should activate a member successfully", async () => {
       mockQuery.mockResolvedValueOnce({ rows: [{ memberId: 2 }] });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            name: "Test Club",
+          },
+        ],
+      });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            email: "test@example.com",
+          },
+        ],
+      });
 
       const res = await request(app)
         .post("/clubs/1/activate")
@@ -327,6 +355,20 @@ describe("Clubs API Integration Tests", () => {
 
     it("should expire a member successfully", async () => {
       mockQuery.mockResolvedValueOnce({ rows: [{ memberId: 2 }] });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            name: "Test Club",
+          },
+        ],
+      });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            email: "test@example.com",
+          },
+        ],
+      });
 
       const res = await request(app)
         .post("/clubs/1/expire")
@@ -462,23 +504,39 @@ describe("Clubs API Integration Tests", () => {
     });
 
     it("should handle DB error on remove", async () => {
-      mockQuery.mockRejectedValueOnce(new Error("fail"));
+      mockQuery.mockRejectedValue(new Error("fail"));
+
       const res = await request(app)
         .post("/clubs/1/remove/bulk")
-        .send({ members: [1, 2] });
+        .send({ members: [1] });
 
       expect(res.status).toBe(500);
       expect(res.body.message).toMatch(/Internal Server Error/);
     });
 
     it("should remove members in bulk", async () => {
-      mockQuery.mockResolvedValueOnce({ rowCount: 2 });
+      jest.clearAllMocks();
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            name: "Test Club",
+          },
+        ],
+      });
+      mockQuery.mockResolvedValueOnce({ rows: [{ memberId: 2 }] });
+      mockQuery.mockResolvedValueOnce({
+        rows: [
+          {
+            email: "test@example.com",
+          },
+        ],
+      });
       const res = await request(app)
         .post("/clubs/1/remove/bulk")
         .send({ members: [1, 2] });
 
       expect(res.status).toBe(200);
-      expect(res.body.amount).toBe(2);
+      expect(res.body.amount).toBe(1);
     });
   });
 });

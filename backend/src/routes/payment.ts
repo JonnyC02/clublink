@@ -285,7 +285,7 @@ router.post(
                     </div>
                 </div>
 
-                <p>If you have any questions or concerns, please contact us at support@clublink.com.</p>
+                <p>If you have any questions or concerns, please contact us at support@clublink.live.</p>
             </div>
         </div>
     </body>
@@ -320,7 +320,7 @@ router.post(
           </div>
           <hr style="border: none; border-top: 1px solid #eeeeee; margin: 20px 0;">
           <p style="font-size: 14px; color: #666666; text-align: center;">
-            If you have any questions or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@clublink.com" style="color: #007bff;">support@clublink.com</a>.
+            If you have any questions or need further assistance, please don’t hesitate to reach out to our support team at <a href="mailto:support@clublink.live" style="color: #007bff;">support@clublink.live</a>.
           </p>
           <p style="font-size: 12px; color: #999999; text-align: center; margin-top: 20px;">
             This is an automated email. Please do not reply.
