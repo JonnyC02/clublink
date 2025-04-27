@@ -1,0 +1,23 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 3
+Date of Meeting: 22/10/24
+Progress since last meeting, and decisions arrived at during meeting:
+- Set reasonable deliverable for January
+- Discuss initial design
+- Discuss relational vs non-relational database choices
+======================================
+Action Points:
+- Design database schema based on relational choice
+==============
+Date of next meeting: 05/11/24
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================

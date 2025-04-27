@@ -1,0 +1,24 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 8
+Date of Meeting: 20/01/25
+Progress since last meeting, and decisions arrived at during meeting:
+- Reviewed feedback from interim demo.
+- Identified need for faster iteration and feature polish.
+- Agreed on Stripe as payment processor due to developer-friendliness and PCI compliance.
+======================================
+Action Points:
+- Integrate Stripe into the payment handling workflow.
+- Start next development sprint focused on payment flows.
+==============
+Date of next meeting: 27/01/25
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================
