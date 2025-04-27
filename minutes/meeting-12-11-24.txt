@@ -1,0 +1,24 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 5
+Date of Meeting: 12/11/24
+Progress since last meeting, and decisions arrived at during meeting:
+- Confirmed that student numbers are sequential, not random.
+- Reviewed and approved the planned signup-to-membership workflow.
+- Discussed need for system architecture documentation (deployment focus).
+======================================
+Action Points:
+- Create a detailed signup workflow diagram.
+- Develop a deployment architecture diagram for production readiness.
+==============
+Date of next meeting: 19/11/24
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================

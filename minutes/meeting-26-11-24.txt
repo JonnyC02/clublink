@@ -1,0 +1,24 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 7
+Date of Meeting: 26/11/24
+Progress since last meeting, and decisions arrived at during meeting:
+- Finalise features for interim demo in January
+- Finalise Figma designs
+- Discuss research on other platforms for interim report
+======================================
+Action Points:
+- Finish features for January
+- Start writing on interim report
+==============
+Date of next meeting: 20/01/25
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================

@@ -1,0 +1,23 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 4
+Date of Meeting: 05/11/24
+Progress since last meeting, and decisions arrived at during meeting:
+- Discussed student verification challenges and Students' Union associate member limits (20% cap).
+- Realised that direct database validation and cron automation would be required.
+======================================
+Action Points:
+- Email the Students' Union regarding student number structure.
+- Set up a ClubLink-branded email address for system notifications.
+==============
+Date of next meeting: 12/11/24
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================

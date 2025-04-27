@@ -1,0 +1,23 @@
+QUEEN'S UNIVERSITY OF BELFAST COMPUTER SCIENCE
+Minute of Project Supervision Meeting
+======================================
+Student Name: Jonathan Connery
+Project Module Code: CSC3002
+Project Supervisor: Dr Maria Angela Ferrario
+Meeting Number: 10
+Date of Meeting: 03/02/25
+Progress since last meeting, and decisions arrived at during meeting:
+- Discussed system error handling (error messages were too vague for end users).
+- Agreed to collect formal usability feedback through SUS.
+======================================
+Action Points:
+- Research best practices for user-friendly error messaging.
+- Set up SUS form for future evaluation.
+==============
+Date of next meeting: 17/02/25
+====================+
+Agreed minute should be initialled by the supervisor.
+Supervisor's Initials: _____________________________________________ Date:
+_________________
+Supervisor's Comments:
+=======================
