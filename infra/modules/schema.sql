@@ -76,8 +76,8 @@ CREATE TABLE Tickets (
 -- Transactions
 CREATE TABLE Transactions (
     id SERIAL PRIMARY KEY,
-    memberId INT REFERENCES Users(id) NOT NULL,
-    ticketId INT REFERENCES Tickets(id) NOT NULL,
+    memberId INT REFERENCES Users(id) NOT NULL ON DELETE CASCADE,
+    ticketId INT REFERENCES Tickets(id) NOT NULL ON DELETE CASCADE,
     amount DECIMAL (5, 2) NOT NULL,
     clubId INT REFERENCES Clubs(id),
     status transaction_status_enum DEFAULT 'succeeded',
@@ -116,8 +116,8 @@ CREATE TABLE Requests (
 CREATE TABLE AuditLog (
     id SERIAL PRIMARY KEY,
     clubId INT REFERENCES Clubs(id) ON DELETE CASCADE,
-    memberId INT REFERENCES Users(id),
-    userId INT REFERENCES Users(id),
+    memberId INT REFERENCES Users(id) ON DELETE CASCADE,
+    userId INT REFERENCES Users(id) ON DELETE CASCADE,
     actionType VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
