@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({
   return (
     <nav className="bg-white shadow-md py-4" data-testid="navbar">
       <div className="container mx-auto flex justify-between items-center px-4">
-        <div className="text-xl font-bold text-gray-800">{brandName}</div>
+        <div className="text-3xl font-bold text-gray-800">{brandName}</div>
 
         <div className="hidden md:flex space-x-6">
           {links.map((link, index) => (
