@@ -195,7 +195,6 @@ const ClubDashboard = () => {
     (transaction: Transaction) => {
       const searchLower = transactionSearch.toLowerCase();
       const transType = transaction.transactiontype ? "IN" : "OUT";
-
       return (
         transaction.id.toString().includes(searchLower) ||
         (transaction.memberid &&
@@ -236,7 +235,10 @@ const ClubDashboard = () => {
               day: "numeric",
             })
             .toLowerCase()
-            .includes(searchLower))
+            .includes(searchLower)) ||
+        (!transaction.status &&
+          searchLower &&
+          searchLower + "pending".substring(searchLower.length) === "pending")
       );
     }
   );
@@ -1808,14 +1810,22 @@ const ClubDashboard = () => {
                               <td className="px-4 py-3 whitespace-nowrap">
                                 £{transaction.amount || "0.00"}
                               </td>
-                              <td className="px-4 py-3 whitespace-nowrap">
+                              <td
+                                className={`px-4 py-3 whitespace-nowrap uppercase ${
+                                  !transaction.status
+                                    ? "text-orange-800 font-bold"
+                                    : transaction.status === "succeeded"
+                                    ? "text-green-800"
+                                    : "text-red-800"
+                                }`}
+                              >
                                 {transaction.status || "pending"}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
                                 {transaction.type}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
-                                {transaction.promocode || "N/a"}
+                                {transaction.promocode || "N/A"}
                               </td>
                               <td className="px-4 py-3 whitespace-nowrap">
                                 {new Date(transaction.time).toLocaleDateString(
