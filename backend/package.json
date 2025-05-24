@@ -28,7 +28,7 @@
     "nodemailer": "^6.10.0",
     "pg": "^8.14.1",
     "pg-mem": "^3.0.5",
-    "sharp": "^0.34.0",
+    "sharp": "^0.34.1",
     "stripe": "^17.7.0"
   },
   "devDependencies": {
