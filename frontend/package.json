@@ -10,7 +10,7 @@
     "@stripe/stripe-js": "^5.10.0",
     "@stripe/react-stripe-js": "^3.6.0",
     "@types/jest": "27.5.2",
-    "@types/react": "18.3.20",
+    "@types/react": "18.3.23",
     "@types/react-dom": "18.3.6",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
